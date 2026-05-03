@@ -87,8 +87,8 @@ export class SecretsService {
     assertValidSecretId(id);
     const decl = getRegisteredSecret(id);
     if (decl?.envVar) {
-      const v = this.env[decl.envVar];
-      if (v !== undefined && v !== "") return v;
+      const v = nonEmptyEnv(this.env[decl.envVar]);
+      if (v !== undefined) return v;
     }
     const backend = await this.activeBackend();
     return backend.get(id as SecretId);
@@ -98,8 +98,8 @@ export class SecretsService {
     assertValidSecretId(id);
     const decl = getRegisteredSecret(id);
     if (decl?.envVar) {
-      const v = this.env[decl.envVar];
-      if (v !== undefined && v !== "") {
+      const v = nonEmptyEnv(this.env[decl.envVar]);
+      if (v !== undefined) {
         // FR-014-AC-6: cannot set when env shadow is active.
         throw new SecretBackendImmutableError(id, decl.envVar);
       }
@@ -225,4 +225,17 @@ export class SecretsService {
       throw new KeyringUnavailableError(r.reason);
     }
   }
+}
+
+/**
+ * Treat an env var as "set" only when it has non-whitespace content.
+ * Operators occasionally end up with `IX_GHCR_TOKEN=""` or `="   "` in
+ * shell wrappers; honoring those as values would shadow real secrets
+ * with garbage. Returns `undefined` for unset / empty / whitespace,
+ * the original (untrimmed) value otherwise.
+ */
+function nonEmptyEnv(v: string | undefined): string | undefined {
+  if (v === undefined) return undefined;
+  if (v.trim() === "") return undefined;
+  return v;
 }
