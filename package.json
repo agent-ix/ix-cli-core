@@ -1,0 +1,35 @@
+{
+  "name": "@agent-ix/ix-cli-core",
+  "description": "Shared core for ix-cli — config service, secrets service, plugin contract.",
+  "version": "0.1.0",
+  "type": "module",
+  "files": [
+    "dist/",
+    "README.md"
+  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "packageManager": "pnpm@10.10.0",
+  "scripts": {
+    "test": "vitest run",
+    "test:json": "vitest run --reporter=json --outputFile=report.json || true",
+    "lint": "eslint \"src/**/*.ts\" --no-error-on-unmatched-pattern \"tests/**/*.ts\" && pnpm run format:check",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "build": "vite build",
+    "clean": "rm -rf dist coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/agent-ix/ix-cli.git"
+  },
+  "dependencies": {
+    "yaml": ">=2.8.3",
+    "zod": ">=4.0.0"
+  },
+  "devDependencies": {
+    "vite": ">=6.3.4",
+    "vite-plugin-dts": ">=4.5.3",
+    "vitest": ">=3.1.2"
+  }
+}
