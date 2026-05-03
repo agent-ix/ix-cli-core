@@ -15,6 +15,13 @@ import { dirname, join } from "node:path";
 const MODE_OWNER_RW = 0o600;
 const ORPHAN_TEMP_AGE_MS = 30_000;
 
+interface ErrnoLike extends Error {
+  code?: string;
+  errno?: number;
+  syscall?: string;
+  path?: string;
+}
+
 /**
  * Write `payload` to `targetPath` atomically.
  *
@@ -29,7 +36,10 @@ const ORPHAN_TEMP_AGE_MS = 30_000;
  *   prior content intact (FR-010-AC-7).
  * - On any failure path, the temp file is removed.
  */
-export function atomicWrite(targetPath: string, payload: string | Uint8Array): void {
+export function atomicWrite(
+  targetPath: string,
+  payload: string | Uint8Array,
+): void {
   refuseSymlink(targetPath);
   pruneOrphanTemps(targetPath);
 
@@ -40,7 +50,8 @@ export function atomicWrite(targetPath: string, payload: string | Uint8Array): v
     // O_CREAT | O_EXCL | O_WRONLY, mode 0600 — fails if temp file already exists,
     // bypasses umask via explicit mode argument.
     fd = openSync(tempPath, "wx", MODE_OWNER_RW);
-    const bytes = typeof payload === "string" ? Buffer.from(payload, "utf8") : payload;
+    const bytes =
+      typeof payload === "string" ? Buffer.from(payload, "utf8") : payload;
     writeSync(fd, bytes);
     fsyncSync(fd);
     closeSync(fd);
@@ -60,7 +71,7 @@ export function atomicWrite(targetPath: string, payload: string | Uint8Array): v
     } catch {
       // temp may not exist if openSync failed; ignore
     }
-    throw new ConfigWriteError(targetPath, err as NodeJS.ErrnoException);
+    throw new ConfigWriteError(targetPath, err as ErrnoLike);
   }
 }
 
@@ -73,7 +84,7 @@ function refuseSymlink(path: string): void {
   try {
     st = lstatSync(path);
   } catch (err) {
-    if ((err as NodeJS.ErrnoException).code === "ENOENT") return;
+    if ((err as ErrnoLike).code === "ENOENT") return;
     throw err;
   }
   if (st.isSymbolicLink()) {
@@ -116,7 +127,7 @@ function pruneOrphanTemps(targetPath: string): void {
 export class ConfigWriteError extends Error {
   readonly path: string;
   readonly errno?: string;
-  constructor(path: string, cause: NodeJS.ErrnoException) {
+  constructor(path: string, cause: ErrnoLike) {
     const remediation = remediationHint(cause.code);
     super(
       `failed to write ${path}: ${cause.message}${remediation ? ` — ${remediation}` : ""}`,

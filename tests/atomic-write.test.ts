@@ -1,9 +1,23 @@
-import { mkdtempSync, readFileSync, statSync, symlinkSync, utimesSync, writeFileSync, readdirSync, mkdirSync, chmodSync, rmSync } from "node:fs";
+import {
+  mkdtempSync,
+  readFileSync,
+  statSync,
+  symlinkSync,
+  utimesSync,
+  writeFileSync,
+  readdirSync,
+  chmodSync,
+  rmSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
-import { atomicWrite, ConfigSymlinkRefusedError, ConfigWriteError } from "../src/atomic/write.js";
+import {
+  atomicWrite,
+  ConfigSymlinkRefusedError,
+  ConfigWriteError,
+} from "../src/atomic/write.js";
 
 let dir: string;
 
