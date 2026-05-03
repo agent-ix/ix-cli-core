@@ -43,3 +43,36 @@ export {
   type RegisteredPlugin,
   type ConfigIncident,
 } from "./config/registry.js";
+
+// ── Secrets ──────────────────────────────────────────────────────────────
+export {
+  type SecretId,
+  type SecretSource,
+  type SecretBackendId,
+  type SecretsBackend,
+  type SecretDeclaration,
+  isValidSecretId,
+  assertValidSecretId,
+  splitSecretId,
+  InvalidSecretIdError,
+  SecretBackendImmutableError,
+  UnknownSecretError,
+  KeyringUnavailableError,
+} from "./secrets/types.js";
+
+export {
+  registerSecret,
+  registerSecretsForPlugin,
+  getRegisteredSecret,
+  listRegisteredSecrets,
+  isRegistered as isSecretRegistered,
+  type RegisteredSecret,
+} from "./secrets/registry.js";
+
+export {
+  SecretsService,
+  type SecretsServiceOptions,
+  type SecretsBackendMode,
+} from "./secrets/service.js";
+
+export { MemoryBackend } from "./secrets/backends/memory.js";
