@@ -2,6 +2,7 @@ import {
   existsSync,
   lstatSync,
   mkdirSync,
+  readdirSync,
   readFileSync,
   statSync,
   unlinkSync,
@@ -95,8 +96,7 @@ export class AgeFileBackend implements SecretsBackend {
     const out: Array<{ secretId: SecretId }> = [];
     let entries: string[];
     try {
-      const fs = await import("node:fs");
-      entries = fs.readdirSync(this.blobsDir());
+      entries = readdirSync(this.blobsDir());
     } catch {
       return out;
     }
@@ -150,11 +150,11 @@ export class AgeFileBackend implements SecretsBackend {
 
     if (existsSync(identityPath)) {
       const st = statSync(identityPath);
-      if ((st.mode & 0o777) > MODE_OWNER_RW) {
-        throw new SecretsIdentityPermissionsError(
-          identityPath,
-          st.mode & 0o777,
-        );
+      const mode = st.mode & 0o777;
+      // NFR-004-AC-3 / FR-016-AC-5: identity must be exactly 0o600.
+      // Any group/other bit OR an owner-execute bit voids the trust boundary.
+      if (mode !== MODE_OWNER_RW) {
+        throw new SecretsIdentityPermissionsError(identityPath, mode);
       }
       const text = readFileSync(identityPath, "utf8").trim();
       if (!text.startsWith(AGE_IDENTITY_PREFIX)) {

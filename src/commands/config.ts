@@ -1,10 +1,13 @@
 import { execSync } from "node:child_process";
+import { readFileSync } from "node:fs";
 
 import { startListing } from "@agent-ix/ix-ui-cli";
+import { parse as parseYaml } from "yaml";
 
 import { CORE_PLUGIN_ID } from "../config/paths.js";
 import { doctor } from "../config/doctor.js";
 import {
+  ConfigParseError,
   ConfigSchemaError,
   type ConfigIssue,
   issuesFromZod,
@@ -15,6 +18,7 @@ import {
   listRegisteredPlugins,
   type RegisteredPlugin,
 } from "../config/registry.js";
+import { listSecretsForPlugin } from "../secrets/registry.js";
 
 const DEFAULT_PLUGIN_ID = CORE_PLUGIN_ID;
 
@@ -47,6 +51,12 @@ export class ConfigSetParseError extends Error {
     this.expected = expected;
     this.cause = cause;
   }
+}
+
+function redactedKeyPaths(pluginId: string): Set<string> {
+  const out = new Set<string>();
+  for (const s of listSecretsForPlugin(pluginId)) out.add(s.name);
+  return out;
 }
 
 function resolvePlugin(pluginId: string | undefined): RegisteredPlugin {
@@ -268,7 +278,7 @@ export async function runConfigSet(
     throw new ConfigSchemaError(
       plugin.pluginId,
       cfg.filePath(),
-      issuesFromZod(result.error.issues),
+      issuesFromZod(result.error.issues, redactedKeyPaths(plugin.pluginId)),
     );
   }
 
@@ -356,24 +366,34 @@ export async function runConfigEdit(
     throw err;
   }
 
-  // Validate post-edit. On failure, surface the four-tuple but leave the
-  // file as-is (user may want to fix manually). Re-edit loop is left to
-  // the oclif wrapper, which is where prompts naturally live.
+  // Validate post-edit. We re-read the file directly so a YAML parse
+  // error or unknown key surfaces as a hard error here (not via the
+  // soft-default path in cfg.get(), which deliberately swallows for
+  // FR-011-AC-1). Re-edit loop is left to the oclif wrapper, where
+  // prompts naturally live.
   try {
-    cfg.get(); // throws if schema-invalid? no — get() defaults out per FR-011-AC-1.
-    // Force a strict re-validation using the schema directly:
-    const result = plugin.schema.safeParse(
-      JSON.parse(JSON.stringify(cfg.get())),
-    );
+    const raw = readFileSync(filePath, "utf8");
+    const parsed = parseYaml(raw);
+    if (
+      parsed != null &&
+      (typeof parsed !== "object" || Array.isArray(parsed))
+    ) {
+      throw new ConfigParseError(
+        plugin.pluginId,
+        filePath,
+        new Error("top-level YAML value is not an object"),
+      );
+    }
+    const result = plugin.schema.safeParse(parsed ?? {});
     if (!result.success) {
       throw new ConfigSchemaError(
         plugin.pluginId,
         filePath,
-        issuesFromZod(result.error.issues),
+        issuesFromZod(result.error.issues, redactedKeyPaths(plugin.pluginId)),
       );
     }
   } catch (err) {
-    if (err instanceof ConfigSchemaError) {
+    if (err instanceof ConfigSchemaError || err instanceof ConfigParseError) {
       list.error(`post-edit validation failed: ${err.message}`);
     }
     throw err;

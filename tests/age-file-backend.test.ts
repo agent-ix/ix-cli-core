@@ -89,16 +89,24 @@ describe("AgeFileBackend — FR-016-AC-3 corruption isolated to one plugin", () 
   });
 });
 
-describe("AgeFileBackend — FR-016-AC-5 wide identity perms refused", () => {
-  it("0o644 secrets.key → SecretsIdentityPermissionsError", async () => {
-    // Generate identity by running one set; then widen the perms.
+describe("AgeFileBackend — FR-016-AC-5 perm check is exact 0o600", () => {
+  for (const mode of [0o644, 0o700, 0o400, 0o620, 0o020] as const) {
+    it(`mode 0o${mode.toString(8).padStart(3, "0")} secrets.key → SecretsIdentityPermissionsError`, async () => {
+      // Generate identity by running one set; then change perms.
+      await backend.set("foo.bar", "x");
+      chmodSync(join(dir, "secrets.key"), mode);
+      const fresh = new AgeFileBackend(dir);
+      await expect(fresh.get("foo.bar")).rejects.toBeInstanceOf(
+        SecretsIdentityPermissionsError,
+      );
+    });
+  }
+
+  it("mode exactly 0o600 → loads successfully", async () => {
     await backend.set("foo.bar", "x");
-    chmodSync(join(dir, "secrets.key"), 0o644);
-    // Force a fresh backend so the identity is re-loaded from disk.
+    chmodSync(join(dir, "secrets.key"), 0o600);
     const fresh = new AgeFileBackend(dir);
-    await expect(fresh.get("foo.bar")).rejects.toBeInstanceOf(
-      SecretsIdentityPermissionsError,
-    );
+    expect(await fresh.get("foo.bar")).toBe("x");
   });
 });
 

@@ -17,6 +17,7 @@ import {
   ConfigSchemaError,
   CORE_PLUGIN_ID,
   configPathFor,
+  EmptySecretValueError,
   InvalidSecretIdError,
   MemoryBackend,
   registerSecretsForPlugin,
@@ -140,6 +141,52 @@ describe("runConfigSet — FR-018-AC-8 non-JSON for array key throws", () => {
   });
 });
 
+describe("runConfigSet — value classification by schema shape (N1)", () => {
+  it("boolean leaf: coerced from string via z.coerce.boolean", async () => {
+    const { ConfigService, registerSecretsForPlugin: _ } =
+      await import("../src/index.js");
+    void _;
+    const Schema = z.object({ on: z.coerce.boolean().default(false) }).strict();
+    ConfigService.forPlugin("flag", Schema);
+    await runConfigSet("flag", "on", "true");
+    const v = ConfigService.forPlugin("flag", Schema).get();
+    expect(v.on).toBe(true);
+  });
+
+  it("enum leaf: scalar pass-through to schema enum", async () => {
+    // Reuses the core schema's `theme` enum (auto/light/dark).
+    await runConfigSet(undefined, "theme", "dark");
+    // Reading via ConfigService confirms coercion landed.
+    const { ConfigService } = await import("../src/index.js");
+    const cfg = ConfigService.forPlugin(CORE_PLUGIN_ID, CoreSchema);
+    expect(cfg.get().theme).toBe("dark");
+  });
+
+  it("object leaf: rejects non-JSON, accepts JSON object", async () => {
+    const Schema = z
+      .object({
+        meta: z.record(z.string(), z.string()).default({}),
+      })
+      .strict();
+    const { ConfigService } = await import("../src/index.js");
+    ConfigService.forPlugin("objplugin", Schema);
+
+    await expect(
+      runConfigSet("objplugin", "meta", "key=value"),
+    ).rejects.toBeInstanceOf(ConfigSetParseError);
+
+    await runConfigSet("objplugin", "meta", '{"alpha":"1","beta":"2"}');
+    const v = ConfigService.forPlugin("objplugin", Schema).get();
+    expect(v.meta).toEqual({ alpha: "1", beta: "2" });
+  });
+
+  it("unknown key path: rejected by strict schema even when scalar-coerced", async () => {
+    await expect(
+      runConfigSet("local", "cluster.bogusKey", "x"),
+    ).rejects.toBeInstanceOf(ConfigSchemaError);
+  });
+});
+
 describe("runConfigSet — FR-018-AC-3 schema error", () => {
   it("invalid scalar value → ConfigSchemaError with full four-tuple", async () => {
     await expect(
@@ -198,12 +245,12 @@ describe("runSecretsSet — FR-019-AC-2", () => {
     expect(await backend.get("local.ghcr-token")).toBe("ghp_value");
   });
 
-  it("rejects empty value", async () => {
+  it("rejects empty value with typed EmptySecretValueError", async () => {
     await expect(
       runSecretsSet("local.ghcr-token", {
         promptForValue: async () => "",
       }),
-    ).rejects.toThrowError(/empty/);
+    ).rejects.toBeInstanceOf(EmptySecretValueError);
   });
 
   it("rejects unknown id with UnknownSecretError", async () => {

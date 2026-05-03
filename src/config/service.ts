@@ -16,7 +16,9 @@ import {
   clearIncidentsForPlugin,
   recordIncident,
   registerPlugin,
+  type RegisterResult,
 } from "./registry.js";
+import { listSecretsForPlugin } from "../secrets/registry.js";
 
 const FILE_HEADER = "# Managed by ix — `ix config edit` to modify safely.\n";
 
@@ -73,11 +75,25 @@ export class ConfigService {
     schema: ZodObject<S>,
     opts: ForPluginOptions = {},
   ): PluginConfig<ReturnType<ZodObject<S>["parse"]>> {
-    registerPlugin({
+    const result: RegisterResult = registerPlugin({
       pluginId,
       schema: schema as unknown as ZodObject<ZodRawShape>,
       envBindings: opts.envBindings,
     });
+    if (!result.ok && result.kind === "duplicate-id") {
+      // FR-013-AC-3 first-wins: record the conflict so `ix config doctor`
+      // surfaces it. The accessor returned still binds to the supplied
+      // schema for the caller's use; only the global registry preserves
+      // the first registration. The init hook (slice 10) is the
+      // authoritative caller; tests using `_resetRegistryForTests` won't
+      // hit this branch.
+      recordIncident({
+        pluginId,
+        filePath: configPathFor(pluginId),
+        kind: "schema",
+        detail: `duplicate-id registration rejected — first registration preserved`,
+      });
+    }
     return new PluginConfigImpl(pluginId, schema, opts);
   }
 }
@@ -97,6 +113,21 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
 
   filePath(): string {
     return this.path;
+  }
+
+  /**
+   * Set of dot-notated key paths that MUST be rendered as `<redacted>` in
+   * any user-facing error message (NFR-005-AC-2). For v1 we redact every
+   * key path that matches a registered secret name for this plugin —
+   * config schemas SHOULD NOT carry secret values, but if a typo or
+   * misconfiguration ever lands one there, the error rendering won't leak.
+   */
+  private redactedKeyPaths(): Set<string> {
+    const out = new Set<string>();
+    for (const s of listSecretsForPlugin(this.pluginId)) {
+      out.add(s.name);
+    }
+    return out;
   }
 
   get(): ReturnType<ZodObject<S>["parse"]> {
@@ -123,9 +154,16 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
         filePath: this.path,
         kind: "schema",
         detail: `schema validation failed (${result.error.issues.length} issue(s))`,
-        issues: issuesFromZod(result.error.issues),
+        issues: issuesFromZod(result.error.issues, this.redactedKeyPaths()),
       });
-      return this.schema.parse({}) as ReturnType<ZodObject<S>["parse"]>;
+      // FR-011-AC-1: return schema defaults rather than throw. If the
+      // schema doesn't have defaults for every key (e.g. a required
+      // field), `parse({})` would itself throw — fall through to a
+      // best-effort empty object cast so the caller's command never
+      // crashes on a corrupt file.
+      const fallback = this.schema.safeParse({});
+      if (fallback.success) return fallback.data;
+      return {} as ReturnType<ZodObject<S>["parse"]>;
     }
     return result.data;
   }
@@ -148,7 +186,7 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
         throw new ConfigSchemaError(
           this.pluginId,
           this.path,
-          issuesFromZod(result.error.issues),
+          issuesFromZod(result.error.issues, this.redactedKeyPaths()),
         );
       }
       this.writeYaml(result.data as Record<string, unknown>);

@@ -6,7 +6,10 @@ import {
   SecretsService,
   type SecretsServiceOptions,
 } from "../secrets/service.js";
-import { assertValidSecretId } from "../secrets/types.js";
+import {
+  assertValidSecretId,
+  EmptySecretValueError,
+} from "../secrets/types.js";
 
 export interface SecretsCommandDeps {
   /** Inject a SecretsService (for tests / non-default backends). */
@@ -76,7 +79,7 @@ export async function runSecretsSet(
   const value = await promptFn(id);
   if (value.length === 0) {
     list.error("empty value rejected");
-    throw new Error("empty value");
+    throw new EmptySecretValueError(id);
   }
   await svc.set(id, value);
   const backend = await svc.activeBackendId();

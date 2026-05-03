@@ -101,6 +101,18 @@ export class UnknownSecretError extends Error {
   }
 }
 
+/** Raised when an interactive secret prompt yields an empty string. */
+export class EmptySecretValueError extends Error {
+  readonly id: string;
+  constructor(id: string) {
+    super(
+      `refusing to store an empty value for ${id} — re-run \`ix secrets set ${id}\` and enter a non-empty value`,
+    );
+    this.name = "EmptySecretValueError";
+    this.id = id;
+  }
+}
+
 /** Raised when a backend pinning conflicts with a failing capability probe. */
 export class KeyringUnavailableError extends Error {
   readonly reason?: string;

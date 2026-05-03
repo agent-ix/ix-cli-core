@@ -41,6 +41,7 @@ export {
   listRegisteredPlugins,
   listIncidents,
   type RegisteredPlugin,
+  type RegisterResult,
   type ConfigIncident,
 } from "./config/registry.js";
 
@@ -56,6 +57,7 @@ export {
   splitSecretId,
   InvalidSecretIdError,
   SecretBackendImmutableError,
+  EmptySecretValueError,
   UnknownSecretError,
   KeyringUnavailableError,
 } from "./secrets/types.js";
@@ -65,6 +67,7 @@ export {
   registerSecretsForPlugin,
   getRegisteredSecret,
   listRegisteredSecrets,
+  listSecretsForPlugin,
   isRegistered as isSecretRegistered,
   type RegisteredSecret,
 } from "./secrets/registry.js";
@@ -89,13 +92,6 @@ export {
   newKeyringBackend,
   KeyringAccessError,
 } from "./secrets/backends/keyring.js";
-
-// ── Legacy migration (FR-017) ────────────────────────────────────────────
-export {
-  runLegacyMigration,
-  type LegacyMigrationOptions,
-  type LegacyMigrationReport,
-} from "./migration/legacy.js";
 
 // ── Default secrets service (process-global, slice-10 init wiring) ──────
 export {
@@ -122,34 +118,3 @@ export {
   newSecretsServiceForTesting,
   type SecretsCommandDeps,
 } from "./commands/secrets.js";
-
-// ── Legacy v0.1.2 API surface (transitional shims) ──────────────────────
-// See packages/core/src/legacy/stubs.ts for context. These re-exports
-// keep apps/ix and packages/elements compiling against the workspace
-// package while their own callers migrate to the new SecretsService /
-// ConfigService APIs.
-export {
-  installPlugin,
-  listPlugins,
-  removePlugin,
-  loadPlugins,
-  ensurePluginDir,
-  readCredentials,
-  writeCredentials,
-  clearCredentials,
-  isAuthenticated,
-  getGithubToken,
-  getIxToken,
-  deviceFlow,
-  exchangeGithubToken,
-  refreshIxToken,
-  saveIxTokens,
-  loadIxCliConfig,
-  saveIxCliConfig,
-  type InstalledPlugin,
-  type IxTokens,
-  type IxCredentials,
-  type IxCliConfig,
-  type IxPlugin as LegacyIxPlugin,
-  type IxPluginCommand,
-} from "./legacy/stubs.js";
