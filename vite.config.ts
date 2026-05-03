@@ -19,6 +19,8 @@ export default defineConfig({
         "age-encryption",
         "@napi-rs/keyring",
         /^@napi-rs\/keyring-/,
+        "@agent-ix/ix-ui-cli",
+        "@clack/prompts",
       ],
     },
   },

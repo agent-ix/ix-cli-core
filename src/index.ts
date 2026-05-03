@@ -96,3 +96,60 @@ export {
   type LegacyMigrationOptions,
   type LegacyMigrationReport,
 } from "./migration/legacy.js";
+
+// ── Default secrets service (process-global, slice-10 init wiring) ──────
+export {
+  defaultSecretsService,
+  setDefaultSecretsService,
+  resetDefaultSecretsService,
+} from "./secrets/default.js";
+
+// ── ix config / ix secrets command runners (FR-018, FR-019) ─────────────
+export {
+  runConfigGet,
+  runConfigSet,
+  runConfigEdit,
+  runConfigDoctor,
+  UnknownPluginError,
+  ConfigSetParseError,
+} from "./commands/config.js";
+
+export {
+  runSecretsList,
+  runSecretsSet,
+  runSecretsRm,
+  runSecretsWhich,
+  newSecretsServiceForTesting,
+  type SecretsCommandDeps,
+} from "./commands/secrets.js";
+
+// ── Legacy v0.1.2 API surface (transitional shims) ──────────────────────
+// See packages/core/src/legacy/stubs.ts for context. These re-exports
+// keep apps/ix and packages/elements compiling against the workspace
+// package while their own callers migrate to the new SecretsService /
+// ConfigService APIs.
+export {
+  installPlugin,
+  listPlugins,
+  removePlugin,
+  loadPlugins,
+  ensurePluginDir,
+  readCredentials,
+  writeCredentials,
+  clearCredentials,
+  isAuthenticated,
+  getGithubToken,
+  getIxToken,
+  deviceFlow,
+  exchangeGithubToken,
+  refreshIxToken,
+  saveIxTokens,
+  loadIxCliConfig,
+  saveIxCliConfig,
+  type InstalledPlugin,
+  type IxTokens,
+  type IxCredentials,
+  type IxCliConfig,
+  type IxPlugin as LegacyIxPlugin,
+  type IxPluginCommand,
+} from "./legacy/stubs.js";
