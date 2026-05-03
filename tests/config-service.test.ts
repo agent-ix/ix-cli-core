@@ -219,27 +219,50 @@ describe("ConfigService — get() returns schema defaults when file absent", () 
   });
 });
 
-describe("ConfigService — ConfigParseError on malformed YAML", () => {
-  it("get() on a file with invalid YAML throws ConfigParseError naming plugin and path", () => {
+describe("ConfigService — FR-011-AC-1 get() falls back to defaults on parse/validation errors", () => {
+  it("malformed YAML → get() returns defaults (does not throw); incident recorded", async () => {
+    const { listIncidents } = await import("../src/index.js");
     const cfg = ConfigService.forPlugin("local", LocalSchema);
     cfg.set({ cluster: { defaultTags: ["a"], skipApps: [] } });
     writeFileSync(cfg.filePath(), "garbage: [unbalanced\n", { mode: 0o600 });
-    let err: unknown;
-    try {
-      cfg.get();
-    } catch (e) {
-      err = e;
-    }
-    expect(err).toBeInstanceOf(ConfigParseError);
-    expect((err as ConfigParseError).pluginId).toBe("local");
-    expect((err as ConfigParseError).filePath).toBe(cfg.filePath());
+    const v = cfg.get();
+    expect(v.cluster.defaultTags).toEqual(["ix-core"]); // defaults
+    const incs = listIncidents().filter((i) => i.pluginId === "local");
+    expect(incs.length).toBeGreaterThan(0);
+    expect(incs[incs.length - 1].kind).toBe("parse");
   });
 
-  it("get() on a file whose top-level is not an object throws ConfigParseError", () => {
+  it("schema-violating content → get() returns defaults; incident kind=schema", async () => {
+    const { listIncidents } = await import("../src/index.js");
     const cfg = ConfigService.forPlugin("local", LocalSchema);
-    // Write a YAML list at top level — invalid for our schema model.
-    cfg.set({ cluster: { defaultTags: ["a"], skipApps: [] } });
-    writeFileSync(cfg.filePath(), "- not\n- an\n- object\n", { mode: 0o600 });
-    expect(() => cfg.get()).toThrow(ConfigParseError);
+    cfg.set({ cluster: { defaultTags: ["x"], skipApps: [] } });
+    writeFileSync(cfg.filePath(), "cluster:\n  defaultTags: 42\n", {
+      mode: 0o600,
+    });
+    const v = cfg.get();
+    expect(v.cluster.defaultTags).toEqual(["ix-core"]);
+    const incs = listIncidents().filter((i) => i.pluginId === "local");
+    expect(incs[incs.length - 1].kind).toBe("schema");
+  });
+
+  it("set() after a defaulted load overwrites the malformed file (FR-011-AC-2)", () => {
+    const cfg = ConfigService.forPlugin("local", LocalSchema);
+    // First valid set creates the file + parent directories.
+    cfg.set({ cluster: { defaultTags: ["initial"], skipApps: [] } });
+    // Tamper with the on-disk content so the next `get` defaults out.
+    writeFileSync(cfg.filePath(), "garbage: [unbalanced\n", { mode: 0o600 });
+    expect(cfg.get().cluster.defaultTags).toEqual(["ix-core"]); // defaulted
+    // Now `set` should overwrite the malformed file with valid YAML.
+    cfg.set({ cluster: { defaultTags: ["fresh"], skipApps: [] } });
+    expect(cfg.get().cluster.defaultTags).toEqual(["fresh"]);
+  });
+});
+
+// Sanity: ConfigParseError is still constructable (used by doctor).
+describe("ConfigParseError", () => {
+  it("captures plugin id and file path", () => {
+    const e = new ConfigParseError("foo", "/path", new Error("boom"));
+    expect(e.pluginId).toBe("foo");
+    expect(e.filePath).toBe("/path");
   });
 });

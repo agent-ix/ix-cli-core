@@ -11,8 +11,24 @@ import {
   ConfigSchemaError,
   issuesFromZod,
 } from "./errors.js";
+import { withFileLock } from "./lock.js";
+import {
+  clearIncidentsForPlugin,
+  recordIncident,
+  registerPlugin,
+} from "./registry.js";
 
 const FILE_HEADER = "# Managed by ix — `ix config edit` to modify safely.\n";
+
+export interface ForPluginOptions {
+  /**
+   * Map of dot-notated key paths → environment variable names. When the env
+   * var is set at `get()` time, its string value layers over the file value
+   * (per FR-012 layered resolution). Schema is responsible for coercing the
+   * string to the target type — use `z.coerce.*` for non-string fields.
+   */
+  envBindings?: Record<string, string>;
+}
 
 /**
  * Public accessor returned by `ConfigService.forPlugin(...)`.
@@ -23,9 +39,21 @@ const FILE_HEADER = "# Managed by ix — `ix config edit` to modify safely.\n";
  * static-check contract in spec.md §10.1).
  */
 export interface PluginConfig<T> {
-  /** Resolve effective values from file → schema defaults. Throws on schema mismatch. */
+  /**
+   * Resolve effective values from env → file → schema defaults.
+   *
+   * Per FR-011-AC-1, parse and validation errors are NOT thrown to the
+   * caller; instead, schema defaults are returned and the error is recorded
+   * in the incident registry (visible via `ConfigService.doctor()`). This
+   * lets one bad plugin file never crash an unrelated plugin's command.
+   */
   get(): T;
-  /** Merge `partial`, validate against schema, atomically rewrite the file. */
+  /**
+   * Merge `partial` over the current file content, validate against the
+   * plugin's strict schema, and atomically rewrite the file. Per FR-010-AC-4
+   * unknown keys throw `ConfigSchemaError`. Per FR-011-AC-4 same-plugin
+   * concurrent writes are serialized via an advisory lockfile.
+   */
   set(partial: Partial<T>): void;
   /** Delete the plugin's file. Subsequent `get()` returns schema defaults. */
   reset(): void;
@@ -37,13 +65,20 @@ export class ConfigService {
   /**
    * Return a typed accessor scoped to `pluginId`. The accessor's reads and
    * writes are bound to `~/.config/ix/config.yaml` (id `core`) or
-   * `~/.config/ix/config.d/<id>.yaml` (any other id).
+   * `~/.config/ix/config.d/<id>.yaml` (any other id). The plugin is
+   * auto-registered for `doctor()`.
    */
   static forPlugin<S extends ZodRawShape>(
     pluginId: string,
     schema: ZodObject<S>,
+    opts: ForPluginOptions = {},
   ): PluginConfig<ReturnType<ZodObject<S>["parse"]>> {
-    return new PluginConfigImpl(pluginId, schema);
+    registerPlugin({
+      pluginId,
+      schema: schema as unknown as ZodObject<ZodRawShape>,
+      envBindings: opts.envBindings,
+    });
+    return new PluginConfigImpl(pluginId, schema, opts);
   }
 }
 
@@ -51,11 +86,13 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
   private readonly pluginId: string;
   private readonly schema: ZodObject<S>;
   private readonly path: string;
+  private readonly envBindings?: Record<string, string>;
 
-  constructor(pluginId: string, schema: ZodObject<S>) {
+  constructor(pluginId: string, schema: ZodObject<S>, opts: ForPluginOptions) {
     this.pluginId = pluginId;
     this.schema = schema;
     this.path = configPathFor(pluginId);
+    this.envBindings = opts.envBindings;
   }
 
   filePath(): string {
@@ -63,15 +100,62 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
   }
 
   get(): ReturnType<ZodObject<S>["parse"]> {
-    const raw = this.readFileOrEmpty();
-    return this.parseAndValidate(raw);
+    let fileLayer: Record<string, unknown>;
+    try {
+      fileLayer = this.readFileOrEmpty();
+    } catch (err) {
+      // FR-011-AC-1: parse errors do not propagate; fall back to defaults.
+      recordIncident({
+        pluginId: this.pluginId,
+        filePath: this.path,
+        kind: err instanceof ConfigParseError ? "parse" : "io",
+        detail: (err as Error).message,
+      });
+      fileLayer = {};
+    }
+    const layered = this.applyEnvLayer(fileLayer);
+    const result = this.schema.safeParse(layered);
+    if (!result.success) {
+      // FR-011-AC-1: schema-validation errors do not propagate; fall back
+      // to defaults parsed from `{}` (which the schema's defaults populate).
+      recordIncident({
+        pluginId: this.pluginId,
+        filePath: this.path,
+        kind: "schema",
+        detail: `schema validation failed (${result.error.issues.length} issue(s))`,
+        issues: issuesFromZod(result.error.issues),
+      });
+      return this.schema.parse({}) as ReturnType<ZodObject<S>["parse"]>;
+    }
+    return result.data;
   }
 
   set(partial: Partial<ReturnType<ZodObject<S>["parse"]>>): void {
-    const current = this.readFileOrEmpty();
-    const merged = mergeDeep(current, partial as Record<string, unknown>);
-    const validated = this.parseAndValidate(merged);
-    this.writeYaml(validated as Record<string, unknown>);
+    ensureParent(this.path);
+    withFileLock(`${this.path}.lock`, () => {
+      // FR-011-AC-2: a malformed existing file must not block recovery.
+      // Treat parse errors as an empty base; the new write will replace
+      // the corrupt content atomically.
+      let current: Record<string, unknown>;
+      try {
+        current = this.readFileOrEmpty();
+      } catch {
+        current = {};
+      }
+      const merged = mergeDeep(current, partial as Record<string, unknown>);
+      const result = this.schema.safeParse(merged);
+      if (!result.success) {
+        throw new ConfigSchemaError(
+          this.pluginId,
+          this.path,
+          issuesFromZod(result.error.issues),
+        );
+      }
+      this.writeYaml(result.data as Record<string, unknown>);
+      // A successful set clears any prior incidents for this plugin —
+      // the file is now valid by definition.
+      clearIncidentsForPlugin(this.pluginId);
+    });
   }
 
   reset(): void {
@@ -81,6 +165,7 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
       const code = (err as { code?: string })?.code;
       if (code !== "ENOENT") throw err;
     }
+    clearIncidentsForPlugin(this.pluginId);
   }
 
   private readFileOrEmpty(): Record<string, unknown> {
@@ -109,18 +194,17 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
     return parsed as Record<string, unknown>;
   }
 
-  private parseAndValidate(
-    raw: Record<string, unknown>,
-  ): ReturnType<ZodObject<S>["parse"]> {
-    const result = this.schema.safeParse(raw);
-    if (!result.success) {
-      throw new ConfigSchemaError(
-        this.pluginId,
-        this.path,
-        issuesFromZod(result.error.issues),
-      );
+  private applyEnvLayer(
+    base: Record<string, unknown>,
+  ): Record<string, unknown> {
+    if (!this.envBindings) return base;
+    const out = cloneDeep(base);
+    for (const [keyPath, envVar] of Object.entries(this.envBindings)) {
+      const value = process.env[envVar];
+      if (value === undefined) continue;
+      setDeep(out, keyPath.split("."), value);
     }
-    return result.data;
+    return out;
   }
 
   private writeYaml(value: Record<string, unknown>): void {
@@ -133,7 +217,7 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
   }
 }
 
-/** Recursively merge `patch` into `base` (in-place), arrays replaced wholesale. */
+/** Recursively merge `patch` into `base`, arrays replaced wholesale. */
 function mergeDeep(
   base: Record<string, unknown>,
   patch: Record<string, unknown>,
@@ -158,6 +242,36 @@ function mergeDeep(
     out[k] = v;
   }
   return out;
+}
+
+function cloneDeep<T>(v: T): T {
+  if (v == null || typeof v !== "object") return v;
+  if (Array.isArray(v)) return v.map((e) => cloneDeep(e)) as unknown as T;
+  const out: Record<string, unknown> = {};
+  for (const [k, val] of Object.entries(v as Record<string, unknown>)) {
+    out[k] = cloneDeep(val);
+  }
+  return out as unknown as T;
+}
+
+function setDeep(
+  obj: Record<string, unknown>,
+  path: string[],
+  value: unknown,
+): void {
+  let cursor = obj;
+  for (let i = 0; i < path.length - 1; i++) {
+    const key = path[i];
+    const next = cursor[key];
+    if (next == null || typeof next !== "object" || Array.isArray(next)) {
+      const fresh: Record<string, unknown> = {};
+      cursor[key] = fresh;
+      cursor = fresh;
+    } else {
+      cursor = next as Record<string, unknown>;
+    }
+  }
+  cursor[path[path.length - 1]] = value;
 }
 
 function ensureParent(path: string): void {

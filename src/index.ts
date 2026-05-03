@@ -21,4 +21,25 @@ export {
   issuesFromZod,
 } from "./config/errors.js";
 
-export { ConfigService, type PluginConfig } from "./config/service.js";
+export {
+  ConfigService,
+  type PluginConfig,
+  type ForPluginOptions,
+} from "./config/service.js";
+
+export { withFileLock, ConfigLockTimeoutError } from "./config/lock.js";
+
+export {
+  doctor,
+  type DoctorReport,
+  type DoctorEntry,
+} from "./config/doctor.js";
+
+export {
+  registerPlugin,
+  getRegisteredPlugin,
+  listRegisteredPlugins,
+  listIncidents,
+  type RegisteredPlugin,
+  type ConfigIncident,
+} from "./config/registry.js";
