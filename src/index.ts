@@ -89,3 +89,10 @@ export {
   newKeyringBackend,
   KeyringAccessError,
 } from "./secrets/backends/keyring.js";
+
+// ── Legacy migration (FR-017) ────────────────────────────────────────────
+export {
+  runLegacyMigration,
+  type LegacyMigrationOptions,
+  type LegacyMigrationReport,
+} from "./migration/legacy.js";
