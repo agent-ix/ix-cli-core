@@ -76,3 +76,10 @@ export {
 } from "./secrets/service.js";
 
 export { MemoryBackend } from "./secrets/backends/memory.js";
+
+export {
+  AgeFileBackend,
+  newAgeFileBackend,
+  SecretsIdentityPermissionsError,
+  SecretsBlobCorruptedError,
+} from "./secrets/backends/age-file.js";
