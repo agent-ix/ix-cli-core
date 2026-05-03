@@ -12,7 +12,14 @@ export default defineConfig({
     },
     target: "node18",
     rollupOptions: {
-      external: [/^node:/, "yaml", "zod"],
+      external: [
+        /^node:/,
+        "yaml",
+        "zod",
+        "age-encryption",
+        "@napi-rs/keyring",
+        /^@napi-rs\/keyring-/,
+      ],
     },
   },
   test: {

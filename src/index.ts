@@ -83,3 +83,9 @@ export {
   SecretsIdentityPermissionsError,
   SecretsBlobCorruptedError,
 } from "./secrets/backends/age-file.js";
+
+export {
+  KeyringBackend,
+  newKeyringBackend,
+  KeyringAccessError,
+} from "./secrets/backends/keyring.js";
