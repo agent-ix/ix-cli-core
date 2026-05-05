@@ -1,5 +1,13 @@
-import { password } from "@clack/prompts";
-import { startListing } from "@agent-ix/ix-ui-cli";
+import React, { useEffect } from "react";
+import { useApp } from "ink";
+import {
+  Listing,
+  Item,
+  Note,
+  PasswordPrompt,
+  render,
+  renderStatic,
+} from "@agent-ix/ix-ui-cli";
 
 import { defaultSecretsService } from "../secrets/default.js";
 import {
@@ -12,9 +20,7 @@ import {
 } from "../secrets/types.js";
 
 export interface SecretsCommandDeps {
-  /** Inject a SecretsService (for tests / non-default backends). */
   service?: SecretsService;
-  /** Inject a value supplier (for tests / non-TTY scripts). */
   promptForValue?: (id: string) => Promise<string>;
 }
 
@@ -23,8 +29,37 @@ function pickService(deps: SecretsCommandDeps): SecretsService {
 }
 
 function ensureRegistered(id: string): void {
-  assertValidSecretId(id); // throws InvalidSecretIdError on malformed id
-  SecretsService.assertRegistered(id); // throws UnknownSecretError if not in registry
+  assertValidSecretId(id);
+  SecretsService.assertRegistered(id);
+}
+
+/** Render a PasswordPrompt and resolve with the entered value, or null if
+ *  the user cancelled. */
+async function promptForPassword(message: string): Promise<string | null> {
+  let captured: string | null = null;
+  let cancelled = false;
+  const Capture: React.FC = () => {
+    const { exit } = useApp();
+    const [done, setDone] = React.useState(false);
+    useEffect(() => {
+      if (done) {
+        const t = setTimeout(exit, 0);
+        return () => clearTimeout(t);
+      }
+    }, [done, exit]);
+    return (
+      <PasswordPrompt
+        message={message}
+        onSubmit={(r) => {
+          if (r.ok) captured = r.value;
+          else cancelled = true;
+          setDone(true);
+        }}
+      />
+    );
+  };
+  await render(<Capture />);
+  return cancelled ? null : captured;
 }
 
 /* ── runSecretsList ──────────────────────────────────────────────────── */
@@ -35,19 +70,29 @@ export async function runSecretsList(
   const svc = pickService(deps);
   const rows = await svc.list();
 
-  const list = startListing("ix secrets list");
   if (rows.length === 0) {
-    list.note("(no secrets declared by any plugin)");
-    list.success("done");
+    await renderStatic(
+      <Listing header="ix secrets list" status="passed" tail="done">
+        <Note>(no secrets declared by any plugin)</Note>
+      </Listing>,
+    );
     return;
   }
-  for (const row of rows) {
-    list.item(
-      row.id,
-      `${row.source} (backend=${row.backend}) — ${row.description}`,
-    );
-  }
-  list.success(`${rows.length} secret(s)`);
+  await renderStatic(
+    <Listing
+      header="ix secrets list"
+      status="passed"
+      tail={`${rows.length} secret(s)`}
+    >
+      {rows.map((row) => (
+        <Item
+          key={row.id}
+          name={row.id}
+          description={`${row.source} (backend=${row.backend}) — ${row.description}`}
+        />
+      ))}
+    </Listing>,
+  );
 }
 
 /* ── runSecretsSet ───────────────────────────────────────────────────── */
@@ -59,31 +104,35 @@ export async function runSecretsSet(
   ensureRegistered(id);
   const svc = pickService(deps);
 
-  const list = startListing("ix secrets set");
   const promptFn =
     deps.promptForValue ??
-    (async (sid: string) => {
-      const r = await list.pause(() =>
-        password({
-          message: `Enter value for ${sid}`,
-          mask: "*",
-        }),
-      );
-      if (typeof r !== "string") {
-        // User cancelled (Esc / Ctrl+C).
-        throw new Error("aborted by user");
-      }
+    (async (sid: string): Promise<string> => {
+      const r = await promptForPassword(`Enter value for ${sid}`);
+      if (r == null) throw new Error("aborted by user");
       return r;
     });
 
   const value = await promptFn(id);
   if (value.length === 0) {
-    list.error("empty value rejected");
+    await renderStatic(
+      <Listing
+        header="ix secrets set"
+        status="failed"
+        tail="empty value rejected"
+        tailVariant="error"
+      />,
+    );
     throw new EmptySecretValueError(id);
   }
   await svc.set(id, value);
   const backend = await svc.activeBackendId();
-  list.success(`stored ${id} in ${backend}`);
+  await renderStatic(
+    <Listing
+      header="ix secrets set"
+      status="passed"
+      tail={`stored ${id} in ${backend}`}
+    />,
+  );
 }
 
 /* ── runSecretsRm ────────────────────────────────────────────────────── */
@@ -96,20 +145,35 @@ export async function runSecretsRm(
   ensureRegistered(id);
   const svc = pickService(deps);
 
-  const list = startListing("ix secrets rm");
   await svc.delete(id);
 
   const which = await svc.which(id);
   if (which === "env") {
     const msg = `${id} cleared from backend, but env var still satisfies get() (which=env)`;
     if (opts.strict) {
-      list.error(msg);
+      await renderStatic(
+        <Listing
+          header="ix secrets rm"
+          status="failed"
+          tail={msg}
+          tailVariant="error"
+        />,
+      );
       return { exitCode: 1 };
     }
-    list.warn(msg);
+    await renderStatic(
+      <Listing
+        header="ix secrets rm"
+        status="passed"
+        tail={msg}
+        tailVariant="warn"
+      />,
+    );
     return { exitCode: 0 };
   }
-  list.success(`${id} cleared`);
+  await renderStatic(
+    <Listing header="ix secrets rm" status="passed" tail={`${id} cleared`} />,
+  );
   return { exitCode: 0 };
 }
 
@@ -123,16 +187,15 @@ export async function runSecretsWhich(
   const svc = pickService(deps);
   const which = await svc.which(id);
 
-  const list = startListing("ix secrets which");
-  list.item(id, which);
-  list.success("done");
+  await renderStatic(
+    <Listing header="ix secrets which" status="passed" tail="done">
+      <Item name={id} description={which} />
+    </Listing>,
+  );
 }
 
-/** Re-export for the apps/ix wrappers + tests. */
 export { UnknownSecretError } from "../secrets/types.js";
 
-/** Test-friendly factory: build a service with the same shape the runners
- * normally see. */
 export function newSecretsServiceForTesting(
   opts: SecretsServiceOptions,
 ): SecretsService {
