@@ -1,6 +1,6 @@
 {
   "name": "@agent-ix/ix-cli-core",
-  "description": "Shared core for ix-cli \u2014 config service, secrets service, plugin contract.",
+  "description": "Shared core for ix-cli — config service, secrets service, plugin contract.",
   "version": "0.1.0",
   "type": "module",
   "files": [

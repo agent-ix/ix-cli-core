@@ -1,13 +1,8 @@
-import React from "react";
+import type { ReactNode } from "react";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-import {
-  Listing,
-  Item,
-  Note,
-  renderStatic,
-} from "@agent-ix/ix-ui-cli";
+import { Listing, Item, Note, renderStatic } from "@agent-ix/ix-ui-cli";
 import { parse as parseYaml } from "yaml";
 
 import { CORE_PLUGIN_ID } from "../config/paths.js";
@@ -320,7 +315,7 @@ export async function runConfigDoctor(): Promise<{ exitCode: number }> {
   const report = doctor();
 
   let invalidCount = 0;
-  const itemsAndNotes: React.ReactNode[] = [];
+  const itemsAndNotes: ReactNode[] = [];
   for (const entry of report.entries) {
     if (entry.kind === "valid") {
       itemsAndNotes.push(
