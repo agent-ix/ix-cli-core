@@ -1,7 +1,13 @@
+import React from "react";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-import { startListing } from "@agent-ix/ix-ui-cli";
+import {
+  Listing,
+  Item,
+  Note,
+  renderStatic,
+} from "@agent-ix/ix-ui-cli";
 import { parse as parseYaml } from "yaml";
 
 import { CORE_PLUGIN_ID } from "../config/paths.js";
@@ -226,15 +232,25 @@ export async function runConfigGet(
   const segments = keyPath.split(".");
   const value = getByPath(cfg.get(), segments);
 
-  const list = startListing("ix config get");
   if (value === undefined) {
-    list.warn(
-      `${plugin.pluginId}.${keyPath} is unset (file: ${cfg.filePath()})`,
+    await renderStatic(
+      <Listing
+        header="ix config get"
+        status="passed"
+        tail={`${plugin.pluginId}.${keyPath} is unset (file: ${cfg.filePath()})`}
+        tailVariant="warn"
+      />,
     );
     return;
   }
-  list.item(`${plugin.pluginId}.${keyPath}`, formatValue(value));
-  list.success("ok");
+  await renderStatic(
+    <Listing header="ix config get" status="passed" tail="ok">
+      <Item
+        name={`${plugin.pluginId}.${keyPath}`}
+        description={formatValue(value)}
+      />
+    </Listing>,
+  );
 }
 
 /* ── runConfigSet ────────────────────────────────────────────────────── */
@@ -284,47 +300,96 @@ export async function runConfigSet(
 
   cfg.set(result.data as Partial<Record<string, unknown>>);
 
-  const list = startListing("ix config set");
-  list.item(`${plugin.pluginId}.${keyPath}`, formatValue(parsed));
-  list.success(`stored in ${cfg.filePath()}`);
+  await renderStatic(
+    <Listing
+      header="ix config set"
+      status="passed"
+      tail={`stored in ${cfg.filePath()}`}
+    >
+      <Item
+        name={`${plugin.pluginId}.${keyPath}`}
+        description={formatValue(parsed)}
+      />
+    </Listing>,
+  );
 }
 
 /* ── runConfigDoctor ─────────────────────────────────────────────────── */
 
 export async function runConfigDoctor(): Promise<{ exitCode: number }> {
-  const list = startListing("ix config doctor");
   const report = doctor();
 
   let invalidCount = 0;
+  const itemsAndNotes: React.ReactNode[] = [];
   for (const entry of report.entries) {
     if (entry.kind === "valid") {
-      list.item(
-        entry.pluginId,
-        `valid (${entry.keyCount} keys, ${entry.filePath})`,
+      itemsAndNotes.push(
+        <Item
+          key={entry.pluginId}
+          name={entry.pluginId}
+          description={`valid (${entry.keyCount} keys, ${entry.filePath})`}
+        />,
       );
     } else if (entry.kind === "invalid") {
       invalidCount += 1;
-      list.item(entry.pluginId, `invalid (${entry.filePath})`);
+      itemsAndNotes.push(
+        <Item
+          key={entry.pluginId}
+          name={entry.pluginId}
+          description={`invalid (${entry.filePath})`}
+        />,
+      );
       for (const e of entry.errors) {
-        list.note(formatIssueLine(entry.pluginId, entry.filePath, e));
+        itemsAndNotes.push(
+          <Note key={`${entry.pluginId}-${e.keyPath}`}>
+            {formatIssueLine(entry.pluginId, entry.filePath, e)}
+          </Note>,
+        );
       }
     } else {
-      list.item(entry.pluginId, `unregistered file (${entry.filePath})`);
+      itemsAndNotes.push(
+        <Item
+          key={entry.pluginId}
+          name={entry.pluginId}
+          description={`unregistered file (${entry.filePath})`}
+        />,
+      );
     }
   }
 
   if (report.recentIncidents.length > 0) {
-    list.note("recent incidents:");
+    itemsAndNotes.push(<Note key="ri-header">recent incidents:</Note>);
     for (const inc of report.recentIncidents) {
-      list.note(`  ${inc.pluginId} (${inc.kind}): ${inc.detail}`);
+      itemsAndNotes.push(
+        <Note key={`ri-${inc.pluginId}-${inc.kind}`}>
+          {`  ${inc.pluginId} (${inc.kind}): ${inc.detail}`}
+        </Note>,
+      );
     }
   }
 
   if (invalidCount === 0) {
-    list.success("all registered plugins valid");
+    await renderStatic(
+      <Listing
+        header="ix config doctor"
+        status="passed"
+        tail="all registered plugins valid"
+      >
+        {itemsAndNotes}
+      </Listing>,
+    );
     return { exitCode: 0 };
   }
-  list.error(`${invalidCount} plugin(s) failed validation`);
+  await renderStatic(
+    <Listing
+      header="ix config doctor"
+      status="failed"
+      tail={`${invalidCount} plugin(s) failed validation`}
+      tailVariant="error"
+    >
+      {itemsAndNotes}
+    </Listing>,
+  );
   return { exitCode: 1 };
 }
 
@@ -353,24 +418,26 @@ export async function runConfigEdit(
   const editor = process.env.VISUAL ?? process.env.EDITOR ?? "vi";
   const filePath = cfg.filePath();
 
-  const list = startListing("ix config edit");
-  list.note(`opening ${filePath} in ${editor}`);
-  list.commit();
-
-  // Run editor synchronously; let it inherit stdio. Failure of the editor
-  // is reported but the file (atomic) is unaffected.
+  // Run editor synchronously; it inherits stdio. We render the final-state
+  // listing afterward to summarize success/failure.
   try {
     execSync(`${editor} ${shellQuote(filePath)}`, { stdio: "inherit" });
   } catch (err) {
-    list.error(`editor exited non-zero: ${(err as Error).message}`);
+    await renderStatic(
+      <Listing
+        header="ix config edit"
+        status="failed"
+        tail={`editor exited non-zero: ${(err as Error).message}`}
+        tailVariant="error"
+      >
+        <Note>{`opened ${filePath} in ${editor}`}</Note>
+      </Listing>,
+    );
     throw err;
   }
 
-  // Validate post-edit. We re-read the file directly so a YAML parse
-  // error or unknown key surfaces as a hard error here (not via the
-  // soft-default path in cfg.get(), which deliberately swallows for
-  // FR-011-AC-1). Re-edit loop is left to the oclif wrapper, where
-  // prompts naturally live.
+  // Validate post-edit. Re-read the file directly so a YAML parse error or
+  // unknown key surfaces as a hard error here.
   try {
     const raw = readFileSync(filePath, "utf8");
     const parsed = parseYaml(raw);
@@ -394,11 +461,24 @@ export async function runConfigEdit(
     }
   } catch (err) {
     if (err instanceof ConfigSchemaError || err instanceof ConfigParseError) {
-      list.error(`post-edit validation failed: ${err.message}`);
+      await renderStatic(
+        <Listing
+          header="ix config edit"
+          status="failed"
+          tail={`post-edit validation failed: ${err.message}`}
+          tailVariant="error"
+        >
+          <Note>{`opened ${filePath} in ${editor}`}</Note>
+        </Listing>,
+      );
     }
     throw err;
   }
-  list.success("validated");
+  await renderStatic(
+    <Listing header="ix config edit" status="passed" tail="validated">
+      <Note>{`opened ${filePath} in ${editor}`}</Note>
+    </Listing>,
+  );
 }
 
 function shellQuote(s: string): string {

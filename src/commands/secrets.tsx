@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useApp } from "ink";
 import {
   Listing,
   Item,
@@ -7,6 +6,7 @@ import {
   PasswordPrompt,
   render,
   renderStatic,
+  useRenderResult,
 } from "@agent-ix/ix-ui-cli";
 
 import { defaultSecretsService } from "../secrets/default.js";
@@ -39,7 +39,7 @@ async function promptForPassword(message: string): Promise<string | null> {
   let captured: string | null = null;
   let cancelled = false;
   const Capture: React.FC = () => {
-    const { exit } = useApp();
+    const { exit } = useRenderResult();
     const [done, setDone] = React.useState(false);
     useEffect(() => {
       if (done) {
