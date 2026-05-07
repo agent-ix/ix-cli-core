@@ -1,6 +1,7 @@
 import { AgeFileBackend } from "./backends/age-file.js";
 import { KeyringBackend } from "./backends/keyring.js";
 import { SecretsService, type SecretsBackendMode } from "./service.js";
+import type { SecretsBackend } from "./types.js";
 
 let cached: SecretsService | undefined;
 
@@ -23,7 +24,7 @@ export function defaultSecretsService(
   if (cached) return cached;
   cached = new SecretsService({
     mode,
-    backends: new Map([
+    backends: new Map<string, SecretsBackend>([
       ["keyring", new KeyringBackend()],
       ["age-file", new AgeFileBackend()],
     ]),
