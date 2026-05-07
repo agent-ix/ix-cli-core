@@ -57,6 +57,14 @@ export interface PluginConfig<T> {
    * concurrent writes are serialized via an advisory lockfile.
    */
   set(partial: Partial<T>): void;
+  /**
+   * Validate `value` against the plugin's schema and atomically rewrite the
+   * file with it — without merging into the existing on-disk content. Use
+   * this when a write must REMOVE keys (e.g. deleting a map entry); `set`'s
+   * deep-merge semantics treat absent keys as "no change" and cannot
+   * express deletions. Same locking + incident clearing as `set`.
+   */
+  replace(value: T): void;
   /** Delete the plugin's file. Subsequent `get()` returns schema defaults. */
   reset(): void;
   /** Absolute path of the plugin's config file (for `ix config edit`). */
@@ -192,6 +200,22 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
       this.writeYaml(result.data as Record<string, unknown>);
       // A successful set clears any prior incidents for this plugin —
       // the file is now valid by definition.
+      clearIncidentsForPlugin(this.pluginId);
+    });
+  }
+
+  replace(value: ReturnType<ZodObject<S>["parse"]>): void {
+    ensureParent(this.path);
+    withFileLock(`${this.path}.lock`, () => {
+      const result = this.schema.safeParse(value);
+      if (!result.success) {
+        throw new ConfigSchemaError(
+          this.pluginId,
+          this.path,
+          issuesFromZod(result.error.issues, this.redactedKeyPaths()),
+        );
+      }
+      this.writeYaml(result.data as Record<string, unknown>);
       clearIncidentsForPlugin(this.pluginId);
     });
   }
