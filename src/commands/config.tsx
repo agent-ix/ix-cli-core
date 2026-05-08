@@ -2,7 +2,15 @@ import type { ReactNode } from "react";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-import { Listing, Item, Note, renderStatic } from "@agent-ix/ix-ui-cli";
+import {
+  GLYPH_DIM_DOT,
+  Listing,
+  Item,
+  Note,
+  Text,
+  blue,
+  renderStatic,
+} from "@agent-ix/ix-ui-cli";
 import { parse as parseYaml } from "yaml";
 
 import { CORE_PLUGIN_ID } from "../config/paths.js";
@@ -295,17 +303,19 @@ export async function runConfigSet(
 
   cfg.set(result.data as Partial<Record<string, unknown>>);
 
+  const fullKey = `${plugin.pluginId}.${keyPath}`;
   await renderStatic(
     <Listing
       header="ix config set"
       status="passed"
-      tail={`stored in ${cfg.filePath()}`}
-    >
-      <Item
-        name={`${plugin.pluginId}.${keyPath}`}
-        description={formatValue(parsed)}
-      />
-    </Listing>,
+      variant="flow"
+      pre={
+        <Text>
+          {` ${GLYPH_DIM_DOT} ${blue(fullKey)} → ${blue(formatValue(parsed))}`}
+        </Text>
+      }
+      tail={`Set ${blue(fullKey)} in ${blue(cfg.filePath())}.`}
+    />,
   );
 }
 
@@ -470,9 +480,13 @@ export async function runConfigEdit(
     throw err;
   }
   await renderStatic(
-    <Listing header="ix config edit" status="passed" tail="validated">
-      <Note>{`opened ${filePath} in ${editor}`}</Note>
-    </Listing>,
+    <Listing
+      header="ix config edit"
+      status="passed"
+      variant="flow"
+      pre={<Text>{` ${GLYPH_DIM_DOT} ${blue(editor)} ${blue(filePath)}`}</Text>}
+      tail="Validated."
+    />,
   );
 }
 

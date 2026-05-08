@@ -1,9 +1,12 @@
 import type React from "react";
 import {
+  GLYPH_DIM_DOT,
   Listing,
   Item,
   Note,
   PasswordPrompt,
+  Text,
+  blue,
   render,
   renderStatic,
   useEffect,
@@ -132,7 +135,13 @@ export async function runSecretsSet(
     <Listing
       header="ix secrets set"
       status="passed"
-      tail={`stored ${id} in ${backend}`}
+      variant="flow"
+      pre={
+        <Text>
+          {` ${GLYPH_DIM_DOT} Setting ${blue(id)} in ${blue(backend)}`}
+        </Text>
+      }
+      tail={`Stored ${blue(id)} in ${blue(backend)}.`}
     />,
   );
 }
@@ -174,7 +183,13 @@ export async function runSecretsRm(
     return { exitCode: 0 };
   }
   await renderStatic(
-    <Listing header="ix secrets rm" status="passed" tail={`${id} cleared`} />,
+    <Listing
+      header="ix secrets rm"
+      status="passed"
+      variant="flow"
+      pre={<Text>{` ${GLYPH_DIM_DOT} Removing ${blue(id)}`}</Text>}
+      tail={`Cleared ${blue(id)}.`}
+    />,
   );
   return { exitCode: 0 };
 }
