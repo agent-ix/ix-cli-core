@@ -24,7 +24,7 @@
     "url": "git+https://github.com/agent-ix/ix-cli.git"
   },
   "dependencies": {
-    "@agent-ix/ix-ui-cli": "local",
+    "@agent-ix/ix-ui-cli": "^0.4.2",
     "@clack/prompts": ">=1.3.0",
     "@napi-rs/keyring": ">=1.3.0",
     "age-encryption": ">=0.3.0",
