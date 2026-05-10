@@ -1,6 +1,8 @@
 import { homedir } from "node:os";
 import { join } from "node:path";
 
+import { getRuntimeContext } from "../runtime/context.js";
+
 const PLUGIN_ID_RE = /^[a-z][a-z0-9-]*$/;
 
 /** Reserved plugin id owned by `apps/ix` itself. Lives at `~/.config/ix/config.yaml`. */
@@ -15,17 +17,22 @@ export const CORE_PLUGIN_ID = "core";
  * Honors `XDG_CONFIG_HOME`, falls back to `~/.config`.
  */
 export function configPathFor(pluginId: string): string {
+  return configPathForRoot(configRoot(), pluginId);
+}
+
+export function configPathForRoot(root: string, pluginId: string): string {
   validatePluginIdOrThrow(pluginId);
-  const root = configRoot();
   if (pluginId === CORE_PLUGIN_ID) return join(root, "config.yaml");
   return join(root, "config.d", `${pluginId}.yaml`);
 }
 
 /** Absolute path to `$XDG_CONFIG_HOME/ix/`. */
 export function configRoot(): string {
+  const runtime = getRuntimeContext();
+  if (runtime.configRoot) return runtime.configRoot;
   const xdg = process.env.XDG_CONFIG_HOME;
   const base = xdg && xdg.length > 0 ? xdg : join(homedir(), ".config");
-  return join(base, "ix");
+  return join(base, runtime.configNamespace);
 }
 
 /** Absolute path to `$XDG_CONFIG_HOME/ix/config.d/`. */

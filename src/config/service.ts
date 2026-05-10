@@ -5,7 +5,8 @@ import { parse as parseYaml, stringify as stringifyYaml } from "yaml";
 import type { ZodObject, ZodRawShape } from "zod";
 
 import { atomicWrite } from "../atomic/write.js";
-import { configPathFor } from "./paths.js";
+import { getRuntimeContext } from "../runtime/context.js";
+import { configPathFor, configPathForRoot } from "./paths.js";
 import {
   ConfigParseError,
   ConfigSchemaError,
@@ -30,6 +31,9 @@ export interface ForPluginOptions {
    * string to the target type — use `z.coerce.*` for non-string fields.
    */
   envBindings?: Record<string, string>;
+  defaults?: Record<string, unknown>;
+  projectConfigRoot?: string;
+  projectConfigEnabled?: boolean;
 }
 
 /**
@@ -110,13 +114,24 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
   private readonly pluginId: string;
   private readonly schema: ZodObject<S>;
   private readonly path: string;
+  private readonly projectPath?: string;
   private readonly envBindings?: Record<string, string>;
+  private readonly defaults?: Record<string, unknown>;
 
   constructor(pluginId: string, schema: ZodObject<S>, opts: ForPluginOptions) {
     this.pluginId = pluginId;
     this.schema = schema;
     this.path = configPathFor(pluginId);
+    const runtime = getRuntimeContext();
+    const projectConfigEnabled =
+      opts.projectConfigEnabled ?? runtime.projectConfigEnabled;
+    const projectRoot = opts.projectConfigRoot ?? runtime.projectConfigRoot;
+    this.projectPath =
+      projectConfigEnabled && projectRoot
+        ? configPathForRoot(projectRoot, pluginId)
+        : undefined;
     this.envBindings = opts.envBindings;
+    this.defaults = opts.defaults;
   }
 
   filePath(): string {
@@ -139,9 +154,9 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
   }
 
   get(): ReturnType<ZodObject<S>["parse"]> {
-    let fileLayer: Record<string, unknown>;
+    let userLayer: Record<string, unknown>;
     try {
-      fileLayer = this.readFileOrEmpty();
+      userLayer = this.readFileOrEmpty(this.path);
     } catch (err) {
       // FR-011-AC-1: parse errors do not propagate; fall back to defaults.
       recordIncident({
@@ -150,8 +165,27 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
         kind: err instanceof ConfigParseError ? "parse" : "io",
         detail: (err as Error).message,
       });
-      fileLayer = {};
+      userLayer = {};
     }
+    let projectLayer: Record<string, unknown> = {};
+    if (this.projectPath) {
+      try {
+        projectLayer = this.readFileOrEmpty(this.projectPath);
+      } catch (err) {
+        recordIncident({
+          pluginId: this.pluginId,
+          filePath: this.projectPath,
+          kind: err instanceof ConfigParseError ? "parse" : "io",
+          detail: (err as Error).message,
+        });
+        projectLayer = {};
+      }
+    }
+    const baseDefaults = this.defaults ? cloneDeep(this.defaults) : {};
+    const fileLayer = mergeDeep(
+      mergeDeep(baseDefaults, userLayer),
+      projectLayer,
+    );
     const layered = this.applyEnvLayer(fileLayer);
     const result = this.schema.safeParse(layered);
     if (!result.success) {
@@ -184,7 +218,7 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
       // the corrupt content atomically.
       let current: Record<string, unknown>;
       try {
-        current = this.readFileOrEmpty();
+        current = this.readFileOrEmpty(this.path);
       } catch {
         current = {};
       }
@@ -230,10 +264,10 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
     clearIncidentsForPlugin(this.pluginId);
   }
 
-  private readFileOrEmpty(): Record<string, unknown> {
+  private readFileOrEmpty(path: string): Record<string, unknown> {
     let raw: string;
     try {
-      raw = readFileSync(this.path, "utf8");
+      raw = readFileSync(path, "utf8");
     } catch (err) {
       const code = (err as { code?: string })?.code;
       if (code === "ENOENT") return {};
@@ -243,13 +277,13 @@ class PluginConfigImpl<S extends ZodRawShape> implements PluginConfig<unknown> {
     try {
       parsed = parseYaml(raw);
     } catch (cause) {
-      throw new ConfigParseError(this.pluginId, this.path, cause);
+      throw new ConfigParseError(this.pluginId, path, cause);
     }
     if (parsed == null) return {};
     if (typeof parsed !== "object" || Array.isArray(parsed)) {
       throw new ConfigParseError(
         this.pluginId,
-        this.path,
+        path,
         new Error("top-level value is not an object"),
       );
     }

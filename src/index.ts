@@ -61,6 +61,49 @@ export type {
   RegisteredIxPlugin,
 } from "./plugins/types.js";
 
+// ── Runtime ─────────────────────────────────────────────────────────────
+export {
+  configureRuntimeContext,
+  getRuntimeContext,
+  resetRuntimeContext,
+  type RuntimeContext,
+} from "./runtime/context.js";
+export {
+  configureDistributionRuntime,
+  createRuntimeDistribution,
+  defaultConfigRoot,
+  parseConfigRootFlag,
+  selectRuntimeConfigRoot,
+  type ConfigureDistributionRuntimeInput,
+  type IxRuntimeDistribution,
+  type RuntimeConfigRootSelection,
+} from "./runtime/distribution.js";
+export {
+  PluginManifestEntrySchema,
+  PluginManifestSchema,
+  loadPluginManifestLayers,
+  parsePluginManifest,
+  resolvePluginManifestLayers,
+  type PluginLoadResult,
+  type PluginManifest,
+  type PluginManifestDiagnostic,
+  type PluginManifestEntry,
+  type PluginManifestLayer,
+  type PluginModuleResolver,
+  type ResolvedPluginManifestEntry,
+} from "./runtime/manifest.js";
+export {
+  capabilityErrorToJson,
+  createCapabilityResolver,
+  requiredCapabilitiesFor,
+  type BuiltInCapabilityId,
+  type CapabilityError,
+  type CapabilityErrorKind,
+  type CapabilityProvider,
+  type CapabilityProviderContext,
+  type CapabilityResolver,
+} from "./runtime/capabilities.js";
+
 // ── Secrets ──────────────────────────────────────────────────────────────
 export {
   type SecretId,

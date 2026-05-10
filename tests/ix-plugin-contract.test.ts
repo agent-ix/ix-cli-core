@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 describe("IxPlugin command contract", () => {
-  it("TC-500: public type supports command and capability fields", () => {
+  it("TC-600: public type supports command and capability fields", () => {
     const plugin: IxPlugin = {
       id: "workflow",
       commands: [
@@ -51,7 +51,7 @@ describe("IxPlugin command contract", () => {
     expect(plugin.capabilities?.[0].mode).toBe("required");
   });
 
-  it("TC-501: invalid plugin id registration fails without side effects", () => {
+  it("TC-601: invalid plugin id registration fails without side effects", () => {
     const result = registerIxPlugin({
       id: "../workflow",
       commands: [],
@@ -64,7 +64,7 @@ describe("IxPlugin command contract", () => {
     expect(getRegisteredIxPlugin("../workflow")).toBeUndefined();
   });
 
-  it("TC-502: strict config schema registers with env bindings", () => {
+  it("TC-602: strict config schema registers with env bindings", () => {
     const result = registerIxPlugin({
       id: "workflow",
       configSchema: StrictSchema,
@@ -78,7 +78,7 @@ describe("IxPlugin command contract", () => {
     });
   });
 
-  it("TC-503: non-strict config schema is rejected", () => {
+  it("TC-603: non-strict config schema is rejected", () => {
     const result = registerIxPlugin({
       id: "workflow",
       configSchema: LooseSchema,
@@ -91,7 +91,7 @@ describe("IxPlugin command contract", () => {
     expect(getRegisteredPlugin("workflow")).toBeUndefined();
   });
 
-  it("TC-504: secret declarations register under plugin namespace", () => {
+  it("TC-604: secret declarations register under plugin namespace", () => {
     const result = registerIxPlugin({
       id: "workflow",
       secretsSchema: [
@@ -111,7 +111,7 @@ describe("IxPlugin command contract", () => {
     });
   });
 
-  it("TC-505: duplicate plugin ids preserve first registration", () => {
+  it("TC-605: duplicate plugin ids preserve first registration", () => {
     const first = registerIxPlugin({
       id: "workflow",
       commands: [{ id: "a", topic: ["a"], summary: "A" }],
@@ -128,7 +128,7 @@ describe("IxPlugin command contract", () => {
     ]);
   });
 
-  it("TC-506: command and capability metadata is retained", () => {
+  it("TC-606: command and capability metadata is retained", () => {
     const result = registerIxPlugin({
       id: "workflow",
       commands: [
