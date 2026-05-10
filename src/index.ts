@@ -45,6 +45,22 @@ export {
   type ConfigIncident,
 } from "./config/registry.js";
 
+// ── Plugin contract ────────────────────────────────────────────────────
+export {
+  registerIxPlugin,
+  getRegisteredIxPlugin,
+  listRegisteredIxPlugins,
+  type IxPluginRegistrationFailureReason,
+  type IxPluginRegistrationResult,
+} from "./plugins/registry.js";
+export type {
+  IxCapabilityDeclaration,
+  IxCapabilityMode,
+  IxCommandRegistration,
+  IxPlugin,
+  RegisteredIxPlugin,
+} from "./plugins/types.js";
+
 // ── Secrets ──────────────────────────────────────────────────────────────
 export {
   type SecretId,
