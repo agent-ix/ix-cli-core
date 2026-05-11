@@ -6,6 +6,7 @@ export {
 
 export {
   CORE_PLUGIN_ID,
+  cacheRoot,
   configPathFor,
   configRoot,
   configDRoot,
@@ -45,7 +46,7 @@ export {
   type ConfigIncident,
 } from "./config/registry.js";
 
-// ── Plugin contract ────────────────────────────────────────────────────
+// ── Plugin contract (legacy IxPlugin — pending removal per task-06) ────
 export {
   registerIxPlugin,
   getRegisteredIxPlugin,
@@ -60,6 +61,21 @@ export type {
   IxPlugin,
   RegisteredIxPlugin,
 } from "./plugins/types.js";
+
+// ── ixSchema plugin convention (FR-025 revised) ────────────────────────
+export {
+  registerPluginSchema,
+  getRegisteredPluginSchema,
+  listRegisteredPluginSchemas,
+  type IxPluginSchema,
+  type PluginSchemaRegistrationFailureReason,
+  type PluginSchemaRegistrationResult,
+  type RegisteredPluginSchema,
+} from "./plugins/schema.js";
+
+// ── BaseCommand + capability spec (FR-021, FR-022, FR-024) ─────────────
+export { BaseCommand } from "./commands/base-command.js";
+export type { CommandCapabilities } from "./runtime/capability-spec.js";
 
 // ── Runtime ─────────────────────────────────────────────────────────────
 export {

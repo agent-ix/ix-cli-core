@@ -22,6 +22,7 @@ export default defineConfig({
         /^@napi-rs\/keyring-/,
         "@agent-ix/ix-ui-cli",
         "@clack/prompts",
+        "@oclif/core",
       ],
     },
   },

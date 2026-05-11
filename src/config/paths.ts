@@ -41,6 +41,22 @@ export function configDRoot(): string {
 }
 
 /**
+ * Absolute path to the cache root for the active distribution.
+ *
+ * Honors the runtime config-root override (`--config-root` /
+ * `IX_CONFIG_ROOT`) when set: cache lives at `<config-root>/cache`.
+ * Otherwise honors `XDG_CACHE_HOME`, falling back to
+ * `~/.cache/<configNamespace>`.
+ */
+export function cacheRoot(): string {
+  const runtime = getRuntimeContext();
+  if (runtime.configRoot) return join(runtime.configRoot, "cache");
+  const xdg = process.env.XDG_CACHE_HOME;
+  const base = xdg && xdg.length > 0 ? xdg : join(homedir(), ".cache");
+  return join(base, runtime.configNamespace);
+}
+
+/**
  * Validate a plugin id against the FR-013-AC-7 regex. Throws
  * `InvalidPluginIdError` on mismatch.
  */
