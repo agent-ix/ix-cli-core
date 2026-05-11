@@ -1,8 +1,11 @@
 import type { ConfigService } from "../config/service.js";
 import type { SecretsService } from "../secrets/service.js";
-import type { IxCommandRegistration, IxPlugin } from "../plugins/types.js";
+import type {
+  BuiltInCapabilityId,
+  CommandCapabilities,
+} from "./capability-spec.js";
 
-export type BuiltInCapabilityId = "github" | "ix-api" | "review-service";
+export type { BuiltInCapabilityId, CommandCapabilities };
 
 export type CapabilityErrorKind =
   | "capability_missing"
@@ -12,7 +15,7 @@ export type CapabilityErrorKind =
 export interface CapabilityError {
   kind: CapabilityErrorKind;
   capabilityId: string;
-  pluginId: string;
+  packageName?: string;
   commandId?: string;
   detail: string;
 }
@@ -27,30 +30,41 @@ export type CapabilityProvider = (
   context: CapabilityProviderContext,
 ) => Promise<true | CapabilityError> | true | CapabilityError;
 
-export interface CapabilityResolver {
-  resolveCommand(input: {
-    plugin: IxPlugin;
-    command?: IxCommandRegistration;
-  }): Promise<{ ok: true } | { ok: false; errors: CapabilityError[] }>;
+export interface CapabilityResolverInput {
+  capabilities: CommandCapabilities;
+  packageName?: string;
+  commandId?: string;
 }
 
+export interface CapabilityResolver {
+  resolveCommand(
+    input: CapabilityResolverInput,
+  ): Promise<{ ok: true } | { ok: false; errors: CapabilityError[] }>;
+}
+
+/**
+ * Build a resolver that consults `providers` for each required and
+ * optional capability declared on a command class
+ * (`static capabilities: CommandCapabilities`). Required capabilities
+ * that fail produce structured errors; optional capabilities never
+ * block resolution but are surfaced so commands can branch.
+ */
 export function createCapabilityResolver(input: {
   config: typeof ConfigService;
   secrets: SecretsService;
   providers: Record<string, CapabilityProvider>;
 }): CapabilityResolver {
   return {
-    async resolveCommand({ plugin, command }) {
-      const required = requiredCapabilitiesFor(plugin, command);
+    async resolveCommand({ capabilities, packageName, commandId }) {
       const errors: CapabilityError[] = [];
-      for (const capabilityId of required) {
+      for (const capabilityId of capabilities.required ?? []) {
         const provider = input.providers[capabilityId];
         if (!provider) {
           errors.push({
             kind: "capability_missing",
             capabilityId,
-            pluginId: plugin.id,
-            commandId: command?.id,
+            packageName,
+            commandId,
             detail: `capability ${capabilityId} is not available`,
           });
           continue;
@@ -60,12 +74,7 @@ export function createCapabilityResolver(input: {
           secrets: input.secrets,
         });
         if (result !== true) {
-          errors.push({
-            ...result,
-            capabilityId,
-            pluginId: plugin.id,
-            commandId: command?.id,
-          });
+          errors.push({ ...result, capabilityId, packageName, commandId });
         }
       }
       return errors.length === 0 ? { ok: true } : { ok: false, errors };
@@ -73,31 +82,17 @@ export function createCapabilityResolver(input: {
   };
 }
 
-export function requiredCapabilitiesFor(
-  plugin: IxPlugin,
-  command?: IxCommandRegistration,
-): string[] {
-  const required = new Set<string>();
-  for (const capability of plugin.capabilities ?? []) {
-    if (capability.mode === "required") required.add(capability.id);
-  }
-  for (const capabilityId of command?.requiredCapabilities ?? []) {
-    required.add(capabilityId);
-  }
-  return Array.from(required);
-}
-
 export function capabilityErrorToJson(error: CapabilityError): {
   code: CapabilityErrorKind;
   capabilityId: string;
-  pluginId: string;
+  packageName?: string;
   commandId?: string;
   detail: string;
 } {
   return {
     code: error.kind,
     capabilityId: error.capabilityId,
-    pluginId: error.pluginId,
+    packageName: error.packageName,
     commandId: error.commandId,
     detail: error.detail,
   };

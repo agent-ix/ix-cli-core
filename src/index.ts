@@ -46,22 +46,6 @@ export {
   type ConfigIncident,
 } from "./config/registry.js";
 
-// ── Plugin contract (legacy IxPlugin — pending removal per task-06) ────
-export {
-  registerIxPlugin,
-  getRegisteredIxPlugin,
-  listRegisteredIxPlugins,
-  type IxPluginRegistrationFailureReason,
-  type IxPluginRegistrationResult,
-} from "./plugins/registry.js";
-export type {
-  IxCapabilityDeclaration,
-  IxCapabilityMode,
-  IxCommandRegistration,
-  IxPlugin,
-  RegisteredIxPlugin,
-} from "./plugins/types.js";
-
 // ── ixSchema plugin convention (FR-025 revised) ────────────────────────
 export {
   registerPluginSchema,
@@ -85,39 +69,15 @@ export {
   type RuntimeContext,
 } from "./runtime/context.js";
 export {
-  configureDistributionRuntime,
-  createRuntimeDistribution,
-  defaultConfigRoot,
-  parseConfigRootFlag,
-  selectRuntimeConfigRoot,
-  type ConfigureDistributionRuntimeInput,
-  type IxRuntimeDistribution,
-  type RuntimeConfigRootSelection,
-} from "./runtime/distribution.js";
-export {
-  PluginManifestEntrySchema,
-  PluginManifestSchema,
-  loadPluginManifestLayers,
-  parsePluginManifest,
-  resolvePluginManifestLayers,
-  type PluginLoadResult,
-  type PluginManifest,
-  type PluginManifestDiagnostic,
-  type PluginManifestEntry,
-  type PluginManifestLayer,
-  type PluginModuleResolver,
-  type ResolvedPluginManifestEntry,
-} from "./runtime/manifest.js";
-export {
   capabilityErrorToJson,
   createCapabilityResolver,
-  requiredCapabilitiesFor,
   type BuiltInCapabilityId,
   type CapabilityError,
   type CapabilityErrorKind,
   type CapabilityProvider,
   type CapabilityProviderContext,
   type CapabilityResolver,
+  type CapabilityResolverInput,
 } from "./runtime/capabilities.js";
 
 // ── Secrets ──────────────────────────────────────────────────────────────
