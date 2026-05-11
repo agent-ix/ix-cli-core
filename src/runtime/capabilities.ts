@@ -39,7 +39,10 @@ export interface CapabilityResolverInput {
 export interface CapabilityResolver {
   resolveCommand(
     input: CapabilityResolverInput,
-  ): Promise<{ ok: true } | { ok: false; errors: CapabilityError[] }>;
+  ): Promise<
+    | { ok: true; availableCapabilities: string[] }
+    | { ok: false; errors: CapabilityError[]; availableCapabilities: string[] }
+  >;
 }
 
 /**
@@ -57,6 +60,7 @@ export function createCapabilityResolver(input: {
   return {
     async resolveCommand({ capabilities, packageName, commandId }) {
       const errors: CapabilityError[] = [];
+      const availableCapabilities: string[] = [];
       for (const capabilityId of capabilities.required ?? []) {
         const provider = input.providers[capabilityId];
         if (!provider) {
@@ -75,9 +79,24 @@ export function createCapabilityResolver(input: {
         });
         if (result !== true) {
           errors.push({ ...result, capabilityId, packageName, commandId });
+        } else {
+          availableCapabilities.push(capabilityId);
         }
       }
-      return errors.length === 0 ? { ok: true } : { ok: false, errors };
+      for (const capabilityId of capabilities.optional ?? []) {
+        const provider = input.providers[capabilityId];
+        if (!provider) continue;
+        const result = await provider(capabilityId, {
+          config: input.config,
+          secrets: input.secrets,
+        });
+        if (result === true) {
+          availableCapabilities.push(capabilityId);
+        }
+      }
+      return errors.length === 0
+        ? { ok: true, availableCapabilities }
+        : { ok: false, errors, availableCapabilities };
     },
   };
 }

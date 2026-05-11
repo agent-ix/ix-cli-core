@@ -1,5 +1,8 @@
 import type { ZodObject, ZodRawShape } from "zod";
 
+import { isValidPluginId } from "../config/paths.js";
+import { registerPlugin } from "../config/registry.js";
+import { registerSecretsForPlugin } from "../secrets/registry.js";
 import type { SecretDeclaration } from "../secrets/types.js";
 
 /**
@@ -8,12 +11,15 @@ import type { SecretDeclaration } from "../secrets/types.js";
  *
  * The host's `init` hook walks the oclif-loaded plugin list, reads each
  * plugin's `ixSchema`, and registers schemas with `ConfigService` /
- * `SecretsService` keyed by the plugin's npm package name.
+ * `SecretsService` keyed by `ixSchema.id` when provided, otherwise a
+ * safe id derived from the plugin's npm package name.
  */
 export interface IxPluginSchema {
+  /** Safe config/secrets namespace. Defaults to a sanitized package name. */
+  id?: string;
   /** Strict Zod object describing the plugin's persistent config. */
   config?: ZodObject<ZodRawShape>;
-  /** Secret declarations registered under `<package-name>.<secret-name>`. */
+  /** Secret declarations registered under `<plugin-id>.<secret-name>`. */
   secrets?: SecretDeclaration[];
   /** Map of config key → env-var name for env-binding overrides. */
   env?: Record<string, string>;
@@ -27,6 +33,7 @@ export interface RegisteredPluginSchema {
 
 export type PluginSchemaRegistrationFailureReason =
   | "invalid-package-name"
+  | "invalid-plugin-id"
   | "non-strict-schema"
   | "duplicate-registration";
 
@@ -48,15 +55,18 @@ const registry = new Map<string, RegisteredPluginSchema>();
 /**
  * Register a plugin's `ixSchema` under its npm package name.
  *
- * - `packageName` must be a non-empty string.
+ * - `packageName` must be a non-empty string and is used as the oclif
+ *   install/load identity.
+ * - `schema.id`, if present, is the config/secrets namespace. Without it,
+ *   a safe namespace is derived from the package name.
  * - `schema.config`, if present, must be a strict Zod object
  *   (`z.object({...}).strict()`); non-strict schemas are rejected.
  * - Duplicate registrations preserve the first entry and return a
  *   non-throwing failure result.
  *
- * This function does not write to `ConfigService` / `SecretsService` —
- * callers wire those registrations through the existing
- * `registerPlugin` / `registerSecretsForPlugin` APIs.
+ * This function also wires the schema through the existing
+ * `registerPlugin` / `registerSecretsForPlugin` APIs so `ix config` and
+ * `ix secrets` can see oclif plugins immediately after host bootstrap.
  */
 export function registerPluginSchema(
   packageName: string,
@@ -68,6 +78,16 @@ export function registerPluginSchema(
       kind: "invalid-package-name",
       packageName,
       detail: `package name must be a non-empty string, got ${JSON.stringify(packageName)}`,
+    };
+  }
+
+  const pluginId = schema.id ?? pluginIdFromPackageName(packageName);
+  if (!isValidPluginId(pluginId)) {
+    return {
+      ok: false,
+      kind: "invalid-plugin-id",
+      packageName,
+      detail: `ixSchema id for ${packageName} must match /^[a-z][a-z0-9-]*$/`,
     };
   }
 
@@ -88,6 +108,36 @@ export function registerPluginSchema(
       packageName,
       detail: `plugin schema for ${packageName} is already registered`,
     };
+  }
+
+  if (schema.config) {
+    const result = registerPlugin({
+      pluginId,
+      schema: schema.config,
+      envBindings: schema.env,
+    });
+    if (!result.ok) {
+      return {
+        ok: false,
+        kind: "duplicate-registration",
+        packageName,
+        detail: `config registry already contains plugin id ${pluginId}`,
+      };
+    }
+  }
+
+  if (schema.secrets) {
+    const failed = registerSecretsForPlugin(pluginId, schema.secrets).find(
+      (result) => !result.ok,
+    );
+    if (failed) {
+      return {
+        ok: false,
+        kind: "duplicate-registration",
+        packageName,
+        detail: `secret registry rejected plugin id ${pluginId}: ${failed.kind}`,
+      };
+    }
   }
 
   const entry: RegisteredPluginSchema = { packageName, schema };
@@ -118,4 +168,15 @@ function isStrictZodObject(schema: ZodObject<ZodRawShape>): boolean {
     catchall !== undefined &&
     (catchall.def?.type === "never" || catchall._def?.type === "never")
   );
+}
+
+function pluginIdFromPackageName(packageName: string): string {
+  const bare = packageName.startsWith("@")
+    ? (packageName.split("/").at(-1) ?? packageName)
+    : packageName;
+  return bare
+    .replace(/^ix-cli-/, "")
+    .replace(/^workflow-cli-plugin$/, "workflow")
+    .replace(/[^a-zA-Z0-9-]/g, "-")
+    .toLowerCase();
 }
