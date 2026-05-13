@@ -2,16 +2,13 @@ import type { ReactNode } from "react";
 import { execSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 
-import {
-  GLYPH_DIM_DOT,
-  Listing,
-  Item,
-  Note,
-  Text,
-  blue,
-  renderStatic,
-} from "@agent-ix/ix-ui-cli";
+import type * as IxUiCli from "@agent-ix/ix-ui-cli";
 import { parse as parseYaml } from "yaml";
+
+let _ixUi: typeof IxUiCli | undefined;
+async function loadIxUi(): Promise<typeof IxUiCli> {
+  return (_ixUi ??= await import("@agent-ix/ix-ui-cli"));
+}
 
 import { CORE_PLUGIN_ID } from "../config/paths.js";
 import { doctor } from "../config/doctor.js";
@@ -228,6 +225,7 @@ export async function runConfigGet(
   pluginId: string | undefined,
   keyPath: string,
 ): Promise<void> {
+  const { Listing, Item, renderStatic } = await loadIxUi();
   const plugin = resolvePlugin(pluginId);
   const cfg = ConfigService.forPlugin(plugin.pluginId, plugin.schema, {
     envBindings: plugin.envBindings,
@@ -263,6 +261,7 @@ export async function runConfigSet(
   keyPath: string,
   rawValue: string,
 ): Promise<void> {
+  const { GLYPH_DIM_DOT, Listing, Text, blue, renderStatic } = await loadIxUi();
   const plugin = resolvePlugin(pluginId);
   const segments = keyPath.split(".");
   const classification = classifyKey(plugin, segments);
@@ -322,6 +321,7 @@ export async function runConfigSet(
 /* ── runConfigDoctor ─────────────────────────────────────────────────── */
 
 export async function runConfigDoctor(): Promise<{ exitCode: number }> {
+  const { Listing, Item, Note, renderStatic } = await loadIxUi();
   const report = doctor();
 
   let invalidCount = 0;
@@ -411,6 +411,8 @@ function formatIssueLine(
 export async function runConfigEdit(
   pluginId: string | undefined,
 ): Promise<void> {
+  const { GLYPH_DIM_DOT, Listing, Note, Text, blue, renderStatic } =
+    await loadIxUi();
   const plugin = resolvePlugin(pluginId);
   const cfg = ConfigService.forPlugin(plugin.pluginId, plugin.schema, {
     envBindings: plugin.envBindings,

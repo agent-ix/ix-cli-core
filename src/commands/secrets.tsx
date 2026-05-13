@@ -1,20 +1,12 @@
 import type React from "react";
-import {
-  GLYPH_DIM_DOT,
-  Listing,
-  Item,
-  Note,
-  PasswordPrompt,
-  Text,
-  blue,
-  render,
-  renderStatic,
-  useEffect,
-  useRenderResult,
-  useState,
-} from "@agent-ix/ix-ui-cli";
+import type * as IxUiCli from "@agent-ix/ix-ui-cli";
 
 import { defaultSecretsService } from "../secrets/default.js";
+
+let _ixUi: typeof IxUiCli | undefined;
+async function loadIxUi(): Promise<typeof IxUiCli> {
+  return (_ixUi ??= await import("@agent-ix/ix-ui-cli"));
+}
 import {
   SecretsService,
   type SecretsServiceOptions,
@@ -41,6 +33,8 @@ function ensureRegistered(id: string): void {
 /** Render a PasswordPrompt and resolve with the entered value, or null if
  *  the user cancelled. */
 async function promptForPassword(message: string): Promise<string | null> {
+  const { PasswordPrompt, render, useEffect, useRenderResult, useState } =
+    await loadIxUi();
   let captured: string | null = null;
   let cancelled = false;
   const Capture: React.FC = () => {
@@ -72,6 +66,7 @@ async function promptForPassword(message: string): Promise<string | null> {
 export async function runSecretsList(
   deps: SecretsCommandDeps = {},
 ): Promise<void> {
+  const { Listing, Item, Note, renderStatic } = await loadIxUi();
   const svc = pickService(deps);
   const rows = await svc.list();
 
@@ -106,6 +101,7 @@ export async function runSecretsSet(
   id: string,
   deps: SecretsCommandDeps = {},
 ): Promise<void> {
+  const { GLYPH_DIM_DOT, Listing, Text, blue, renderStatic } = await loadIxUi();
   ensureRegistered(id);
   const svc = pickService(deps);
 
@@ -153,6 +149,7 @@ export async function runSecretsRm(
   opts: { strict?: boolean } = {},
   deps: SecretsCommandDeps = {},
 ): Promise<{ exitCode: number }> {
+  const { GLYPH_DIM_DOT, Listing, Text, blue, renderStatic } = await loadIxUi();
   ensureRegistered(id);
   const svc = pickService(deps);
 
@@ -200,6 +197,7 @@ export async function runSecretsWhich(
   id: string,
   deps: SecretsCommandDeps = {},
 ): Promise<void> {
+  const { Listing, Item, renderStatic } = await loadIxUi();
   ensureRegistered(id);
   const svc = pickService(deps);
   const which = await svc.which(id);
