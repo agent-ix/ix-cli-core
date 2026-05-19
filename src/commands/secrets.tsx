@@ -101,7 +101,7 @@ export async function runSecretsSet(
   id: string,
   deps: SecretsCommandDeps = {},
 ): Promise<void> {
-  const { GLYPH_DIM_DOT, Listing, Text, blue, renderStatic } = await loadIxUi();
+  const { FlowLine, Listing, blue, renderStatic } = await loadIxUi();
   ensureRegistered(id);
   const svc = pickService(deps);
 
@@ -132,11 +132,7 @@ export async function runSecretsSet(
       header="ix secrets set"
       status="passed"
       variant="flow"
-      pre={
-        <Text>
-          {` ${GLYPH_DIM_DOT} Setting ${blue(id)} in ${blue(backend)}`}
-        </Text>
-      }
+      pre={<FlowLine>{`Setting ${blue(id)} in ${blue(backend)}`}</FlowLine>}
       tail={`Stored ${blue(id)} in ${blue(backend)}.`}
     />,
   );
@@ -149,7 +145,7 @@ export async function runSecretsRm(
   opts: { strict?: boolean } = {},
   deps: SecretsCommandDeps = {},
 ): Promise<{ exitCode: number }> {
-  const { GLYPH_DIM_DOT, Listing, Text, blue, renderStatic } = await loadIxUi();
+  const { FlowLine, Listing, blue, renderStatic } = await loadIxUi();
   ensureRegistered(id);
   const svc = pickService(deps);
 
@@ -184,7 +180,7 @@ export async function runSecretsRm(
       header="ix secrets rm"
       status="passed"
       variant="flow"
-      pre={<Text>{` ${GLYPH_DIM_DOT} Removing ${blue(id)}`}</Text>}
+      pre={<FlowLine>{`Removing ${blue(id)}`}</FlowLine>}
       tail={`Cleared ${blue(id)}.`}
     />,
   );

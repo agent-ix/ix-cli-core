@@ -261,7 +261,7 @@ export async function runConfigSet(
   keyPath: string,
   rawValue: string,
 ): Promise<void> {
-  const { GLYPH_DIM_DOT, Listing, Text, blue, renderStatic } = await loadIxUi();
+  const { FlowLine, Listing, blue, renderStatic } = await loadIxUi();
   const plugin = resolvePlugin(pluginId);
   const segments = keyPath.split(".");
   const classification = classifyKey(plugin, segments);
@@ -309,9 +309,7 @@ export async function runConfigSet(
       status="passed"
       variant="flow"
       pre={
-        <Text>
-          {` ${GLYPH_DIM_DOT} ${blue(fullKey)} → ${blue(formatValue(parsed))}`}
-        </Text>
+        <FlowLine>{`${blue(fullKey)} → ${blue(formatValue(parsed))}`}</FlowLine>
       }
       tail={`Set ${blue(fullKey)} in ${blue(cfg.filePath())}.`}
     />,
@@ -411,8 +409,7 @@ function formatIssueLine(
 export async function runConfigEdit(
   pluginId: string | undefined,
 ): Promise<void> {
-  const { GLYPH_DIM_DOT, Listing, Note, Text, blue, renderStatic } =
-    await loadIxUi();
+  const { FlowLine, Listing, Note, blue, renderStatic } = await loadIxUi();
   const plugin = resolvePlugin(pluginId);
   const cfg = ConfigService.forPlugin(plugin.pluginId, plugin.schema, {
     envBindings: plugin.envBindings,
@@ -486,7 +483,7 @@ export async function runConfigEdit(
       header="ix config edit"
       status="passed"
       variant="flow"
-      pre={<Text>{` ${GLYPH_DIM_DOT} ${blue(editor)} ${blue(filePath)}`}</Text>}
+      pre={<FlowLine>{`${blue(editor)} ${blue(filePath)}`}</FlowLine>}
       tail="Validated."
     />,
   );
