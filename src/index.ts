@@ -155,3 +155,50 @@ export {
   newSecretsServiceForTesting,
   type SecretsCommandDeps,
 } from "./commands/secrets.js";
+
+// ── Auth engine (FR-015..FR-018) ─────────────────────────────────────────
+// Generic, service-agnostic device-flow login: discovery client, runner,
+// host-keyed token store, and a non-fatal browser opener. Service identity
+// and CLI defaults are supplied by the consuming binary.
+export {
+  // discovery
+  fetchServiceDiscovery,
+  normalizeHostOrigin,
+  WELL_KNOWN_PATH,
+  DiscoveryHostError,
+  DiscoveryInsecureError,
+  DiscoveryFetchError,
+  DiscoverySchemaError,
+  type FetchServiceDiscoveryOptions,
+  // device-flow runner
+  runDeviceFlow,
+  DeviceFlowError,
+  DEFAULT_DEVICE_CLIENT_ID,
+  DEVICE_CODE_GRANT_TYPE,
+  type DeviceFlowErrorCode,
+  type DeviceFlowPrompter,
+  type RunDeviceFlowOptions,
+  // token store
+  TokenStore,
+  MemoryTokenMetaStore,
+  NotAuthenticatedError,
+  TokenRefreshError,
+  hostSlug,
+  DEFAULT_TOKEN_PLUGIN_ID,
+  DEFAULT_REFRESH_SKEW_MS,
+  type TokenMetaStore,
+  type TokenStoreOptions,
+  type GetAccessTokenOptions,
+  // browser
+  openBrowser,
+  // contract types
+  type AgentixServiceDiscovery,
+  type ServiceIdentity,
+  type DeviceAuthorizeRequest,
+  type DeviceAuthorizeResponse,
+  type DeviceTokenRequest,
+  type DeviceTokenResponse,
+  type DeviceTokenError,
+  type TokenBundle,
+  type TokenMeta,
+} from "./auth/index.js";

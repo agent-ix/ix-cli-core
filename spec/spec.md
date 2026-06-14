@@ -58,6 +58,7 @@ This specification governs:
 - **Runtime** — `BaseCommand` (with `--config-root` / `--no-project-config` base flags and the capability-resolution `prerun` hook), `CapabilityResolver`, `RuntimeContext`, and oclif-native CLI composition.
 - **`config` and `secrets` command runners** — generic, plugin-agnostic command implementations the host binary registers.
 - **Atomic-write helper** — the single `0o600` temp+rename writer all governed files go through.
+- **Auth engine** — a generic, service-agnostic device-login engine: service-discovery client (`fetchServiceDiscovery`), OAuth 2.0 Device Authorization Grant runner (`runDeviceFlow`), host-keyed/audience-scoped token store with refresh-before-expiry + rotation (`TokenStore.getAccessToken`), and a non-fatal browser opener. Every endpoint/audience/scope is parameterized by the discovery document — no service identity is baked in.
 
 ### 2.2 Out of Scope
 
@@ -65,7 +66,7 @@ This specification does not govern:
 
 - Any specific binary, branding, or distribution composition (those live in the consuming CLI repo).
 - The IX `core` plugin's concrete `config`/`secrets` schema — including `auth.serviceUrl`, GitHub/IX auth tokens, telemetry, theme, and update-check fields. That declaration is IX-specific and is specified in `ix://agent-ix/ix-cli` (its `FR-020`).
-- IX service auth flows (GitHub device flow, IX auth-service token exchange).
+- **IX-specific** auth wiring: the `ix login <host>` / `ix whoami` / `ix logout` commands, IX defaults (default host, client id), and any IX service identity. The framework owns the _generic_ device-login engine (FR-015–FR-018); the IX commands that wire it to IX services are specified in `ix://agent-ix/ix-cli`. (A legacy GitHub-token device flow and IX auth-service token exchange remain IX concerns.)
 - Local cluster, elements, or spec workflow commands.
 - Terminal UI component internals (owned by `@agent-ix/ix-ui-cli`).
 
@@ -84,6 +85,7 @@ This specification does not govern:
 | `plugins/`  | `registerPluginSchema` + `IxPluginSchema` contract                             |
 | `runtime/`  | `BaseCommand` context, `CapabilityResolver`, capability spec, `RuntimeContext` |
 | `commands/` | `config` and `secrets` command runners                                         |
+| `auth/`     | discovery client, device-flow runner, host-keyed token store, browser opener   |
 | `atomic/`   | `atomicWrite` — `0o600` temp+rename helper                                     |
 
 ### 3.2 Intended Users
@@ -122,11 +124,11 @@ Usage scenarios describing author intent when composing a CLI on the framework.
 
 ### 5.3 Functional Requirements (`FR-XXX`)
 
-Testable behavioral contracts for the config service, secrets service, plugin contract, runtime, and command runners.
+Testable behavioral contracts for the config service, secrets service, plugin contract, runtime, command runners, and the generic auth engine (discovery, device-flow runner, host-keyed token store, browser opener).
 
 ### 5.4 Non-Functional Requirements (`NFR-XXX`)
 
-Quality constraints: secrets-at-rest, file permissions, error UX, backend pluggability.
+Quality constraints: secrets-at-rest, file permissions, error UX, backend pluggability, auth host isolation / TLS-only discovery, and tokens-never-plaintext.
 
 ---
 
@@ -165,10 +167,16 @@ Identifiers are immutable once assigned. IDs in this repo are a flat per-repo se
 | FR-012  | Plugin Discovery (oclif-native)                          |
 | FR-013  | Per-Command Capability Binding                           |
 | FR-014  | ixSchema Plugin Convention                               |
+| FR-015  | Service Discovery Client                                 |
+| FR-016  | Device-Flow Runner                                       |
+| FR-017  | Host-Keyed Token Store with Refresh-Before-Expiry        |
+| FR-018  | Non-Fatal Browser Opener                                 |
 | NFR-001 | No Plaintext Secret Values Persisted on Disk             |
 | NFR-002 | Sensitive Files Created Mode 0600 via Atomic Temp+Rename |
 | NFR-003 | Schema Validation Errors Are Actionable                  |
 | NFR-004 | Secrets Backend Adapter Pluggability                     |
+| NFR-005 | Auth Host Isolation and TLS-Only Discovery               |
+| NFR-006 | Auth Tokens Never Persisted in Plaintext                 |
 
 ---
 
@@ -255,6 +263,43 @@ secrets which <id>
 ```
 
 All output flows through the host CLI's UI primitives (e.g. `@agent-ix/ix-ui-cli`); the runners never call `console.log` / `process.stdout.write` directly, and `secrets` never echoes a value (FR-008, FR-009).
+
+---
+
+## 9A. Auth Engine
+
+The framework ships a **generic, service-agnostic** device-login engine in
+`src/auth/`. It is the building block a host CLI wires into its own
+`login`/`whoami`/`logout` commands (the IX wiring lives in `ix://agent-ix/ix-cli`).
+No service identity (Filament, a particular issuer, etc.) is baked in — every
+endpoint, audience, and scope is read from a discovery document.
+
+1. **Discovery client** (FR-015). `fetchServiceDiscovery(host)` normalizes a
+   user-supplied host to an `https` origin (the `--insecure` / `*.dev.ix`
+   carve-out aside), `GET`s `/.well-known/agentix-service.json`, and validates
+   the `AgentixServiceDiscovery` shape — mirroring the `gateway-bff-contract`
+   model the BFF and browser SDK share.
+
+2. **Device-flow runner** (FR-016). `runDeviceFlow(discovery)` performs the
+   OAuth 2.0 Device Authorization Grant (RFC 8628): authorize → present the
+   `verification_uri` + `user_code` through the host's UI → best-effort,
+   non-fatal browser open → poll the token endpoint honoring
+   `interval` / `slow_down` backoff / `authorization_pending` /
+   `access_denied` / `expired_token`. The browser never sees a token; the CLI
+   polls the BFF directly.
+
+3. **Host-keyed token store** (FR-017). `TokenStore` persists the access and
+   refresh tokens per host through `SecretsService` (never plaintext on disk,
+   NFR-006), with expiry/audience/scope metadata kept separately.
+   `getAccessToken(host)` returns a fresh token, refreshing before expiry via
+   the discovery doc's `token_refresh_endpoint` and rotating the stored refresh
+   token when the issuer returns a new one.
+
+4. **Browser opener** (FR-018). A non-fatal, WSL/headless-aware opener; failure
+   never aborts login.
+
+Host isolation and TLS-only discovery are quality constraints on this engine
+(NFR-005); tokens-never-plaintext extends NFR-001 (NFR-006).
 
 ---
 
