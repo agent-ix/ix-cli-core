@@ -102,8 +102,12 @@ describe("runDeviceFlow — happy path", () => {
     expect(bundle.audience).toBe("filament");
     expect(bundle.expiresAt).toBe(t + 3600 * 1000);
 
-    // Prompt showed the verification URI + user code.
+    // Prompt showed the BRANDED approval URI (approval_uri + user_code), the
+    // raw verification URI, and the user code.
     expect(shown).toHaveLength(1);
+    expect(shown[0].approvalUri).toBe(
+      "https://filament.dev.ix/login/device?user_code=WXYZ-1234",
+    );
     expect(shown[0].verificationUri).toBe(AUTHORIZE_OK.verification_uri);
     expect(shown[0].userCode).toBe(AUTHORIZE_OK.user_code);
 
@@ -113,10 +117,14 @@ describe("runDeviceFlow — happy path", () => {
     expect(authCall?.body).toContain("client_id=ix-cli");
   });
 
-  it("uses verification_uri_complete for the browser open when present", async () => {
+  it("prefers the branded approval_uri (+ user_code) for browser open and prompt", async () => {
+    // Even when the issuer supplies a verification_uri_complete, the discovery
+    // document's approval_uri wins: the user is directed to the product's own
+    // branded approval page, not the raw issuer verification URI.
     const { fetchImpl } = makeFetch([
       json({ access_token: "at", token_type: "Bearer", expires_in: 60 }),
     ]);
+    const { prompter, shown } = recordingPrompter();
     const opened: string[] = [];
     await runDeviceFlow(
       { ...DISCOVERY },
@@ -126,23 +134,65 @@ describe("runDeviceFlow — happy path", () => {
             return Promise.resolve(
               json({
                 ...AUTHORIZE_OK,
+                verification_uri: "https://auth.dev.ix/api/v1/device",
                 verification_uri_complete:
-                  "https://filament.dev.ix/login/device?user_code=WXYZ-1234",
+                  "https://auth.dev.ix/api/v1/device?code=WXYZ-1234",
               }),
             );
           }
           return (fetchImpl as unknown as typeof fetch)(url, init);
         }) as unknown as typeof fetch,
         sleepImpl: noSleep,
+        prompter,
         openBrowserImpl: async (u: string) => {
           opened.push(u);
           return true;
         },
       },
     );
+    const branded = "https://filament.dev.ix/login/device?user_code=WXYZ-1234";
+    expect(opened).toEqual([branded]);
+    expect(shown[0].approvalUri).toBe(branded);
+    // Raw issuer verification URI is still surfaced as a fallback/reference.
+    expect(shown[0].verificationUri).toBe("https://auth.dev.ix/api/v1/device");
+  });
+
+  it("falls back to verification_uri_complete when discovery has no approval_uri", async () => {
+    const { fetchImpl } = makeFetch([
+      json({ access_token: "at", token_type: "Bearer", expires_in: 60 }),
+    ]);
+    const { prompter, shown } = recordingPrompter();
+    const opened: string[] = [];
+    const noApproval = {
+      ...DISCOVERY,
+      approval_uri: "",
+    } as unknown as AgentixServiceDiscovery;
+    await runDeviceFlow(noApproval, {
+      fetchImpl: ((url: string, init?: RequestInit) => {
+        if (url.endsWith("/authorize")) {
+          return Promise.resolve(
+            json({
+              ...AUTHORIZE_OK,
+              verification_uri_complete:
+                "https://filament.dev.ix/login/device?user_code=WXYZ-1234",
+            }),
+          );
+        }
+        return (fetchImpl as unknown as typeof fetch)(url, init);
+      }) as unknown as typeof fetch,
+      sleepImpl: noSleep,
+      prompter,
+      openBrowserImpl: async (u: string) => {
+        opened.push(u);
+        return true;
+      },
+    });
     expect(opened).toEqual([
       "https://filament.dev.ix/login/device?user_code=WXYZ-1234",
     ]);
+    expect(shown[0].approvalUri).toBe(
+      "https://filament.dev.ix/login/device?user_code=WXYZ-1234",
+    );
   });
 });
 

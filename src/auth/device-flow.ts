@@ -50,6 +50,15 @@ export type DeviceFlowErrorCode =
 export interface DeviceFlowPrompter {
   /** Show the verification URI + user code prominently. */
   showVerification(info: {
+    /**
+     * The user-facing URL the CLI should direct the human to. When the
+     * discovery document advertises a branded `approval_uri`, this is
+     * `{approval_uri}?user_code={user_code}` (the product's own approval
+     * page); otherwise it falls back to the issuer `verificationUriComplete`
+     * / `verificationUri`. Hosts should present this URL.
+     */
+    approvalUri: string;
+    /** Raw issuer verification URI (RFC 8628 fallback / reference). */
     verificationUri: string;
     verificationUriComplete?: string;
     userCode: string;
@@ -166,7 +175,14 @@ export async function runDeviceFlow(
   }
 
   // ── 2. + 3. present + best-effort browser open ──────────────────────────
-  const openUrl = auth.verification_uri_complete ?? auth.verification_uri;
+  // Prefer the discovery document's branded `approval_uri` (the product's own
+  // device-approval page) over the raw issuer `verification_uri`. When present,
+  // the user is directed to `{approval_uri}?user_code={user_code}`; the issuer
+  // verification URI is kept only as a fallback for issuers that advertise no
+  // approval page.
+  const approvalUri = buildApprovalUri(discovery.approval_uri, auth.user_code);
+  const openUrl =
+    approvalUri ?? auth.verification_uri_complete ?? auth.verification_uri;
   let browserOpened = false;
   if (opts.openBrowser !== false) {
     const open = opts.openBrowserImpl ?? openBrowser;
@@ -178,6 +194,7 @@ export async function runDeviceFlow(
   }
   if (opts.prompter?.showVerification) {
     await opts.prompter.showVerification({
+      approvalUri: openUrl,
       verificationUri: auth.verification_uri,
       verificationUriComplete: auth.verification_uri_complete,
       userCode: auth.user_code,
@@ -268,6 +285,30 @@ export async function runDeviceFlow(
             describeError(poll.body),
         );
     }
+  }
+}
+
+/**
+ * Build the branded approval URL from the discovery `approval_uri` and the
+ * issuer-minted `user_code`: `{approval_uri}?user_code={user_code}`. Returns
+ * `undefined` when the discovery doc advertises no usable `approval_uri`, so
+ * the caller falls back to the issuer verification URI.
+ */
+function buildApprovalUri(
+  approvalUri: string | undefined,
+  userCode: string,
+): string | undefined {
+  if (typeof approvalUri !== "string" || approvalUri.trim().length === 0) {
+    return undefined;
+  }
+  try {
+    const url = new URL(approvalUri);
+    url.searchParams.set("user_code", userCode);
+    return url.toString();
+  } catch {
+    // Not an absolute URL — best effort string concat.
+    const sep = approvalUri.includes("?") ? "&" : "?";
+    return `${approvalUri}${sep}user_code=${encodeURIComponent(userCode)}`;
   }
 }
 
