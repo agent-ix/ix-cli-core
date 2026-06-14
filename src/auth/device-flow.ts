@@ -96,7 +96,16 @@ function realSleep(ms: number): Promise<void> {
   return new Promise((r) => setTimeout(r, ms));
 }
 
-async function postForm(
+/**
+ * POST a JSON body to a BFF device endpoint.
+ *
+ * The Agent-IX gateway BFF proxies the RFC 8628 device routes
+ * (`/api/auth/device/authorize`, `/api/auth/device/token`) as
+ * `application/json` (see `auth-bff` `device.py`, which `await _read_json` on
+ * both routes and validates against the `gateway-bff-contract` pydantic
+ * models). The body is JSON, not `application/x-www-form-urlencoded`.
+ */
+async function postJson(
   fetchImpl: typeof fetch,
   url: string,
   fields: Record<string, string>,
@@ -105,10 +114,10 @@ async function postForm(
   const res = await fetchImpl(url, {
     method: "POST",
     headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
+      "Content-Type": "application/json",
       Accept: "application/json",
     },
-    body: new URLSearchParams(fields).toString(),
+    body: JSON.stringify(fields),
     ...(signal ? { signal } : {}),
   });
   let body: Record<string, unknown> = {};
@@ -143,7 +152,7 @@ export async function runDeviceFlow(
 
   let authorize: { status: number; body: Record<string, unknown> };
   try {
-    authorize = await postForm(
+    authorize = await postJson(
       fetchImpl,
       discovery.device_authorization_endpoint,
       authFields,
@@ -225,7 +234,7 @@ export async function runDeviceFlow(
 
     let poll: { status: number; body: Record<string, unknown> };
     try {
-      poll = await postForm(
+      poll = await postJson(
         fetchImpl,
         discovery.device_token_endpoint,
         {

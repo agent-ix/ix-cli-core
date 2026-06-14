@@ -111,10 +111,44 @@ describe("runDeviceFlow — happy path", () => {
     expect(shown[0].verificationUri).toBe(AUTHORIZE_OK.verification_uri);
     expect(shown[0].userCode).toBe(AUTHORIZE_OK.user_code);
 
-    // authorize body carried audience + scope from discovery.
+    // authorize body is JSON (the BFF device routes are application/json) and
+    // carried audience + scope from discovery.
     const authCall = calls.find((c) => c.url.endsWith("/authorize"));
-    expect(authCall?.body).toContain("audience=filament");
-    expect(authCall?.body).toContain("client_id=ix-cli");
+    const authBody = JSON.parse(authCall?.body ?? "{}");
+    expect(authBody.audience).toBe("filament");
+    expect(authBody.client_id).toBe("ix-cli");
+    expect(authBody.scope).toBe("openid filament:read");
+  });
+
+  it("sends JSON request bodies with Content-Type application/json", async () => {
+    const headersSeen: (HeadersInit | undefined)[] = [];
+    const bodies: string[] = [];
+    const fetchImpl = vi.fn(async (url: string, init?: RequestInit) => {
+      headersSeen.push(init?.headers);
+      bodies.push(String(init?.body ?? ""));
+      if (url.endsWith("/authorize")) return json(AUTHORIZE_OK);
+      return json({ access_token: "at", token_type: "Bearer", expires_in: 60 });
+    });
+    await runDeviceFlow(DISCOVERY, {
+      fetchImpl: fetchImpl as unknown as typeof fetch,
+      sleepImpl: noSleep,
+      openBrowserImpl: noOpen,
+    });
+    // Every POST declared JSON and carried a JSON-parseable body.
+    for (const h of headersSeen) {
+      expect((h as Record<string, string>)["Content-Type"]).toBe(
+        "application/json",
+      );
+    }
+    for (const b of bodies) {
+      expect(() => JSON.parse(b)).not.toThrow();
+    }
+    // token poll body is the device-code grant.
+    const poll = JSON.parse(bodies[1]);
+    expect(poll.grant_type).toBe(
+      "urn:ietf:params:oauth:grant-type:device_code",
+    );
+    expect(poll.device_code).toBe(AUTHORIZE_OK.device_code);
   });
 
   it("prefers the branded approval_uri (+ user_code) for browser open and prompt", async () => {
