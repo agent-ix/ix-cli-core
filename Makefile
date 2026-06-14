@@ -102,6 +102,16 @@ info:
 docker-build:
 	pnpm run docker:build
 
+# Publish to the local npm.ix registry under the `local` dist-tag. Version is
+# derived from git (tag + commit) via scripts/build-tools.js so dev cycles don't
+# require tag pushes. The original package.json version is restored afterwards.
+.PHONY: publish
+publish: build
+	@VERSION=$$(node scripts/build-tools.js version | sed 's/^v//'); \
+	echo "Publishing @agent-ix/ix-cli-core @ $$VERSION to npm.ix (tag: local)"; \
+	npm pkg set version=$$VERSION; \
+	pnpm publish --no-git-checks --registry http://npm.ix/ --tag local; \
+	git checkout -- package.json
 
 .PHONY: tags
 tags:
