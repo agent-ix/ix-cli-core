@@ -106,10 +106,33 @@ export interface GetAccessTokenOptions {
 }
 
 /**
+ * Deterministic 32-bit FNV-1a hash of `s`, rendered as zero-padded base36.
+ *
+ * Used to disambiguate host slugs: two authorities that collapse to the same
+ * readable slug (e.g. `foo.bar.dev.ix` and `foo-bar.dev.ix`, which both lose
+ * their separator distinction) still get distinct suffixes because the hash is
+ * taken over the full, un-collapsed authority. No crypto strength is needed —
+ * this is a collision-avoidance discriminator, not a security primitive.
+ */
+function hostHashSuffix(authority: string): string {
+  let h = 0x811c9dc5; // FNV offset basis
+  for (let i = 0; i < authority.length; i += 1) {
+    h ^= authority.charCodeAt(i);
+    // FNV prime 16777619, kept in 32-bit unsigned range.
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return h.toString(36).padStart(7, "0");
+}
+
+/**
  * Slugify a host into a SecretId-name-safe segment.
  *
- * `[a-z][a-z0-9-]*` — lowercases, replaces any run of non-alphanumerics with a
- * single `-`, trims edge hyphens, and guarantees a leading letter.
+ * `[a-z][a-z0-9-]*` — lowercases, drops any scheme, keeps the `host[:port]`
+ * authority, replaces any run of non-alphanumerics with a single `-`, and
+ * appends a short hash of the *full authority* so the mapping is injective:
+ * distinct hosts NEVER share a slug (host isolation, NFR-005-AC-2). Without
+ * the hash, `foo.bar.dev.ix` and `foo-bar.dev.ix` would both collapse to
+ * `foo-bar-dev-ix` and bleed one host's tokens into the other.
  */
 export function hostSlug(host: string): string {
   const lowered = (host ?? "").trim().toLowerCase();
@@ -119,7 +142,9 @@ export function hostSlug(host: string): string {
   let slug = authority.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
   if (slug.length === 0) slug = "host";
   if (!/^[a-z]/.test(slug)) slug = `h-${slug}`;
-  return slug;
+  // Append a discriminator derived from the full authority so two authorities
+  // that collapse to the same readable slug still map to distinct ids.
+  return `${slug}-${hostHashSuffix(authority)}`;
 }
 
 export class TokenStore {
@@ -139,12 +164,20 @@ export class TokenStore {
     this.refreshSkewMs = opts.refreshSkewMs ?? DEFAULT_REFRESH_SKEW_MS;
   }
 
+  private accessIdForSlug(slug: string): SecretId {
+    return `${this.pluginId}.auth-access-token-${slug}` as SecretId;
+  }
+
+  private refreshIdForSlug(slug: string): SecretId {
+    return `${this.pluginId}.auth-refresh-token-${slug}` as SecretId;
+  }
+
   private accessId(host: string): SecretId {
-    return `${this.pluginId}.auth-access-token-${hostSlug(host)}` as SecretId;
+    return this.accessIdForSlug(hostSlug(host));
   }
 
   private refreshId(host: string): SecretId {
-    return `${this.pluginId}.auth-refresh-token-${hostSlug(host)}` as SecretId;
+    return this.refreshIdForSlug(hostSlug(host));
   }
 
   /** Persist a freshly-obtained bundle for `host`. */
@@ -159,19 +192,38 @@ export class TokenStore {
       expiresAt: bundle.expiresAt,
       audience: bundle.audience,
       scope: bundle.scope,
+      host,
     });
   }
 
   /** Forget all stored material for `host`. Idempotent. */
   async clear(host: string): Promise<void> {
-    await this.secrets.delete(this.accessId(host));
-    await this.secrets.delete(this.refreshId(host));
-    this.meta.clear(hostSlug(host));
+    await this.clearBySlug(hostSlug(host));
+  }
+
+  /**
+   * Forget all stored material for an already-slugified key. Used when
+   * enumerating stored entries (the `TokenMetaStore` is keyed by slug, so its
+   * keys are slugs, not raw hosts — re-slugifying a slug would double-hash it
+   * and miss the entry). Idempotent.
+   */
+  async clearBySlug(slug: string): Promise<void> {
+    await this.secrets.delete(this.accessIdForSlug(slug));
+    await this.secrets.delete(this.refreshIdForSlug(slug));
+    this.meta.clear(slug);
   }
 
   /** Stored metadata for `host`, or `undefined` if not logged in. */
   peekMeta(host: string): TokenMeta | undefined {
     return this.meta.read(hostSlug(host));
+  }
+
+  /**
+   * Stored metadata for an already-slugified key, or `undefined`. Counterpart
+   * to {@link clearBySlug} for enumerating stored entries by their slug key.
+   */
+  peekMetaBySlug(slug: string): TokenMeta | undefined {
+    return this.meta.read(slug);
   }
 
   /** Raw stored access token (no refresh). `null` when absent. */

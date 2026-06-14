@@ -116,4 +116,11 @@ export interface TokenMeta {
   expiresAt: number;
   audience?: string;
   scope?: string;
+  /**
+   * The original (normalized) host this entry was saved for, e.g.
+   * `"filament.dev.ix"`. Persisted so `whoami` / `logout` can display a
+   * human-readable host rather than the hash-discriminated storage slug. Not
+   * sensitive (it is the public service host, never a token).
+   */
+  host?: string;
 }

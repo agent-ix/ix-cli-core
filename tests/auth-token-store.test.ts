@@ -45,11 +45,31 @@ function json(body: unknown, status = 200): Response {
 
 describe("hostSlug", () => {
   it("slugifies a dotted host into a SecretId-name-safe segment", () => {
-    expect(hostSlug("filament.dev.ix")).toBe("filament-dev-ix");
-    expect(hostSlug("https://filament.dev.ix:8443/path")).toBe(
-      "filament-dev-ix-8443",
+    // Readable prefix preserved; a hash discriminator is appended (see below).
+    expect(hostSlug("filament.dev.ix")).toMatch(/^filament-dev-ix-[a-z0-9]+$/);
+    expect(hostSlug("https://filament.dev.ix:8443/path")).toMatch(
+      /^filament-dev-ix-8443-[a-z0-9]+$/,
     );
     expect(/^[a-z][a-z0-9-]*$/.test(hostSlug("9-leading.ix"))).toBe(true);
+  });
+
+  it("is deterministic for the same host", () => {
+    expect(hostSlug("filament.dev.ix")).toBe(hostSlug("filament.dev.ix"));
+    // Scheme + trailing path are normalized away, so these are the same host.
+    expect(hostSlug("filament.dev.ix")).toBe(
+      hostSlug("https://filament.dev.ix/whatever"),
+    );
+  });
+
+  it("is injective: distinct hosts that collapse to the same readable slug get distinct ids (NFR-005-AC-2)", () => {
+    // Both naively collapse to `foo-bar-dev-ix`; the authority hash keeps them
+    // apart so one host's tokens can never be read under the other's key.
+    expect(hostSlug("foo.bar.dev.ix")).not.toBe(hostSlug("foo-bar.dev.ix"));
+    expect(hostSlug("a.b.ix")).not.toBe(hostSlug("a-b.ix"));
+    // Every produced slug is a valid SecretId name segment.
+    for (const h of ["foo.bar.dev.ix", "foo-bar.dev.ix", "a.b.ix", "a-b.ix"]) {
+      expect(/^[a-z][a-z0-9-]*$/.test(hostSlug(h))).toBe(true);
+    }
   });
 });
 
@@ -87,6 +107,31 @@ describe("TokenStore — host isolation", () => {
     expect(await store.peekAccessToken("other.dev.ix")).toBe("other-at");
   });
 
+  it("clears + peeks by stored slug (enumeration path) without double-hashing", async () => {
+    const { svc } = memorySecrets();
+    const store = new TokenStore({
+      secrets: svc,
+      meta: new MemoryTokenMetaStore(),
+    });
+    await store.save("filament.dev.ix", {
+      accessToken: "fil-at",
+      refreshToken: "fil-rt",
+      expiresAt: 1_000_000 + 3600_000,
+      audience: "filament",
+    });
+
+    // The metadata store is keyed by slug; enumerating yields slugs.
+    const slug = hostSlug("filament.dev.ix");
+    // peekMetaBySlug addresses the entry by its slug key directly (re-slugifying
+    // a slug via peekMeta(host) would hash it again and miss the entry).
+    expect(store.peekMetaBySlug(slug)?.audience).toBe("filament");
+    expect(store.peekMeta(slug)).toBeUndefined(); // double-hash misses, by design
+
+    await store.clearBySlug(slug);
+    expect(await store.peekAccessToken("filament.dev.ix")).toBeNull();
+    expect(store.peekMetaBySlug(slug)).toBeUndefined();
+  });
+
   it("stores metadata (expiry/audience) separately from the secret", async () => {
     const { svc, backend } = memorySecrets();
     const meta = new MemoryTokenMetaStore();
@@ -99,7 +144,12 @@ describe("TokenStore — host isolation", () => {
       scope: "openid",
     });
     const m = store.peekMeta("filament.dev.ix");
-    expect(m).toEqual({ expiresAt: 42, audience: "filament", scope: "openid" });
+    expect(m).toEqual({
+      expiresAt: 42,
+      audience: "filament",
+      scope: "openid",
+      host: "filament.dev.ix",
+    });
     // The plaintext token is not present in the metadata store at all.
     expect(JSON.stringify(meta)).not.toContain("secret-value");
     // The token lives only under the host-keyed access secret.

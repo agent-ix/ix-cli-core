@@ -37,18 +37,32 @@ class TokenStore {
   constructor(opts: TokenStoreOptions);
   save(host: string, bundle: TokenBundle): Promise<void>;
   clear(host: string): Promise<void>;
+  clearBySlug(slug: string): Promise<void>;
   peekMeta(host: string): TokenMeta | undefined;
+  peekMetaBySlug(slug: string): TokenMeta | undefined;
   peekAccessToken(host: string): Promise<string | null>;
   getAccessToken(host: string, opts?: GetAccessTokenOptions): Promise<string>;
 }
 ```
 
+**Addressing by slug vs. host.** Host-taking methods (`save`/`clear`/`peekMeta`)
+slugify their argument. When a caller enumerates stored entries it sees the
+**slug keys** of the `TokenMetaStore` (not raw hosts); re-slugifying a slug
+would hash it a second time and miss the entry. `clearBySlug` / `peekMetaBySlug`
+therefore address an already-slugified key directly. `save` records the original
+`host` in `TokenMeta` so enumerating callers can render a human-readable host
+(the slug is hash-discriminated and not meant for display).
+
 **Host keying.** Each host's access and refresh tokens are stored under
 distinct `SecretId`s derived from the host: `<plugin>.auth-access-token-<slug>`
 and `<plugin>.auth-refresh-token-<slug>`, where `<plugin>` defaults to `core`
 and `<slug>` is the host slugified to satisfy the `SecretId` name regex
-(`hostSlug`). Logging into one host SHALL NOT read or mutate another host's
-tokens (host isolation, NFR-005).
+(`hostSlug`). The slug SHALL be **injective**: two distinct host authorities
+SHALL NOT produce the same slug, even when their readable forms differ only by
+a separator (e.g. `foo.bar.dev.ix` vs `foo-bar.dev.ix`). `hostSlug` therefore
+appends a short deterministic discriminator derived from the full authority to
+a readable prefix. Logging into one host SHALL NOT read or mutate another
+host's tokens (host isolation, NFR-005).
 
 **Token / metadata split.** The access and refresh tokens go to the
 `SecretsService` backend (keyring / age-file). Non-sensitive metadata
@@ -97,6 +111,10 @@ SHALL NOT be written to the metadata store.
 - **FR-017-AC-7**: `hostSlug(host)` always returns a string matching
   `^[a-z][a-z0-9-]*$` (valid `SecretId` name segment) for dotted hosts,
   hosts with ports, and hosts whose first character is non-alphabetic.
+- **FR-017-AC-8**: `hostSlug` is injective — two distinct host authorities
+  that collapse to the same readable form (e.g. `foo.bar.dev.ix` and
+  `foo-bar.dev.ix`) produce different slugs, and is deterministic for the same
+  host (NFR-005-AC-2).
 
 ## Endpoint
 
