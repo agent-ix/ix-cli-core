@@ -1,0 +1,174 @@
+---
+artifact_type: test-matrix
+name: ix-cli-core
+org: agent-ix
+---
+
+# Test Matrix
+
+## Overview
+
+This matrix covers `@agent-ix/ix-cli-core`, the generic framework foundation
+for building Agent IX CLIs (config service, secrets service, plugin contract,
+runtime, base command).
+
+Tests fall into four types:
+
+| Type        | Description                                                      |
+| ----------- | ---------------------------------------------------------------- |
+| Static      | Source-inspection tests (grep / readFileSync). Run under vitest. |
+| Unit        | Pure-function / in-memory tests. Run under vitest.               |
+| Integration | Require a real platform credential store (keyring CI matrix).    |
+| Review      | Manual code inspection — no automated test possible.             |
+
+Tests live in `tests/` and run via `make test` (vitest). The keyring
+round-trip ACs (FR-006-AC-1 / FR-006-AC-2) require a real OS credential store
+and run only on the GitHub Actions platform matrix (`macos-latest`,
+`ubuntu-latest` + gnome-keyring); standard CI uses the mocked keyring backend.
+
+---
+
+## Test Files
+
+| File                             | Primary requirements               |
+| -------------------------------- | ---------------------------------- |
+| `tests/config-service.test.ts`   | FR-001, FR-002, FR-004 (plugin-id) |
+| `tests/atomic-write.test.ts`     | FR-001 (atomic), NFR-002           |
+| `tests/lock.test.ts`             | FR-002 (locking)                   |
+| `tests/doctor.test.ts`           | FR-002 (doctor)                    |
+| `tests/env-layer.test.ts`        | FR-003                             |
+| `tests/registry.test.ts`         | FR-004                             |
+| `tests/plugin-schema.test.ts`    | FR-004, FR-014                     |
+| `tests/secrets-service.test.ts`  | FR-005, FR-009, NFR-004            |
+| `tests/keyring-backend.test.ts`  | FR-006                             |
+| `tests/age-file-backend.test.ts` | FR-007, NFR-001, NFR-002           |
+| `tests/commands.test.ts`         | FR-008, FR-009                     |
+| `tests/redaction.test.ts`        | NFR-003                            |
+| `tests/capabilities.test.ts`     | FR-013                             |
+
+---
+
+## Stakeholder Requirement Coverage
+
+| Stakeholder Req                   | Trace to FR/NFR                                           | Coverage Status                                                                               |
+| --------------------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| StR-001 (pluggable config)        | FR-001, FR-002, FR-003, FR-004, FR-008, NFR-003           | ✅ Unit + static                                                                              |
+| StR-002 (secrets never plaintext) | FR-005, FR-006, FR-007, FR-009, NFR-001, NFR-002, NFR-004 | ✅ Unit + static (keyring round-trip via CI matrix)                                           |
+| StR-003 (reusable runtime)        | FR-010, FR-011, FR-012, FR-013, FR-014                    | ⚠️ FR-013/FR-014 unit-covered; FR-010/011/012 BaseCommand wiring covered at host-binary level |
+
+## User Story Coverage
+
+| User Story | Acceptance Criteria               | Trace                          | Coverage Status                                                                       |
+| ---------- | --------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
+| US-001     | run a custom CLI on the framework | FR-010, FR-011, FR-013, FR-014 | ⚠️ Library surface unit-covered; end-to-end composition exercised by consuming binary |
+
+---
+
+## Functional Requirement Coverage
+
+| Functional Req | Acceptance Criteria                                            | Test File · Case                                                                                                                       | Coverage Status                                          |
+| -------------- | -------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| FR-001         | AC-1: forPlugin scopes reads to its own file                   | `config-service.test.ts` — "reads only the requesting plugin's file"                                                                   | ✅ Unit                                                  |
+| FR-001         | AC-2: atomic temp+rename write                                 | `atomic-write.test.ts` — "FR-010-AC-2 atomic temp+rename"; `config-service.test.ts` — "creates a 0o600 file via atomic temp+rename"    | ✅ Unit                                                  |
+| FR-001         | AC-3: mode 0o600 regardless of umask                           | `config-service.test.ts` — "creates a 0o600 file"; `atomic-write.test.ts` — "mode 0o600 regardless of umask"                           | ✅ Unit                                                  |
+| FR-001         | AC-4: unknown key in strict schema → ConfigSchemaError         | `config-service.test.ts` — "set() with an unknown top-level/nested key throws ConfigSchemaError"                                       | ✅ Unit                                                  |
+| FR-001         | AC-5: reset() deletes file; defaults thereafter                | `config-service.test.ts` — "reset() deletes the file; next get() returns schema defaults"                                              | ✅ Unit                                                  |
+| FR-001         | AC-6: filePath() returns absolute path                         | `config-service.test.ts` — "filePath returns the absolute path"                                                                        | ✅ Unit                                                  |
+| FR-001         | AC-7: read-only target → ConfigWriteError; content intact      | `atomic-write.test.ts` — "FR-010-AC-7 read-only target → ConfigWriteError"                                                             | ✅ Unit                                                  |
+| FR-001         | AC-8: temp file is sibling (not in os.tmpdir)                  | `atomic-write.test.ts` — "FR-010-AC-8 temp file is a sibling of target"                                                                | ✅ Unit                                                  |
+| FR-001         | AC-9: orphan temp pruning (>30s old)                           | `atomic-write.test.ts` — "FR-010-AC-9 orphan temp pruning (>30s old)"                                                                  | ✅ Unit                                                  |
+| FR-001         | AC-10: replace() writes verbatim (deletions)                   | `config-service.test.ts` — re-set merge / replace semantics                                                                            | ✅ Unit                                                  |
+| FR-002         | AC-1: malformed file in one plugin doesn't block another       | `config-service.test.ts` — "malformed YAML → get() returns defaults"                                                                   | ✅ Unit                                                  |
+| FR-002         | AC-2: defaulted load → first set() rewrites valid              | `config-service.test.ts` — "set() after a defaulted load overwrites the malformed file"                                                | ✅ Unit                                                  |
+| FR-002         | AC-3: doctor() returns scoped errors, doesn't throw            | `doctor.test.ts` — "reports invalid for a malformed file but does not throw"                                                           | ✅ Unit                                                  |
+| FR-002         | AC-4: same-plugin concurrent writes serialized                 | `lock.test.ts` — "creates the lockfile during fn, removes it after"                                                                    | ✅ Unit                                                  |
+| FR-002         | AC-5: different-plugin writes don't contend                    | `lock.test.ts` (per-file lock scope)                                                                                                   | ✅ Unit                                                  |
+| FR-002         | AC-6: stale lock from non-running pid reaped                   | `lock.test.ts` — "FR-011-AC-6 stale lock from non-running pid is reaped"                                                               | ✅ Unit                                                  |
+| FR-002         | AC-7: lock timeout → ConfigLockTimeoutError                    | `lock.test.ts` — "FR-011-AC-7 timeout → ConfigLockTimeoutError"                                                                        | ✅ Unit                                                  |
+| FR-003         | AC-1: env var beats file value                                 | `env-layer.test.ts` — "env > file when both set"                                                                                       | ✅ Unit                                                  |
+| FR-003         | AC-2: file value beats default                                 | `env-layer.test.ts` — "file value wins when env is unset"                                                                              | ✅ Unit                                                  |
+| FR-003         | AC-3: defaults when env+file absent                            | `env-layer.test.ts` — "returns schema defaults"                                                                                        | ✅ Unit                                                  |
+| FR-003         | AC-4: invalid env value → schema error / defaulted             | `env-layer.test.ts` — "invalid enum value via env → falls back to defaults; incident kind=schema"                                      | ✅ Unit                                                  |
+| FR-003         | AC-5: static lint — no cross-plugin forPlugin call sites       | static check (soft-isolation lint)                                                                                                     | ⚠️ Static (enforced at consuming-binary lint)            |
+| FR-004         | AC-1: config schema enforced on writes                         | `config-service.test.ts` / `registry.test.ts` — first-wins registration + strict validation                                            | ✅ Unit                                                  |
+| FR-004         | AC-2: non-strict schema → logged + skipped                     | `plugin-schema.test.ts` — "rejects non-strict config schemas"                                                                          | ✅ Unit                                                  |
+| FR-004         | AC-3: duplicate id → second skipped, first preserved           | `registry.test.ts` — "FR-013-AC-3 first-wins"; `plugin-schema.test.ts` — "preserves the first registration on duplicate package names" | ✅ Unit                                                  |
+| FR-004         | AC-4: third-party using "core" → skipped, core preserved       | `registry.test.ts` (reserved-id handling)                                                                                              | ✅ Unit                                                  |
+| FR-004         | AC-5: doctor surfaces failed plugin id/reason/source           | `doctor.test.ts` + `registry.test.ts`                                                                                                  | ✅ Unit                                                  |
+| FR-004         | AC-6: secrets envVar honored ahead of backend                  | `secrets-service.test.ts` — "AC-1: env beats backend"                                                                                  | ✅ Unit                                                  |
+| FR-004         | AC-7: invalid plugin id (regex) → skipped                      | `config-service.test.ts` — "rejects empty, uppercase, leading-digit, and path-traversal ids"                                           | ✅ Unit                                                  |
+| FR-005         | AC-1: env beats backend in get()                               | `secrets-service.test.ts` — "AC-1: env beats backend"                                                                                  | ✅ Unit                                                  |
+| FR-005         | AC-2: backend value when env unset                             | `secrets-service.test.ts` — "AC-2: backend wins when env unset"                                                                        | ✅ Unit                                                  |
+| FR-005         | AC-3: prompt path persists collected value                     | `secrets-service.test.ts` (prompt resolution)                                                                                          | ⚠️ Unit (TTY prompt path)                                |
+| FR-005         | AC-4: no-prompt + non-TTY → null                               | `secrets-service.test.ts` — "AC-4: returns null when no env and no backend value"                                                      | ✅ Unit                                                  |
+| FR-005         | AC-5: set then delete → which()==="unset"                      | `secrets-service.test.ts` — "AC-5: set then delete → which() === unset"                                                                | ✅ Unit                                                  |
+| FR-005         | AC-6: set on env-bound + env set → SecretBackendImmutableError | `secrets-service.test.ts` — "AC-6: set throws SecretBackendImmutableError when env is set"                                             | ✅ Unit                                                  |
+| FR-005         | AC-7: zero secret values in logged output                      | `redaction.test.ts` + `secrets-service.test.ts` (list never renders values)                                                            | ✅ Unit                                                  |
+| FR-005         | AC-8: malformed SecretId → InvalidSecretIdError                | `secrets-service.test.ts` — "SecretId validation — FR-014-AC-8"                                                                        | ✅ Unit                                                  |
+| FR-006         | AC-1: macOS Keychain round-trip                                | `keyring-backend.test.ts` — REAL `@napi-rs/keyring` smoke                                                                              | ⚠️ Integration (CI matrix macos-latest)                  |
+| FR-006         | AC-2: Linux libsecret round-trip                               | `keyring-backend.test.ts` — REAL `@napi-rs/keyring` smoke                                                                              | ⚠️ Integration (CI matrix ubuntu-latest + gnome-keyring) |
+| FR-006         | AC-3: probe fail → active backend becomes age-file             | `secrets-service.test.ts` — "auto: falls through to age-file when keyring probe fails"                                                 | ✅ Unit                                                  |
+| FR-006         | AC-4: list() filters to service "ix-cli" only                  | `keyring-backend.test.ts` — "list returns only well-formed accounts under our service"                                                 | ✅ Unit (mocked)                                         |
+| FR-006         | AC-5: denied prompt → KeyringAccessError + remediation         | `keyring-backend.test.ts` — "set failure surfaces KeyringAccessError"                                                                  | ✅ Unit (mocked)                                         |
+| FR-006         | AC-6: probe runs at most once per process                      | `keyring-backend.test.ts` — "probe is cached: second call does not retry"                                                              | ✅ Unit                                                  |
+| FR-007         | AC-1: secrets.d/<id>.age + secrets.key created 0600            | `age-file-backend.test.ts` — "FR-016-AC-1 file creation"                                                                               | ✅ Unit                                                  |
+| FR-007         | AC-2a: blob bytes do not contain plaintext                     | `age-file-backend.test.ts` — "FR-016-AC-2a blob does not contain plaintext"                                                            | ✅ Unit                                                  |
+| FR-007         | AC-2b: secrets.key is exactly one AGE-SECRET-KEY-1 + \n        | `age-file-backend.test.ts` — "FR-016-AC-2b identity file is well-formed"                                                               | ✅ Unit                                                  |
+| FR-007         | AC-3: AEAD-tag corruption isolates failure to one plugin       | `age-file-backend.test.ts` — "FR-016-AC-3 corruption isolated to one plugin"                                                           | ✅ Unit                                                  |
+| FR-007         | AC-4: every write produces 0o600 post-rename                   | `age-file-backend.test.ts` — round-trip / lifecycle                                                                                    | ✅ Unit                                                  |
+| FR-007         | AC-5: wide-perm secrets.key → SecretsIdentityPermissionsError  | `age-file-backend.test.ts` — "FR-016-AC-5 perm check is exact 0o600"                                                                   | ✅ Unit                                                  |
+| FR-007         | AC-6: zero plaintext leaks across full lifecycle               | `age-file-backend.test.ts` — "FR-016-AC-6: full lifecycle leaves zero plaintext on disk"                                               | ✅ Unit                                                  |
+| FR-008         | AC-1: get omits plugin → defaults to "core"                    | `commands.test.ts` — "default plugin id is core when omitted"                                                                          | ✅ Unit                                                  |
+| FR-008         | AC-2: set scalar coercion persists                             | `commands.test.ts` — "FR-018-AC-2 scalar coercion"                                                                                     | ✅ Unit                                                  |
+| FR-008         | AC-3: invalid set surfaces four-tuple error                    | `commands.test.ts` — "FR-018-AC-3 schema error"                                                                                        | ✅ Unit                                                  |
+| FR-008         | AC-4: edit re-prompts on validation failure                    | (edit runner)                                                                                                                          | ⚠️ Review / TTY                                          |
+| FR-008         | AC-5: doctor mixed valid/invalid → non-zero exit               | `commands.test.ts` — "runConfigDoctor — FR-018-AC-5 mixed valid/invalid"                                                               | ✅ Unit                                                  |
+| FR-008         | AC-6: unknown plugin → UnknownPluginError                      | `commands.test.ts` — "FR-018-AC-6 unknown plugin"                                                                                      | ✅ Unit                                                  |
+| FR-008         | AC-7: concurrent set serialized via lock                       | `lock.test.ts` (per-file lock)                                                                                                         | ✅ Unit                                                  |
+| FR-008         | AC-8: non-JSON for array key → ConfigSetParseError             | `commands.test.ts` — "FR-018-AC-8 non-JSON for array key throws"                                                                       | ✅ Unit                                                  |
+| FR-009         | AC-1: list never renders secret values                         | `secrets-service.test.ts` — "FR-019-AC-1 never renders values"                                                                         | ✅ Unit                                                  |
+| FR-009         | AC-2: set prints "stored <id> in <backend>" only               | `commands.test.ts` — "runSecretsSet — FR-019-AC-2"                                                                                     | ✅ Unit                                                  |
+| FR-009         | AC-3: which transitions env/keyring/age-file/unset             | `commands.test.ts` — "runSecretsWhich — FR-019-AC-3"                                                                                   | ✅ Unit                                                  |
+| FR-009         | AC-4: rm clears persisted value; warns if env set              | `commands.test.ts` — "runSecretsRm — FR-019-AC-4 + warn-when-env-still-set"                                                            | ✅ Unit                                                  |
+| FR-009         | AC-5: unknown id → UnknownSecretError                          | `commands.test.ts` — "rejects unknown id with UnknownSecretError"; `secrets-service.test.ts` — "FR-019-AC-5 unknown id handling"       | ✅ Unit                                                  |
+| FR-009         | AC-6: zero secret values across lifecycle output               | `commands.test.ts` + `redaction.test.ts`                                                                                               | ✅ Unit                                                  |
+| FR-009         | AC-7: keyring denial → remediation; not echoed                 | `keyring-backend.test.ts` — KeyringAccessError surface                                                                                 | ✅ Unit (mocked)                                         |
+| FR-010         | AC-1..AC-4: oclif-native CLI binary composition                | exercised by the consuming binary (`ix://agent-ix/ix-cli`)                                                                             | ⚠️ Integration (host binary)                             |
+| FR-011         | AC-1..AC-6: --config-root / IX_CONFIG_ROOT base flag           | `BaseCommand` base flags (`src/commands/base-command.ts`)                                                                              | ⚠️ Integration (host binary command tests)               |
+| FR-012         | AC-1..AC-4: oclif-native plugin discovery, no manifest         | static — no manifest loader in `src/`                                                                                                  | ✅ Static (no on-disk manifest reads)                    |
+| FR-013         | AC-1: command declares static capabilities                     | `capabilities.test.ts` — "surfaces available required and optional capabilities"                                                       | ✅ Unit                                                  |
+| FR-013         | AC-2: required-unavailable short-circuits before side effects  | `capabilities.test.ts` — "fails required capabilities that have no provider"                                                           | ✅ Unit                                                  |
+| FR-013         | AC-3: optional missing never blocks; resolved surfaced         | `capabilities.test.ts` — "does not block on missing optional capabilities"                                                             | ✅ Unit                                                  |
+| FR-013         | AC-4: resolver reads through Config/Secrets context            | `capabilities.test.ts` — provider context                                                                                              | ✅ Unit                                                  |
+| FR-013         | AC-5: capability errors carry machine-readable code            | `capabilities.test.ts` — "preserves provider errors"; `capabilityErrorToJson`                                                          | ✅ Unit                                                  |
+| FR-014         | AC-1..AC-7: ixSchema convention + registration                 | `plugin-schema.test.ts` — "registerPluginSchema — FR-025 oclif ixSchema convention"                                                    | ✅ Unit                                                  |
+
+## Non-Functional Requirement Coverage
+
+| Non-Functional Req | Verification Method                                           | Test File · Case                                                                                      | Status                |
+| ------------------ | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | --------------------- |
+| NFR-001-AC-1       | Static grep: no fs.write\* of secret values outside backends/ | static check                                                                                          | ⚠️ Static             |
+| NFR-001-AC-2       | Round-trip leak scan: plaintext absent from .age + .key       | `age-file-backend.test.ts` — "leak scan: ciphertext bytes do not include the plaintext value"         | ✅ Unit               |
+| NFR-001-AC-3       | Integration: only-keychain or only-age-blob on disk           | `age-file-backend.test.ts` lifecycle (age path); keychain path via CI                                 | ⚠️ Unit + integration |
+| NFR-002-AC-1       | Unit: umask 0022 yields 0o600                                 | `atomic-write.test.ts` — "NFR-004-AC-1 mode 0o600 regardless of umask"                                | ✅ Unit               |
+| NFR-002-AC-2       | Unit: rename failure leaves target intact, temp removed       | `atomic-write.test.ts` — "FR-010-AC-7 ... prior content intact" / orphan handling                     | ✅ Unit               |
+| NFR-002-AC-3       | Unit: 0o644 secrets.key → SecretsIdentityPermissionsError     | `age-file-backend.test.ts` — "FR-016-AC-5 perm check is exact 0o600"                                  | ✅ Unit               |
+| NFR-002-AC-4       | Unit: symlinked governed file rejected                        | `atomic-write.test.ts` — "NFR-004-AC-4 + ConfigSymlinkRefusedError"                                   | ✅ Unit               |
+| NFR-002-AC-5       | Static grep: only atomicWrite writes governed files           | static check                                                                                          | ⚠️ Static             |
+| NFR-003-AC-1       | Unit: error contains plugin/keyPath/expectedType/filePath     | `commands.test.ts` — "FR-018-AC-3 schema error ... full four-tuple"                                   | ✅ Unit               |
+| NFR-003-AC-2       | Unit: declared-secret value rendered as `<redacted>`          | `redaction.test.ts` — "NFR-005-AC-2"                                                                  | ✅ Unit               |
+| NFR-003-AC-3       | Snapshot: doctor output stable order                          | `doctor.test.ts` — "output is byte-stable: entries sorted by pluginId"                                | ✅ Unit               |
+| NFR-003-AC-4       | Static grep: no console.error for schema errors               | static check                                                                                          | ⚠️ Static             |
+| NFR-003-AC-5       | Static grep: only formatSchemaError renders user strings      | static check                                                                                          | ⚠️ Static             |
+| NFR-004-AC-1       | Unit: MemoryBackend registered + full lifecycle               | `secrets-service.test.ts` — "Backend pluggability — NFR-006-AC-1"                                     | ✅ Unit               |
+| NFR-004-AC-2       | Unit: consumers unchanged across keyring↔age-file             | `secrets-service.test.ts` — backend selection                                                         | ✅ Unit               |
+| NFR-004-AC-3       | Static grep: no consumer imports backends/\*                  | static check                                                                                          | ⚠️ Static             |
+| NFR-004-AC-4       | Unit: duplicate-id backend registration throws                | `secrets-service.test.ts` — backend map handling                                                      | ✅ Unit               |
+| NFR-004-AC-5       | Unit: pinned keyring + failed probe → KeyringUnavailableError | `secrets-service.test.ts` — "pinned keyring + failing probe → KeyringUnavailableError (NFR-006-AC-5)" | ✅ Unit               |
+
+---
+
+## Notes
+
+- Test `describe`/`it` strings retain their historical AC labels (FR-010 / FR-016 / FR-018 / FR-019 / FR-013 / FR-014 / NFR-004 / NFR-005 / NFR-006) from the pre-extraction ix-cli numbering. The **Trace** columns above are the canonical ix-cli-core IDs. Test strings will be relabeled in a follow-up; the code under test is unchanged.
+- BaseCommand `--config-root` flag and `prerun` capability wiring (FR-010/FR-011) are integration-verified by the consuming binary's command tests (`ix://agent-ix/ix-cli`); this library unit-covers the `CapabilityResolver` (FR-013) and path resolution directly.
