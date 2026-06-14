@@ -41,6 +41,7 @@ export {
   getRegisteredPlugin,
   listRegisteredPlugins,
   listIncidents,
+  _resetRegistryForTests,
   type RegisteredPlugin,
   type RegisterResult,
   type ConfigIncident,
@@ -104,6 +105,7 @@ export {
   listRegisteredSecrets,
   listSecretsForPlugin,
   isRegistered as isSecretRegistered,
+  _resetSecretsRegistryForTests,
   type RegisteredSecret,
 } from "./secrets/registry.js";
 
