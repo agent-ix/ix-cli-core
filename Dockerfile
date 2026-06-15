@@ -9,7 +9,7 @@ RUN corepack enable
 WORKDIR /app
 
 # Copy package config files for caching
-COPY package.json pnpm-lock.yaml* .prettierrc .prettierignore eslint.config.js vite.config.ts tsconfig.json tsconfig.eslint.json ./
+COPY package.json pnpm-lock.yaml* .prettierignore eslint.config.js vite.config.ts tsconfig.json tsconfig.eslint.json ./
 
 # Install dependencies (including dev deps)
 # This layer will be cached unless package files change

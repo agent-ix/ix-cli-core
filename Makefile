@@ -111,47 +111,6 @@ tags:
 	@pnpm run tags
 
 # =============================================================================
-# Test Results CLI
-# =============================================================================
-# Usage: make test-results-summary REPORT=report.json
-#        make test-results-groups REPORT=report.json
-#        make test-results-detail REPORT=report.json TEST="test name"
-#        make test-results-find REPORT=report.json PATTERN="test_"
-#        make test-results-failed REPORT=report.json
-#        make test-results-errors REPORT=report.json
-#        make test-results-warnings REPORT=report.json
-
-REPORT ?= report.json
-
-.PHONY: test-results-summary
-test-results-summary:
-	pnpm run test-results:summary $(REPORT)
-
-.PHONY: test-results-groups
-test-results-groups:
-	pnpm run test-results:groups $(REPORT)
-
-.PHONY: test-results-detail
-test-results-detail:
-	pnpm run test-results:detail $(REPORT) "$(TEST)"
-
-.PHONY: test-results-find
-test-results-find:
-	pnpm run test-results:find $(REPORT) "$(PATTERN)"
-
-.PHONY: test-results-failed
-test-results-failed:
-	pnpm run test-results:failed $(REPORT)
-
-.PHONY: test-results-errors
-test-results-errors:
-	pnpm run test-results:errors $(REPORT)
-
-.PHONY: test-results-warnings
-test-results-warnings:
-	pnpm run test-results:warnings $(REPORT)
-
-# =============================================================================
 # Help
 # =============================================================================
 

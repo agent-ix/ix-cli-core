@@ -20,7 +20,7 @@ console.log(`${PROJECT_SLUG} - Available Scripts`);
 console.log("=".repeat(PROJECT_SLUG.length + 21) + "\n");
 
 console.log("📋 CORE DEVELOPMENT");
-console.log("  pnpm test              Run Jest tests");
+console.log("  pnpm test              Run vitest tests");
 console.log("  pnpm run test:coverage Run tests with coverage report");
 console.log("  pnpm run test:json     Run tests and output JSON report");
 console.log("  pnpm run lint          Lint TypeScript/React files");
@@ -48,23 +48,10 @@ console.log("  node scripts/build-tools.js --help  Show build-tools help\n");
 
 console.log("🐳 DOCKER & PUBLISHING");
 console.log("  pnpm run docker:build  Build Docker image");
-console.log("  pnpm run publish       Publish to GitHub Packages (upstream)");
 console.log(
   "  pnpm run publish:dry-run  Test publish without actually publishing",
 );
 console.log("  pnpm run tags          Show dist-tags on GitHub Packages\n");
-
-console.log("📖 STORYBOOK");
-console.log("  pnpm run storybook         Run Storybook dev server locally");
-console.log("  pnpm run build-storybook   Build static Storybook\n");
-
-console.log("🚀 K8S DEPLOYMENT (Storybook with hot-reload)");
-console.log("  pnpm run storybook:build-dev   Build dev Docker image");
-console.log("  pnpm run storybook:kind-load   Load image into kind cluster");
-console.log(
-  "  pnpm run storybook:deploy      Full deploy (build → load → apply)",
-);
-console.log("  pnpm run storybook:halt        Stop k8s deployment\n");
 
 console.log("💡 TIPS");
 console.log('  • Run "pnpm run" to see all available scripts');

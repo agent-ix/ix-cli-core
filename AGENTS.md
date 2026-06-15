@@ -4,7 +4,7 @@
 
 ```bash
 make build                      # build library
-make test                       # run jest
+make test                       # run vitest
 make lint                       # eslint + prettier check
 make format                     # prettier format
 make update-lock                # update pnpm-lock.yaml
