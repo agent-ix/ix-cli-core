@@ -27,6 +27,11 @@ combination of:
    - Commands needing capability guards declare
      `static capabilities = { required, optional }`; `BaseCommand.prerun`
      resolves them before side effects.
+4. **A marketplace adapter** over `@agent-ix/ts-plugin-kit` for acquiring
+   _data_ plugins (content modules — schemas/skeletons/manifests, not oclif
+   commands). ix-cli-core adapts the external library: it wires the cache root
+   and bridges resolved sources to oclif's `@oclif/plugin-plugins`. It does
+   **not** implement the fetch/pin/registry mechanism itself.
 
 Any oclif CLI can compose this library plus a set of oclif plugins; the
 main `ix` distribution is one such CLI.
@@ -49,6 +54,11 @@ Must-Have
   host's `init` hook.
 - **StR-003-AC-5**: Per-command capability requirements are declared as a
   static field on the command class and enforced by `BaseCommand.prerun`.
+- **StR-003-AC-6**: ix-cli-core exposes a thin adapter over
+  `@agent-ix/ts-plugin-kit` (`marketplaceInstallOptions`,
+  `reconcileDefaultSet`, `resolveOclifPluginInstall`) for acquiring data
+  plugins and bridging them to oclif; the fetch/pin/registry mechanism lives
+  in the leaf library, not in ix-cli-core (see FR-019).
 
 ## Non-goals
 
@@ -56,6 +66,9 @@ Must-Have
   plugins are declared in the binary's `oclif.plugins` config (or installed
   via `@oclif/plugin-plugins`). Users who want a different plugin set
   ship a different binary.
-- A bespoke plugin registry, distribution object, manifest loader, or
-  argv preprocessing layer. These existed in an earlier draft and have
-  been superseded by the oclif-native composition described above.
+- A bespoke, hand-rolled plugin registry, distribution object, or manifest
+  loader **inside ix-cli-core**, and any argv preprocessing layer. Source
+  fetching, pinning, and the install registry live in the external
+  `@agent-ix/ts-plugin-kit` library; ix-cli-core only adapts it (Approach 4,
+  FR-019). The earlier in-tree reimplementation of oclif's command discovery
+  remains superseded by the oclif-native composition described above.

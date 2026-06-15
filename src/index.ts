@@ -62,6 +62,24 @@ export {
 export { BaseCommand } from "./commands/base-command.js";
 export type { CommandCapabilities } from "./runtime/capability-spec.js";
 
+// ── Marketplace adapter over @agent-ix/ts-plugin-kit (FR-019) ──────────
+// Thin wiring: ix-cli-core adapts the external marketplace library (cache
+// layout + oclif command-plugin bridge); it does NOT implement an installer.
+export {
+  marketplaceInstallOptions,
+  reconcileDefaultSet,
+  type MarketplaceTarget,
+} from "./marketplace/adapter.js";
+export {
+  resolveOclifPluginInstall,
+  type OclifPluginInstall,
+} from "./marketplace/oclif-bridge.js";
+export type {
+  MarketplaceManifest,
+  MarketplaceEntry,
+  Source,
+} from "@agent-ix/ts-plugin-kit";
+
 // ── Runtime ─────────────────────────────────────────────────────────────
 export {
   configureRuntimeContext,

@@ -47,3 +47,9 @@ That feature was dropped as not actually required. With it gone, the
 chicken-and-egg between config-root resolution and plugin discovery
 dissolves (see FR-011 notes), so the manifest loader and merge logic are
 no longer needed.
+
+This supersession applies to **command** plugins (packages that add oclif
+commands) — those are discovered oclif-natively. It does **not** cover **data**
+plugins (content modules: schemas/skeletons/manifests consumed by tools such as
+quire). Acquiring and pinning those is provided by the marketplace adapter over
+`@agent-ix/ts-plugin-kit` (see FR-019), which is not an in-tree manifest loader.

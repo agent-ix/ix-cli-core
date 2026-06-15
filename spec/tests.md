@@ -53,11 +53,11 @@ and run only on the GitHub Actions platform matrix (`macos-latest`,
 
 ## Stakeholder Requirement Coverage
 
-| Stakeholder Req                   | Trace to FR/NFR                                                        | Coverage Status                                                                                       |
-| --------------------------------- | ---------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| StR-001 (pluggable config)        | FR-001, FR-002, FR-003, FR-004, FR-008, NFR-003                        | ✅ Unit + static                                                                                      |
-| StR-002 (secrets never plaintext) | FR-005, FR-006, FR-007, FR-009, NFR-001, NFR-002, NFR-004              | ✅ Unit + static (keyring round-trip via CI matrix)                                                   |
-| StR-003 (reusable runtime)        | FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-018 | ⚠️ FR-013/14/15/16/17/18 unit-covered; FR-010/011/012 BaseCommand wiring covered at host-binary level |
+| Stakeholder Req                   | Trace to FR/NFR                                                                | Coverage Status                                                                                           |
+| --------------------------------- | ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
+| StR-001 (pluggable config)        | FR-001, FR-002, FR-003, FR-004, FR-008, NFR-003                                | ✅ Unit + static                                                                                          |
+| StR-002 (secrets never plaintext) | FR-005, FR-006, FR-007, FR-009, NFR-001, NFR-002, NFR-004                      | ✅ Unit + static (keyring round-trip via CI matrix)                                                       |
+| StR-003 (reusable runtime)        | FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-018, FR-019 | ⚠️ FR-013/14/15/16/17/18/019 unit-covered; FR-010/011/012 BaseCommand wiring covered at host-binary level |
 
 ## User Story Coverage
 
@@ -139,6 +139,10 @@ and run only on the GitHub Actions platform matrix (`macos-latest`,
 | FR-010         | AC-1..AC-4: oclif-native CLI binary composition                | exercised by the consuming binary (`ix://agent-ix/ix-cli`)                                                                                | ⚠️ Integration (host binary)                             |
 | FR-011         | AC-1..AC-6: --config-root / IX_CONFIG_ROOT base flag           | `BaseCommand` base flags (`src/commands/base-command.ts`)                                                                                 | ⚠️ Integration (host binary command tests)               |
 | FR-012         | AC-1..AC-4: oclif-native plugin discovery, no manifest         | static — no manifest loader in `src/`                                                                                                     | ✅ Static (no on-disk manifest reads)                    |
+| FR-019         | AC-1: install options carry cacheRoot/ts-plugin-kit + target   | `marketplace.test.ts` — "marketplaceInstallOptions derives cache under cacheRoot"                                                         | ✅ Unit                                                  |
+| FR-019         | AC-2: reconcileDefaultSet installs enabled entries             | `marketplace.test.ts` — "reconcileDefaultSet installs the enabled set"                                                                    | ✅ Unit                                                  |
+| FR-019         | AC-3: oclif bridge maps npm→install, git/path→link             | `marketplace.test.ts` — "resolveOclifPluginInstall maps sources"                                                                          | ✅ Unit                                                  |
+| FR-019         | AC-4: no @oclif/plugin-plugins / no in-tree installer          | static — adapter delegates to `@agent-ix/ts-plugin-kit`                                                                                   | ✅ Static (delegation)                                   |
 | FR-013         | AC-1: command declares static capabilities                     | `capabilities.test.ts` — "surfaces available required and optional capabilities"                                                          | ✅ Unit                                                  |
 | FR-013         | AC-2: required-unavailable short-circuits before side effects  | `capabilities.test.ts` — "fails required capabilities that have no provider"                                                              | ✅ Unit                                                  |
 | FR-013         | AC-3: optional missing never blocks; resolved surfaced         | `capabilities.test.ts` — "does not block on missing optional capabilities"                                                                | ✅ Unit                                                  |
