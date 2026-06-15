@@ -63,11 +63,10 @@ Run `pnpm run help` or `pnpm run` to see the full list.
 
 ### Publishing & Docker
 
-| Command                  | Description                                   |
-| ------------------------ | --------------------------------------------- |
-| `pnpm run publish`       | Publish to GitHub Packages (upstream)         |
-| `pnpm run publish:local` | Publish to local npm.ix registry (via Docker) |
-| `pnpm run docker:build`  | Build release Docker image                    |
+| Command                 | Description                           |
+| ----------------------- | ------------------------------------- |
+| `pnpm run publish`      | Publish to GitHub Packages (upstream) |
+| `pnpm run docker:build` | Build release Docker image            |
 
 ---
 
