@@ -36,8 +36,8 @@
     "pkg:refresh-local": "pnpm dlx @agent-ix/js-deps refresh-local"
   },
   "dependencies": {
-    "@agent-ix/ix-ui-cli": ">=0.4.6",
-    "@agent-ix/ts-plugin-kit": ">=0.1.0-0",
+    "@agent-ix/ix-ui-cli": ">=0.4.7",
+    "@agent-ix/ts-plugin-kit": ">=0.1.1",
     "@clack/prompts": ">=1.5.1",
     "@napi-rs/keyring": ">=1.3.0",
     "age-encryption": ">=0.3.0",
@@ -50,8 +50,8 @@
   },
   "devDependencies": {
     "@oclif/core": ">=4.11.4",
-    "@types/node": ">=25.9.1",
-    "@types/react": ">=19.2.16",
+    "@types/node": ">=25.9.2",
+    "@types/react": ">=19.2.17",
     "@typescript-eslint/eslint-plugin": ">=8.60.1",
     "@typescript-eslint/parser": ">=8.60.1",
     "@vitest/coverage-v8": ">=4.1.8",
