@@ -1,7 +1,7 @@
 ---
 id: FR-017
 title: "Host-Keyed Token Store with Refresh-Before-Expiry"
-artifact_type: FR
+type: FR
 object: api_endpoint
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"

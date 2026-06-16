@@ -1,7 +1,7 @@
 ---
 id: FR-002
 title: "Per-Plugin File Isolation and Scoped Failure"
-artifact_type: FR
+type: FR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-001"
     type: "implements"

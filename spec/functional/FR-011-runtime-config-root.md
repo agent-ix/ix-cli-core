@@ -1,7 +1,7 @@
 ---
 id: FR-011
 title: "Runtime Config Root Override"
-artifact_type: FR
+type: FR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"
     type: "implements"

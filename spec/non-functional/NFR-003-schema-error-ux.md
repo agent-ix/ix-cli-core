@@ -1,7 +1,7 @@
 ---
 id: NFR-003
 title: "Schema Validation Errors Are Actionable"
-artifact_type: NFR
+type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-001"
     type: "implements"

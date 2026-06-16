@@ -1,5 +1,5 @@
 ---
-artifact_type: test-matrix
+type: test-matrix
 name: ix-cli-core
 org: agent-ix
 ---

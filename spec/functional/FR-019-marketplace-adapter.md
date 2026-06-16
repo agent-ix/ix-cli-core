@@ -1,7 +1,7 @@
 ---
 id: FR-019
 title: "Marketplace Adapter"
-artifact_type: FR
+type: FR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"
     type: "implements"

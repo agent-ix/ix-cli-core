@@ -1,7 +1,7 @@
 ---
 id: NFR-005
 title: "Auth Host Isolation and TLS-Only Discovery"
-artifact_type: NFR
+type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"

@@ -1,7 +1,7 @@
 ---
 id: FR-013
 title: "Per-Command Capability Binding"
-artifact_type: FR
+type: FR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"
     type: "implements"

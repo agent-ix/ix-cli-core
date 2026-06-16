@@ -1,7 +1,7 @@
 ---
 id: US-001
 title: "Run Custom CLI Distribution"
-artifact_type: US
+type: US
 priority: P1
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"

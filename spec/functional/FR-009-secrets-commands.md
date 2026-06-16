@@ -1,7 +1,7 @@
 ---
 id: FR-009
 title: "secrets Command Group (list, set, rm, which)"
-artifact_type: FR
+type: FR
 object: command
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"

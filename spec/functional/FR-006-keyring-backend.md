@@ -1,7 +1,7 @@
 ---
 id: FR-006
 title: "OS Keyring Backend (@napi-rs/keyring)"
-artifact_type: FR
+type: FR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"

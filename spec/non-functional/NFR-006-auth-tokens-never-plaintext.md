@@ -1,7 +1,7 @@
 ---
 id: NFR-006
 title: "Auth Tokens Never Persisted in Plaintext"
-artifact_type: NFR
+type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"

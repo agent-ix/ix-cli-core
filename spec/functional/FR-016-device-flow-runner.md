@@ -1,7 +1,7 @@
 ---
 id: FR-016
 title: "Device-Flow Runner"
-artifact_type: FR
+type: FR
 object: api_endpoint
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"

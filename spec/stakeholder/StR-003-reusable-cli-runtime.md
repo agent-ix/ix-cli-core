@@ -1,7 +1,7 @@
 ---
 id: StR-003
 title: "Reusable CLI Runtime"
-artifact_type: StR
+type: StR
 relationships: []
 ---
 

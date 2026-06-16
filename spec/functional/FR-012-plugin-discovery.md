@@ -1,7 +1,7 @@
 ---
 id: FR-012
 title: "Plugin Discovery"
-artifact_type: FR
+type: FR
 status: superseded
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"

@@ -1,7 +1,7 @@
 ---
 id: NFR-004
 title: "Secrets Backend Adapter Pluggability"
-artifact_type: NFR
+type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"

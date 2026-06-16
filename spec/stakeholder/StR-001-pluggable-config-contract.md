@@ -1,7 +1,7 @@
 ---
 id: StR-001
 title: "Pluggable Config Contract with Per-Plugin Isolation"
-artifact_type: StR
+type: StR
 relationships: []
 ---
 

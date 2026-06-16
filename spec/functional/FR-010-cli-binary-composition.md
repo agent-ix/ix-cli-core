@@ -1,7 +1,7 @@
 ---
 id: FR-010
 title: "CLI Binary Composition"
-artifact_type: FR
+type: FR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"
     type: "implements"

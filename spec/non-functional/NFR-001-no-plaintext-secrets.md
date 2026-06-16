@@ -1,7 +1,7 @@
 ---
 id: NFR-001
 title: "No Plaintext Secret Values Persisted on Disk"
-artifact_type: NFR
+type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"

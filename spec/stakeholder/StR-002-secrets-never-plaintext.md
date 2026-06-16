@@ -1,7 +1,7 @@
 ---
 id: StR-002
 title: "Developer Secrets Never Persisted in Plaintext"
-artifact_type: StR
+type: StR
 relationships: []
 ---
 

@@ -1,7 +1,7 @@
 ---
 id: NFR-002
 title: "Sensitive Files Created Mode 0600 via Atomic Temp+Rename"
-artifact_type: NFR
+type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"

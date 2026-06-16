@@ -1,7 +1,7 @@
 ---
 id: FR-008
 title: "config Command Group (get, set, edit, doctor)"
-artifact_type: FR
+type: FR
 object: command
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-001"
