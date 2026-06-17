@@ -67,7 +67,7 @@ This specification does not govern:
 
 - Any specific binary, branding, or distribution composition (those live in the consuming CLI repo).
 - The IX `core` plugin's concrete `config`/`secrets` schema — including `auth.serviceUrl`, GitHub/IX auth tokens, telemetry, theme, and update-check fields. That declaration is IX-specific and is specified in `ix://agent-ix/ix-cli` (its `FR-020`).
-- **IX-specific** auth wiring: the `ix login <host>` / `ix whoami` / `ix logout` commands, IX defaults (default host, client id), and any IX service identity. The framework owns the _generic_ device-login engine (FR-015–FR-018); the IX commands that wire it to IX services are specified in `ix://agent-ix/ix-cli`. (A legacy GitHub-token device flow and IX auth-service token exchange remain IX concerns.)
+- **IX-specific** auth wiring: the `ix login <host>` / `ix whoami` / `ix logout` commands, IX defaults (default host, client id), and any IX service identity. The framework owns the _generic_ device-login engine ([FR-015](./functional/FR-015-service-discovery-client.md)–[FR-018](./functional/FR-018-browser-opener.md)); the IX commands that wire it to IX services are specified in `ix://agent-ix/ix-cli`. (A legacy GitHub-token device flow and IX auth-service token exchange remain IX concerns.)
 - Local cluster, elements, or spec workflow commands.
 - Terminal UI component internals (owned by `@agent-ix/ix-ui-cli`).
 
@@ -137,11 +137,11 @@ Quality constraints: secrets-at-rest, file permissions, error UX, backend plugga
 
 | Artifact                   | Format      | Example       |
 | -------------------------- | ----------- | ------------- |
-| Stakeholder Requirement    | `StR-XXX`   | `StR-001`     |
-| User Story                 | `US-XXX`    | `US-001`      |
-| Functional Requirement     | `FR-XXX`    | `FR-005`      |
-| Non-Functional Requirement | `NFR-XXX`   | `NFR-001`     |
-| Acceptance Criteria        | `{FR}-AC-N` | `FR-005-AC-1` |
+| Stakeholder Requirement    | `StR-XXX`   | [StR-001](./stakeholder/StR-001-pluggable-config-contract.md)     |
+| User Story                 | `US-XXX`    | [US-001](./usecase/US-001-run-custom-cli-distribution.md)      |
+| Functional Requirement     | `FR-XXX`    | [FR-005](./functional/FR-005-secrets-service-api.md)      |
+| Non-Functional Requirement | `NFR-XXX`   | [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md)     |
+| Acceptance Criteria        | `{FR}-AC-N` | [FR-005-AC-1](./functional/FR-005-secrets-service-api.md) |
 | Test Case                  | `TC-XXX`    | `TC-021`      |
 
 Identifiers are immutable once assigned. IDs in this repo are a flat per-repo sequence (no `core/` classifier).
@@ -150,34 +150,34 @@ Identifiers are immutable once assigned. IDs in this repo are a flat per-repo se
 
 | ID      | Title                                                    |
 | ------- | -------------------------------------------------------- |
-| StR-001 | Pluggable Config Contract with Per-Plugin Isolation      |
-| StR-002 | Developer Secrets Never Persisted in Plaintext           |
-| StR-003 | Reusable CLI Runtime                                     |
-| US-001  | Run Custom CLI Distribution                              |
-| FR-001  | ConfigService API                                        |
-| FR-002  | Per-Plugin File Isolation and Scoped Failure             |
-| FR-003  | Layered Config Resolution: Env → Plugin File → Defaults  |
-| FR-004  | Plugin Schema Registration                               |
-| FR-005  | SecretsService API                                       |
-| FR-006  | OS Keyring Backend (@napi-rs/keyring)                    |
-| FR-007  | Encrypted-File Fallback for Headless Environments        |
-| FR-008  | `config` Command Group (get, set, edit, doctor)          |
-| FR-009  | `secrets` Command Group (list, set, rm, which)           |
-| FR-010  | CLI Binary Composition                                   |
-| FR-011  | Runtime Config Root Override                             |
-| FR-012  | Plugin Discovery (oclif-native)                          |
-| FR-013  | Per-Command Capability Binding                           |
-| FR-014  | ixSchema Plugin Convention                               |
-| FR-015  | Service Discovery Client                                 |
-| FR-016  | Device-Flow Runner                                       |
-| FR-017  | Host-Keyed Token Store with Refresh-Before-Expiry        |
-| FR-018  | Non-Fatal Browser Opener                                 |
-| NFR-001 | No Plaintext Secret Values Persisted on Disk             |
-| NFR-002 | Sensitive Files Created Mode 0600 via Atomic Temp+Rename |
-| NFR-003 | Schema Validation Errors Are Actionable                  |
-| NFR-004 | Secrets Backend Adapter Pluggability                     |
-| NFR-005 | Auth Host Isolation and TLS-Only Discovery               |
-| NFR-006 | Auth Tokens Never Persisted in Plaintext                 |
+| [StR-001](./stakeholder/StR-001-pluggable-config-contract.md) | Pluggable Config Contract with Per-Plugin Isolation      |
+| [StR-002](./stakeholder/StR-002-secrets-never-plaintext.md) | Developer Secrets Never Persisted in Plaintext           |
+| [StR-003](./stakeholder/StR-003-reusable-cli-runtime.md) | Reusable CLI Runtime                                     |
+| [US-001](./usecase/US-001-run-custom-cli-distribution.md)  | Run Custom CLI Distribution                              |
+| [FR-001](./functional/FR-001-config-service-api.md)  | ConfigService API                                        |
+| [FR-002](./functional/FR-002-per-plugin-file-isolation.md)  | Per-Plugin File Isolation and Scoped Failure             |
+| [FR-003](./functional/FR-003-layered-resolution.md)  | Layered Config Resolution: Env → Plugin File → Defaults  |
+| [FR-004](./functional/FR-004-plugin-schema-registration.md)  | Plugin Schema Registration                               |
+| [FR-005](./functional/FR-005-secrets-service-api.md)  | SecretsService API                                       |
+| [FR-006](./functional/FR-006-keyring-backend.md)  | OS Keyring Backend (@napi-rs/keyring)                    |
+| [FR-007](./functional/FR-007-encrypted-file-fallback.md)  | Encrypted-File Fallback for Headless Environments        |
+| [FR-008](./functional/FR-008-config-commands.md)  | `config` Command Group (get, set, edit, doctor)          |
+| [FR-009](./functional/FR-009-secrets-commands.md)  | `secrets` Command Group (list, set, rm, which)           |
+| [FR-010](./functional/FR-010-cli-binary-composition.md)  | CLI Binary Composition                                   |
+| [FR-011](./functional/FR-011-runtime-config-root.md)  | Runtime Config Root Override                             |
+| [FR-012](./functional/FR-012-plugin-discovery.md)  | Plugin Discovery (oclif-native)                          |
+| [FR-013](./functional/FR-013-capability-binding.md)  | Per-Command Capability Binding                           |
+| [FR-014](./functional/FR-014-ixschema-plugin-convention.md)  | ixSchema Plugin Convention                               |
+| [FR-015](./functional/FR-015-service-discovery-client.md)  | Service Discovery Client                                 |
+| [FR-016](./functional/FR-016-device-flow-runner.md)  | Device-Flow Runner                                       |
+| [FR-017](./functional/FR-017-host-keyed-token-store.md)  | Host-Keyed Token Store with Refresh-Before-Expiry        |
+| [FR-018](./functional/FR-018-browser-opener.md)  | Non-Fatal Browser Opener                                 |
+| [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md) | No Plaintext Secret Values Persisted on Disk             |
+| [NFR-002](./non-functional/NFR-002-sensitive-file-permissions.md) | Sensitive Files Created Mode 0600 via Atomic Temp+Rename |
+| [NFR-003](./non-functional/NFR-003-schema-error-ux.md) | Schema Validation Errors Are Actionable                  |
+| [NFR-004](./non-functional/NFR-004-secrets-backend-pluggability.md) | Secrets Backend Adapter Pluggability                     |
+| [NFR-005](./non-functional/NFR-005-auth-host-isolation-tls.md) | Auth Host Isolation and TLS-Only Discovery               |
+| [NFR-006](./non-functional/NFR-006-auth-tokens-never-plaintext.md) | Auth Tokens Never Persisted in Plaintext                 |
 
 ---
 
@@ -196,7 +196,7 @@ All functional requirements SHALL:
 
 ### 8.1 Storage Layout (XDG-compliant)
 
-A consuming CLI resolves a **config root** (default `~/.config/<bin>`, overridable via `--config-root` / `IX_CONFIG_ROOT` per FR-011). Within that root:
+A consuming CLI resolves a **config root** (default `~/.config/<bin>`, overridable via `--config-root` / `IX_CONFIG_ROOT` per [FR-011](./functional/FR-011-runtime-config-root.md)). Within that root:
 
 ```
 <config-root>/
@@ -209,33 +209,33 @@ A consuming CLI resolves a **config root** (default `~/.config/<bin>`, overridab
     └── <plugin-id>.age      # per-plugin age-encrypted blob (mode 0600)
 ```
 
-Each persisted file owned by the framework is mode `0o600`, written atomically (temp + rename), and refused on read if its mode is wider. Per-plugin file isolation guarantees that a malformed or buggy plugin's config cannot corrupt unrelated plugins (FR-002).
+Each persisted file owned by the framework is mode `0o600`, written atomically (temp + rename), and refused on read if its mode is wider. Per-plugin file isolation guarantees that a malformed or buggy plugin's config cannot corrupt unrelated plugins ([FR-002](./functional/FR-002-per-plugin-file-isolation.md)).
 
 The concrete contents of the `core` plugin's config and secrets schema are **defined by the consuming CLI**, not by this library. The framework reserves the id `core` and routes it to `config.yaml`; what keys live there is the host binary's decision (for the `ix` CLI, see `ix://agent-ix/ix-cli` FR-020).
 
 ### 8.2 Configuration Service
 
-Configuration is owned by `ConfigService` (FR-001):
+Configuration is owned by `ConfigService` ([FR-001](./functional/FR-001-config-service-api.md)):
 
 - Plugins access only their own file via `ConfigService.forPlugin(id, schema)` — the API does not expose cross-plugin reads.
-- Schemas are Zod `.strict()`; unknown keys are rejected at write time (FR-004).
-- Layered resolution: env (`IX_*` per plugin's declared bindings) → plugin's `config.d/<id>.yaml` → schema defaults (FR-003).
+- Schemas are Zod `.strict()`; unknown keys are rejected at write time ([FR-004](./functional/FR-004-plugin-schema-registration.md)).
+- Layered resolution: env (`IX_*` per plugin's declared bindings) → plugin's `config.d/<id>.yaml` → schema defaults ([FR-003](./functional/FR-003-layered-resolution.md)).
 - The reserved id `core` is the only plugin allowed to read or write `<config-root>/config.yaml`.
-- A parse or validation error on one plugin's file SHALL NOT block other plugins; the offending plugin falls back to schema defaults and the error is surfaced via `config doctor` (FR-002, FR-008).
+- A parse or validation error on one plugin's file SHALL NOT block other plugins; the offending plugin falls back to schema defaults and the error is surfaced via `config doctor` ([FR-002](./functional/FR-002-per-plugin-file-isolation.md), [FR-008](./functional/FR-008-config-commands.md)).
 
 ### 8.3 Secrets Service
 
-Secrets are owned by `SecretsService` (FR-005):
+Secrets are owned by `SecretsService` ([FR-005](./functional/FR-005-secrets-service-api.md)):
 
-- **Default backend: OS keyring** via `@napi-rs/keyring` — `service = "ix-cli"`, `account = "<plugin-id>.<secret-name>"` (FR-006).
-- **Fallback backend: per-plugin age-encrypted blobs** at `secrets.d/<plugin-id>.age` with X25519 identity at `secrets.key` (FR-007). Used only when the keyring capability probe fails.
-- Resolution order for `get()`: env (`IX_*` per plugin's declared `envVar`) → active backend → optional masked TTY prompt (FR-005).
-- **No secret value is ever persisted in plaintext on disk** (NFR-001).
-- Backend pluggability: future Vault / 1Password / Bitwarden adapters register via a typed `SecretsBackend` interface without changes to consumers (NFR-004).
+- **Default backend: OS keyring** via `@napi-rs/keyring` — `service = "ix-cli"`, `account = "<plugin-id>.<secret-name>"` ([FR-006](./functional/FR-006-keyring-backend.md)).
+- **Fallback backend: per-plugin age-encrypted blobs** at `secrets.d/<plugin-id>.age` with X25519 identity at `secrets.key` ([FR-007](./functional/FR-007-encrypted-file-fallback.md)). Used only when the keyring capability probe fails.
+- Resolution order for `get()`: env (`IX_*` per plugin's declared `envVar`) → active backend → optional masked TTY prompt ([FR-005](./functional/FR-005-secrets-service-api.md)).
+- **No secret value is ever persisted in plaintext on disk** ([NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md)).
+- Backend pluggability: future Vault / 1Password / Bitwarden adapters register via a typed `SecretsBackend` interface without changes to consumers ([NFR-004](./non-functional/NFR-004-secrets-backend-pluggability.md)).
 
 ### 8.4 Runtime Config Root Override
 
-`--config-root` is a base flag on `BaseCommand`; oclif parses it normally through the standard flag system. `IX_CONFIG_ROOT` is its environment-variable alias (FR-011). The selected root applies to per-plugin config reads and file-backed secrets when a command runs.
+`--config-root` is a base flag on `BaseCommand`; oclif parses it normally through the standard flag system. `IX_CONFIG_ROOT` is its environment-variable alias ([FR-011](./functional/FR-011-runtime-config-root.md)). The selected root applies to per-plugin config reads and file-backed secrets when a command runs.
 
 Effective precedence:
 
@@ -263,7 +263,7 @@ secrets rm <id>
 secrets which <id>
 ```
 
-All output flows through the host CLI's UI primitives (e.g. `@agent-ix/ix-ui-cli`); the runners never call `console.log` / `process.stdout.write` directly, and `secrets` never echoes a value (FR-008, FR-009).
+All output flows through the host CLI's UI primitives (e.g. `@agent-ix/ix-ui-cli`); the runners never call `console.log` / `process.stdout.write` directly, and `secrets` never echoes a value ([FR-008](./functional/FR-008-config-commands.md), [FR-009](./functional/FR-009-secrets-commands.md)).
 
 ---
 
@@ -275,13 +275,13 @@ The framework ships a **generic, service-agnostic** device-login engine in
 No service identity (Filament, a particular issuer, etc.) is baked in — every
 endpoint, audience, and scope is read from a discovery document.
 
-1. **Discovery client** (FR-015). `fetchServiceDiscovery(host)` normalizes a
+1. **Discovery client** ([FR-015](./functional/FR-015-service-discovery-client.md)). `fetchServiceDiscovery(host)` normalizes a
    user-supplied host to an `https` origin (the `--insecure` / `*.dev.ix`
    carve-out aside), `GET`s `/.well-known/agentix-service.json`, and validates
    the `AgentixServiceDiscovery` shape — mirroring the `gateway-bff-contract`
    model the BFF and browser SDK share.
 
-2. **Device-flow runner** (FR-016). `runDeviceFlow(discovery)` performs the
+2. **Device-flow runner** ([FR-016](./functional/FR-016-device-flow-runner.md)). `runDeviceFlow(discovery)` performs the
    OAuth 2.0 Device Authorization Grant (RFC 8628): authorize → present the
    `verification_uri` + `user_code` through the host's UI → best-effort,
    non-fatal browser open → poll the token endpoint honoring
@@ -289,18 +289,18 @@ endpoint, audience, and scope is read from a discovery document.
    `access_denied` / `expired_token`. The browser never sees a token; the CLI
    polls the BFF directly.
 
-3. **Host-keyed token store** (FR-017). `TokenStore` persists the access and
+3. **Host-keyed token store** ([FR-017](./functional/FR-017-host-keyed-token-store.md)). `TokenStore` persists the access and
    refresh tokens per host through `SecretsService` (never plaintext on disk,
-   NFR-006), with expiry/audience/scope metadata kept separately.
+   [NFR-006](./non-functional/NFR-006-auth-tokens-never-plaintext.md)), with expiry/audience/scope metadata kept separately.
    `getAccessToken(host)` returns a fresh token, refreshing before expiry via
    the discovery doc's `token_refresh_endpoint` and rotating the stored refresh
    token when the issuer returns a new one.
 
-4. **Browser opener** (FR-018). A non-fatal, WSL/headless-aware opener; failure
+4. **Browser opener** ([FR-018](./functional/FR-018-browser-opener.md)). A non-fatal, WSL/headless-aware opener; failure
    never aborts login.
 
 Host isolation and TLS-only discovery are quality constraints on this engine
-(NFR-005); tokens-never-plaintext extends NFR-001 (NFR-006).
+([NFR-005](./non-functional/NFR-005-auth-host-isolation-tls.md)); tokens-never-plaintext extends [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md) ([NFR-006](./non-functional/NFR-006-auth-tokens-never-plaintext.md)).
 
 ---
 
@@ -308,9 +308,9 @@ Host isolation and TLS-only discovery are quality constraints on this engine
 
 IX CLI plugins are **normal oclif plugins** — npm packages discovered by oclif via the binary's `oclif.plugins` config (or installed at runtime through `@oclif/plugin-plugins`). The IX-specific layering is two small conventions on top of oclif:
 
-1. **`ixSchema` named export** (FR-014). Plugins that need namespaced config, secrets, or env-var bindings export an `ixSchema` object from their package main. The host's `init` hook walks `Config.plugins`, reads each plugin's `ixSchema` if present, and registers schemas with `ConfigService` / `SecretsService` via `registerPluginSchema` (FR-004).
+1. **`ixSchema` named export** ([FR-014](./functional/FR-014-ixschema-plugin-convention.md)). Plugins that need namespaced config, secrets, or env-var bindings export an `ixSchema` object from their package main. The host's `init` hook walks `Config.plugins`, reads each plugin's `ixSchema` if present, and registers schemas with `ConfigService` / `SecretsService` via `registerPluginSchema` ([FR-004](./functional/FR-004-plugin-schema-registration.md)).
 
-2. **`static capabilities` on command classes** (FR-013). Commands that depend on a capability declare their requirements on the command class; `BaseCommand.prerun` resolves them.
+2. **`static capabilities` on command classes** ([FR-013](./functional/FR-013-capability-binding.md)). Commands that depend on a capability declare their requirements on the command class; `BaseCommand.prerun` resolves them.
 
 ```ts
 // @agent-ix/ix-cli-core
@@ -343,23 +343,23 @@ export interface CommandCapabilities {
 IX CLI plugins run **in-process** with full Node.js privileges. The plugin contract MUST NOT be read as adversarial isolation:
 
 - Per-plugin file isolation in `config.d/` and `secrets.d/` defends against **accidental corruption** from buggy plugins, not against deliberate exfiltration. A malicious plugin can read another plugin's config file directly via `node:fs`; nothing in this spec prevents that.
-- The `ConfigService.forPlugin(id, schema)` API takes `id` as a string. Cross-plugin reads are not API-blocked at runtime; the contract that "each plugin reads its own id" is enforced by **static-check lint only** (FR-003-AC-5).
+- The `ConfigService.forPlugin(id, schema)` API takes `id` as a string. Cross-plugin reads are not API-blocked at runtime; the contract that "each plugin reads its own id" is enforced by **static-check lint only** ([FR-003-AC-5](./functional/FR-003-layered-resolution.md)).
 - This posture matches every other in-process plugin CLI (gh, kubectl, aws-cli, oclif, helm, VS Code extensions).
 
 **Operator guidance.** Install only plugins you trust.
 
 ### 10.2 CLI Binary Composition
 
-A CLI binary is a normal oclif application that depends on `@agent-ix/ix-cli-core` (for `BaseCommand`, `ConfigService`, `SecretsService`, `CapabilityResolver`, `IxPluginSchema`) and lists its plugin packages in `oclif.plugins`. There is no `Distribution` runtime object — the binary itself is the distribution (FR-010). Per-command capability requirements (FR-013) are declared as `static capabilities` and enforced by `BaseCommand.prerun`. There is no on-disk plugin manifest (FR-012).
+A CLI binary is a normal oclif application that depends on `@agent-ix/ix-cli-core` (for `BaseCommand`, `ConfigService`, `SecretsService`, `CapabilityResolver`, `IxPluginSchema`) and lists its plugin packages in `oclif.plugins`. There is no `Distribution` runtime object — the binary itself is the distribution ([FR-010](./functional/FR-010-cli-binary-composition.md)). Per-command capability requirements ([FR-013](./functional/FR-013-capability-binding.md)) are declared as `static capabilities` and enforced by `BaseCommand.prerun`. There is no on-disk plugin manifest ([FR-012](./functional/FR-012-plugin-discovery.md)).
 
 ---
 
 ## 11. Error and Failure Model
 
-- Config validation errors carry the four-tuple `(pluginId, keyPath, expectedType, filePath)` and never expose raw Zod traces (NFR-003).
-- Secret errors include the secret id but never the value (FR-005, FR-009).
+- Config validation errors carry the four-tuple `(pluginId, keyPath, expectedType, filePath)` and never expose raw Zod traces ([NFR-003](./non-functional/NFR-003-schema-error-ux.md)).
+- Secret errors include the secret id but never the value ([FR-005](./functional/FR-005-secrets-service-api.md), [FR-009](./functional/FR-009-secrets-commands.md)).
 - All errors are rendered via the host CLI's UI error primitives — no raw `console.error`.
-- Registration failures are logged and skipped, never thrown to the process boundary (FR-004).
+- Registration failures are logged and skipped, never thrown to the process boundary ([FR-004](./functional/FR-004-plugin-schema-registration.md)).
 
 ---
 
@@ -376,7 +376,7 @@ Bidirectional traceability SHALL be maintained between:
 
 - Unit tests (vitest) for config resolution, atomic writes, locking, secrets resolution, backend selection, plugin-schema registration, capability resolution, and command runners.
 - Static-check tests for the soft-isolation and no-plaintext-secret invariants.
-- A platform CI matrix (macOS Keychain, Linux libsecret) for the keyring round-trip ACs (FR-006).
+- A platform CI matrix (macOS Keychain, Linux libsecret) for the keyring round-trip ACs ([FR-006](./functional/FR-006-keyring-backend.md)).
 
 ---
 

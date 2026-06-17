@@ -67,7 +67,7 @@ Must-Have
   `@agent-ix/ts-plugin-kit` (`marketplaceInstallOptions`,
   `reconcileDefaultSet`, `resolveOclifPluginInstall`) for acquiring data
   plugins and bridging them to oclif; the fetch/pin/registry mechanism lives
-  in the leaf library, not in ix-cli-core (see FR-019).
+  in the leaf library, not in ix-cli-core (see [FR-019](../functional/FR-019-marketplace-adapter.md)).
 
 ## Non-goals
 
@@ -79,5 +79,5 @@ Must-Have
   loader **inside ix-cli-core**, and any argv preprocessing layer. Source
   fetching, pinning, and the install registry live in the external
   `@agent-ix/ts-plugin-kit` library; ix-cli-core only adapts it (Approach 4,
-  FR-019). The earlier in-tree reimplementation of oclif's command discovery
+  [FR-019](../functional/FR-019-marketplace-adapter.md)). The earlier in-tree reimplementation of oclif's command discovery
   remains superseded by the oclif-native composition described above.

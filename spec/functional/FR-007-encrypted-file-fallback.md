@@ -19,7 +19,7 @@ relationships:
 
 ## Description
 
-When the keyring capability probe (FR-006) fails, `SecretsService` SHALL persist secrets to per-plugin age-encrypted files:
+When the keyring capability probe ([FR-006](./FR-006-keyring-backend.md)) fails, `SecretsService` SHALL persist secrets to per-plugin age-encrypted files:
 
 - **Identity file**: `<config-root>/secrets.key` (mode `0o600`). On first use, generated as a fresh X25519 age identity. The file is the symmetric trust root.
 - **Per-plugin blobs**: `<config-root>/secrets.d/<pluginId>.age` (mode `0o600`). Each blob is an age-encrypted YAML map of `<secret-name>: <value>` for that plugin.
@@ -28,7 +28,7 @@ When the keyring capability probe (FR-006) fails, `SecretsService` SHALL persist
 
 **Per-plugin isolation.** A read of `local.ghcr-token` SHALL touch only `secrets.d/local.age`. Corruption of any single blob SHALL cause `get`, `set`, `delete`, `list`, and `which` to fail with `SecretsBlobCorruptedError` for that plugin only — other plugins' blobs continue to function. The error SHALL surface a remediation hint (delete the blob and re-enter the secrets, or restore from backup).
 
-**Atomic write.** Writes SHALL use temp + rename with `0o600` per NFR-002. The blob is read, decrypted, mutated in-memory, re-encrypted, and atomically replaced.
+**Atomic write.** Writes SHALL use temp + rename with `0o600` per [NFR-002](../non-functional/NFR-002-sensitive-file-permissions.md). The blob is read, decrypted, mutated in-memory, re-encrypted, and atomically replaced.
 
 **Identity protection.** `secrets.key` SHALL be created mode `0o600`. If on read the file mode is wider than `0o600`, the service SHALL refuse to load the identity and emit `SecretsIdentityPermissionsError` with remediation. The identity file is never logged, never copied to other paths.
 
@@ -48,5 +48,5 @@ When the keyring capability probe (FR-006) fails, `SecretsService` SHALL persist
 
 ## Dependencies
 
-- **Upstream**: StR-002 (implements), FR-005 (requires), NFR-001 (requires), NFR-002 (requires)
+- **Upstream**: [StR-002](../stakeholder/StR-002-secrets-never-plaintext.md) (implements), [FR-005](./FR-005-secrets-service-api.md) (requires), [NFR-001](../non-functional/NFR-001-no-plaintext-secrets.md) (requires), [NFR-002](../non-functional/NFR-002-sensitive-file-permissions.md) (requires)
 

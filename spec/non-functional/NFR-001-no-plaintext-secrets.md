@@ -18,8 +18,8 @@ relationships:
 
 No secret value managed by `SecretsService` SHALL be persisted to any file on disk in unencrypted form. The only sanctioned persistence paths are:
 
-1. **OS keyring** (FR-006), where ciphertext is held by the platform credential store (Keychain / libsecret / Credential Manager).
-2. **age-encrypted blob** (FR-007) at `<config-root>/secrets.d/<plugin-id>.age`, encrypted with an X25519 identity at `<config-root>/secrets.key`.
+1. **OS keyring** ([FR-006](../functional/FR-006-keyring-backend.md)), where ciphertext is held by the platform credential store (Keychain / libsecret / Credential Manager).
+2. **age-encrypted blob** ([FR-007](../functional/FR-007-encrypted-file-fallback.md)) at `<config-root>/secrets.d/<plugin-id>.age`, encrypted with an X25519 identity at `<config-root>/secrets.key`.
 
 This NFR applies to:
 
@@ -29,7 +29,7 @@ This NFR applies to:
 This NFR does NOT govern:
 
 - Environment variables in the user's shell — those are operator-controlled.
-- In-memory values during a single CLI process — memory hygiene is best-effort, not absolute (see FR-007 "Memory hygiene").
+- In-memory values during a single CLI process — memory hygiene is best-effort, not absolute (see [FR-007](../functional/FR-007-encrypted-file-fallback.md) "Memory hygiene").
 - Kubernetes Secret manifests or other in-flight material rendered by consumers and applied to external systems — those are not persisted by `@agent-ix/ix-cli-core`.
 - Transitively-derived material that consumers compute from secret values _after_ `SecretsService.get(...)` returns. Consumers SHOULD NOT write derivatives to disk; the static check in NFR-001-AC-1 catches the most common patterns but is not a complete proof for arbitrary downstream code. Plugin authors are responsible for not persisting derived material.
 

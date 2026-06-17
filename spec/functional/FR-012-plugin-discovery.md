@@ -38,18 +38,18 @@ user-installable plugins.
 
 ## Dependencies
 
-- **Upstream**: StR-003 (implements), US-001 (implements), FR-010 (requires)
+- **Upstream**: [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [US-001](../usecase/US-001-run-custom-cli-distribution.md) (implements), [FR-010](./FR-010-cli-binary-composition.md) (requires)
 
 ## Notes
 
 The original requirement was motivated by per-project plugin enable/disable.
 That feature was dropped as not actually required. With it gone, the
 chicken-and-egg between config-root resolution and plugin discovery
-dissolves (see FR-011 notes), so the manifest loader and merge logic are
+dissolves (see [FR-011](./FR-011-runtime-config-root.md) notes), so the manifest loader and merge logic are
 no longer needed.
 
 This supersession applies to **command** plugins (packages that add oclif
 commands) — those are discovered oclif-natively. It does **not** cover **data**
 plugins (content modules: schemas/skeletons/manifests consumed by tools such as
 quire). Acquiring and pinning those is provided by the marketplace adapter over
-`@agent-ix/ts-plugin-kit` (see FR-019), which is not an in-tree manifest loader.
+`@agent-ix/ts-plugin-kit` (see [FR-019](./FR-019-marketplace-adapter.md)), which is not an in-tree manifest loader.

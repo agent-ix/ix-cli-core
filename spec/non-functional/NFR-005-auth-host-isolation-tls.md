@@ -23,9 +23,9 @@ The auth engine SHALL enforce two isolation properties:
    another. A login or refresh against host A SHALL leave host B's stored
    material byte-for-byte unchanged. Host keying is realized by deriving a
    distinct `SecretId` per host (`hostSlug`) for the access and refresh secrets,
-   and a distinct metadata key per host (FR-017).
+   and a distinct metadata key per host ([FR-017](../functional/FR-017-host-keyed-token-store.md)).
 
-2. **TLS-only discovery.** Service discovery (FR-015) SHALL fetch
+2. **TLS-only discovery.** Service discovery ([FR-015](../functional/FR-015-service-discovery-client.md)) SHALL fetch
    `/.well-known/agentix-service.json` over `https` only. Plain `http` is
    refused **unless** the host is a `dev.ix` / `*.dev.ix` development host or the
    caller explicitly opts in via `--insecure` (`fetchServiceDiscovery({ insecure: true })`).

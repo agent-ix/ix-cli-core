@@ -36,7 +36,7 @@ An IX CLI binary SHALL be a normal oclif application that:
 
 ## Dependencies
 
-- **Upstream**: StR-003 (implements), US-001 (implements)
+- **Upstream**: [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [US-001](../usecase/US-001-run-custom-cli-distribution.md) (implements)
 
 ## Notes
 

@@ -37,5 +37,5 @@ Env-variable bindings are conventionally `IX_*` and SHALL be declared by the plu
 
 ## Dependencies
 
-- **Upstream**: StR-001 (implements), FR-001 (requires)
+- **Upstream**: [StR-001](../stakeholder/StR-001-pluggable-config-contract.md) (implements), [FR-001](./FR-001-config-service-api.md) (requires)
 

@@ -16,12 +16,12 @@ relationships:
 
 ## Description
 
-Each plugin's persisted config MUST be physically isolated in its own YAML file at `<config-root>/config.d/<pluginId>.yaml`. The `ConfigService` (FR-001) MUST enforce the following isolation guarantees:
+Each plugin's persisted config MUST be physically isolated in its own YAML file at `<config-root>/config.d/<pluginId>.yaml`. The `ConfigService` ([FR-001](./FR-001-config-service-api.md)) MUST enforce the following isolation guarantees:
 
 **Scoped failure on parse / validation errors.**
 
 - A YAML parse error in `config.d/<a>.yaml` SHALL NOT prevent `config.d/<b>.yaml` (any other plugin) from loading.
-- A schema validation error against plugin A's loaded content SHALL cause plugin A's `get()` to return schema defaults (not throw at the loader callsite), and the error SHALL be recorded for surfacing by `config doctor` (FR-008).
+- A schema validation error against plugin A's loaded content SHALL cause plugin A's `get()` to return schema defaults (not throw at the loader callsite), and the error SHALL be recorded for surfacing by `config doctor` ([FR-008](./FR-008-config-commands.md)).
 - The first `set()` after a defaulted load SHALL overwrite the broken file with a valid serialization.
 
 **Same-plugin write serialization.**
@@ -51,5 +51,5 @@ Each plugin's persisted config MUST be physically isolated in its own YAML file 
 
 ## Dependencies
 
-- **Upstream**: StR-001 (implements), FR-001 (requires), NFR-003 (requires)
+- **Upstream**: [StR-001](../stakeholder/StR-001-pluggable-config-contract.md) (implements), [FR-001](./FR-001-config-service-api.md) (requires), [NFR-003](../non-functional/NFR-003-schema-error-ux.md) (requires)
 

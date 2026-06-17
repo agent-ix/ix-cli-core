@@ -46,11 +46,11 @@ The adapter exposes:
 
 ## Dependencies
 
-- **Upstream**: StR-003 (implements), FR-011 (requires)
+- **Upstream**: [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [FR-011](./FR-011-runtime-config-root.md) (requires)
 
 ## Notes
 
-This requirement replaces the part of FR-012's supersession that left **data**
+This requirement replaces the part of [FR-012](./FR-012-plugin-discovery.md)'s supersession that left **data**
 plugin acquisition unaddressed. Command-plugin discovery remains oclif-native
-(FR-012); FR-019 adds the data-plugin acquisition + oclif install bridge as a
-thin adapter, keeping StR-003's "no bespoke installer in ix-cli-core" intent.
+([FR-012](./FR-012-plugin-discovery.md)); FR-019 adds the data-plugin acquisition + oclif install bridge as a
+thin adapter, keeping [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md)'s "no bespoke installer in ix-cli-core" intent.

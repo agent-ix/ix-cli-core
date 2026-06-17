@@ -17,11 +17,11 @@ relationships:
 ## Statement
 
 Access tokens and refresh tokens managed by the auth engine's `TokenStore`
-(FR-017) SHALL be persisted **only** through the framework `SecretsService`
-(FR-005) — i.e. via the sanctioned OS-keyring or age-encrypted backends. They
+([FR-017](../functional/FR-017-host-keyed-token-store.md)) SHALL be persisted **only** through the framework `SecretsService`
+([FR-005](../functional/FR-005-secrets-service-api.md)) — i.e. via the sanctioned OS-keyring or age-encrypted backends. They
 SHALL NOT be written to any plaintext file, including the metadata store, config
-files, logs, or process output. This extends NFR-001 to the auth engine: the
-token bundle's secret material reuses the exact persistence channels NFR-001
+files, logs, or process output. This extends [NFR-001](./NFR-001-no-plaintext-secrets.md) to the auth engine: the
+token bundle's secret material reuses the exact persistence channels [NFR-001](./NFR-001-no-plaintext-secrets.md)
 already governs.
 
 Only **non-sensitive** metadata (`expiresAt`, `audience`, `scope`) may be

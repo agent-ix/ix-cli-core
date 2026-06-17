@@ -26,14 +26,14 @@ The keyring backend SHALL use `@napi-rs/keyring` to bridge to the platform keych
 - `service = "ix-cli"`
 - `account = "<plugin-id>.<secret-name>"`
 
-This namespacing matches `SecretId` (FR-005) so `list()` can enumerate every entry under `service = "ix-cli"` and reconstruct the id.
+This namespacing matches `SecretId` ([FR-005](./FR-005-secrets-service-api.md)) so `list()` can enumerate every entry under `service = "ix-cli"` and reconstruct the id.
 
 **Capability probe.** At startup `SecretsService` SHALL run a capability probe consisting of:
 
 1. Resolving the platform binding successfully.
 2. Performing a round-trip set/get/delete on a sentinel id `core.__probe__`.
 
-If the probe throws or yields a value mismatch, the keyring backend SHALL be marked unavailable and the service SHALL select the age-file backend (FR-007) instead. The probe runs at most once per process.
+If the probe throws or yields a value mismatch, the keyring backend SHALL be marked unavailable and the service SHALL select the age-file backend ([FR-007](./FR-007-encrypted-file-fallback.md)) instead. The probe runs at most once per process.
 
 **Failure mapping.** Errors from `@napi-rs/keyring` SHALL be wrapped in:
 
@@ -57,7 +57,7 @@ If the probe throws or yields a value mismatch, the keyring backend SHALL be mar
 
 ## Dependencies
 
-- **Upstream**: StR-002 (implements), FR-005 (requires)
+- **Upstream**: [StR-002](../stakeholder/StR-002-secrets-never-plaintext.md) (implements), [FR-005](./FR-005-secrets-service-api.md) (requires)
 
 ## Verification — Platform CI Matrix
 

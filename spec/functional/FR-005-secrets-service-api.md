@@ -47,16 +47,16 @@ type SecretId = `${string}.${string}`; // "<plugin-id>.<secret-name>"
 
 **Resolution order for `get()`.** Highest precedence first:
 
-1. **Environment variable** declared by the secret's `envVar` binding (FR-004) — e.g. `IX_GHCR_TOKEN`.
-2. **Active backend** — keyring (FR-006) when capability probe succeeds, age-file (FR-007) when it does not.
+1. **Environment variable** declared by the secret's `envVar` binding ([FR-004](./FR-004-plugin-schema-registration.md)) — e.g. `IX_GHCR_TOKEN`.
+2. **Active backend** — keyring ([FR-006](./FR-006-keyring-backend.md)) when capability probe succeeds, age-file ([FR-007](./FR-007-encrypted-file-fallback.md)) when it does not.
 3. **Interactive prompt** — only when `opts.prompt === true` and stdin/stdout is a TTY. The prompt SHALL be masked. The prompted value SHALL be persisted to the active backend after collection.
 4. Otherwise, return `null`.
 
 **`set()` and `delete()`** SHALL target the active backend; env-var-only secrets cannot be `set` (the API throws `SecretBackendImmutableError` if `envVar` is bound and set).
 
-**Backend selection.** The active backend is chosen by the `core.secretsBackend` config value (FR-003), which defaults to `auto` (= keyring if the capability probe succeeds, else age-file). Operators may pin to `keyring` or `age-file` explicitly.
+**Backend selection.** The active backend is chosen by the `core.secretsBackend` config value ([FR-003](./FR-003-layered-resolution.md)), which defaults to `auto` (= keyring if the capability probe succeeds, else age-file). Operators may pin to `keyring` or `age-file` explicitly.
 
-**Backend pluggability.** `SecretsService` SHALL be implemented against a `SecretsBackend` interface so that future adapters (Vault, 1Password, Bitwarden) can be registered without changing consumer code (per NFR-004). v1 ships only `keyring` and `age-file`.
+**Backend pluggability.** `SecretsService` SHALL be implemented against a `SecretsBackend` interface so that future adapters (Vault, 1Password, Bitwarden) can be registered without changing consumer code (per [NFR-004](../non-functional/NFR-004-secrets-backend-pluggability.md)). v1 ships only `keyring` and `age-file`.
 
 **No value logging.** `SecretsService` MUST NOT log secret values, MUST NOT include them in error messages, and MUST NOT pass them to `console.*`. It SHALL render only the secret id and selected backend.
 
@@ -75,24 +75,24 @@ type SecretId = `${string}.${string}`; // "<plugin-id>.<secret-name>"
 
 ## Dependencies
 
-- **Upstream**: StR-002 (implements), FR-004 (requires), FR-006 (requires), FR-007 (requires), NFR-001 (requires)
+- **Upstream**: [StR-002](../stakeholder/StR-002-secrets-never-plaintext.md) (implements), [FR-004](./FR-004-plugin-schema-registration.md) (requires), [FR-006](./FR-006-keyring-backend.md) (requires), [FR-007](./FR-007-encrypted-file-fallback.md) (requires), [NFR-001](../non-functional/NFR-001-no-plaintext-secrets.md) (requires)
 
 ## Endpoint
 
 In-process TypeScript API exposed by `@agent-ix/ix-cli-core/secrets`. There is
 no HTTP surface — `SecretsService` brokers between the resolved active backend
 (`keyring`, `age-file`, or test-only `memory`) and the registered secret
-declarations from FR-004. Every method validates `SecretId` against
+declarations from [FR-004](./FR-004-plugin-schema-registration.md). Every method validates `SecretId` against
 `^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$` and throws `InvalidSecretIdError` on
 mismatch (FR-005-AC-8).
 
 | Symbol                                     | Signature                                                                                                                                  | Returns                | Description                                                                                                                                                                                                           |
 | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `new SecretsService`                       | `(opts?: { mode?: SecretsBackendMode; backends?: Map<string, SecretsBackend>; env?: Record<string,string\|undefined> }) => SecretsService` | instance               | `mode` defaults to `"auto"` (keyring → age-file probe order). Pinned `"keyring"` with a failing probe throws `KeyringUnavailableError` on first use (NFR-004-AC-5); pinned `"age-file"` falls through to backend.get. |
+| `new SecretsService`                       | `(opts?: { mode?: SecretsBackendMode; backends?: Map<string, SecretsBackend>; env?: Record<string,string\|undefined> }) => SecretsService` | instance               | `mode` defaults to `"auto"` (keyring → age-file probe order). Pinned `"keyring"` with a failing probe throws `KeyringUnavailableError` on first use ([NFR-004-AC-5](../non-functional/NFR-004-secrets-backend-pluggability.md)); pinned `"age-file"` falls through to backend.get. |
 | `SecretsService.get`                       | `(id: SecretId) => Promise<string \| null>`                                                                                                | secret value or `null` | Resolution order: env var declared by `SecretDeclaration.envVar` → active backend → `null`. Empty/whitespace env values are treated as unset. Never logs or rethrows the value.                                       |
 | `SecretsService.set`                       | `(id: SecretId, value: string) => Promise<void>`                                                                                           | `void`                 | Writes to the active backend. Throws `SecretBackendImmutableError` if the env shadow (`envVar`) is currently set (FR-005-AC-6).                                                                                       |
 | `SecretsService.delete`                    | `(id: SecretId) => Promise<void>`                                                                                                          | `void`                 | Deletes from the active backend; env-shadowed secrets remain resolvable via env.                                                                                                                                      |
-| `SecretsService.which`                     | `(id: SecretId) => Promise<'env' \| 'keyring' \| 'age-file' \| 'unset' \| string>`                                                         | source                 | Reports the source that would satisfy a `get` right now. Returns `"env"` whenever the bound env var is set, regardless of backend state (FR-009-AC-3).                                                                |
-| `SecretsService.list`                      | `() => Promise<Array<{ id; backend; source; description }>>`                                                                               | snapshot               | All registered secrets with their current `which()` source. Never includes values (FR-009-AC-1). Sorted by id.                                                                                                        |
+| `SecretsService.which`                     | `(id: SecretId) => Promise<'env' \| 'keyring' \| 'age-file' \| 'unset' \| string>`                                                         | source                 | Reports the source that would satisfy a `get` right now. Returns `"env"` whenever the bound env var is set, regardless of backend state ([FR-009-AC-3](./FR-009-secrets-commands.md)).                                                                |
+| `SecretsService.list`                      | `() => Promise<Array<{ id; backend; source; description }>>`                                                                               | snapshot               | All registered secrets with their current `which()` source. Never includes values ([FR-009-AC-1](./FR-009-secrets-commands.md)). Sorted by id.                                                                                                        |
 | `SecretsService.activeBackend`             | `() => Promise<SecretsBackend>`                                                                                                            | adapter                | Forces probe-and-select if not yet performed; throws `KeyringUnavailableError` when no backend is selectable.                                                                                                         |
-| `SecretsService.assertRegistered` (static) | `(id: string) => void`                                                                                                                     | `void`                 | Throws `UnknownSecretError` with the sorted list of known ids if `id` is not registered. Used at command boundaries (FR-009-AC-5).                                                                                    |
+| `SecretsService.assertRegistered` (static) | `(id: string) => void`                                                                                                                     | `void`                 | Throws `UnknownSecretError` with the sorted list of known ids if `id` is not registered. Used at command boundaries ([FR-009-AC-5](./FR-009-secrets-commands.md)).                                                                                    |

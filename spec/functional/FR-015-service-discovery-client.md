@@ -18,7 +18,7 @@ relationships:
 ## Description
 
 `@agent-ix/ix-cli-core` SHALL export a generic, service-agnostic service-discovery
-client used to bootstrap the device-login flow (FR-016). The client is
+client used to bootstrap the device-login flow ([FR-016](./FR-016-device-flow-runner.md)). The client is
 parameterized entirely by a user-supplied `host`; no service identity is baked
 into the framework.
 
@@ -44,7 +44,7 @@ function normalizeHostOrigin(host: string, insecure?: boolean): string;
 **TLS policy.** Plain `http` origins SHALL be refused with
 `DiscoveryInsecureError` **unless** the host is `dev.ix` or a `*.dev.ix`
 development host, or the caller passes `insecure: true` (the consuming CLI's
-`--insecure` flag). This realizes NFR-005.
+`--insecure` flag). This realizes [NFR-005](../non-functional/NFR-005-auth-host-isolation-tls.md).
 
 **Document fetch + validation.** The client SHALL `GET`
 `<origin>/.well-known/agentix-service.json` with `Accept: application/json`,
@@ -76,8 +76,8 @@ extra fields SHALL be tolerated (forward-compatible).
 
 ## Dependencies
 
-- **Upstream**: StR-003 (implements), NFR-005 (requires)
-- **Downstream**: FR-016 (required-by)
+- **Upstream**: [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [NFR-005](../non-functional/NFR-005-auth-host-isolation-tls.md) (requires)
+- **Downstream**: [FR-016](./FR-016-device-flow-runner.md) (required-by)
 
 ## Endpoint
 

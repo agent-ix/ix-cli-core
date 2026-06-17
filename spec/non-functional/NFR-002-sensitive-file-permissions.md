@@ -41,7 +41,7 @@ A reader observing `target` SHALL only ever see a complete, valid prior version 
 
 ## Rationale
 
-A wider mode on `secrets.key` voids NFR-001 — the identity that decrypts every blob would be readable to other local users. Permission self-defense is cheap and prevents a misconfigured backup tool from silently downgrading the trust boundary.
+A wider mode on `secrets.key` voids [NFR-001](./NFR-001-no-plaintext-secrets.md) — the identity that decrypts every blob would be readable to other local users. Permission self-defense is cheap and prevents a misconfigured backup tool from silently downgrading the trust boundary.
 
 ## Measurement and Evaluation
 

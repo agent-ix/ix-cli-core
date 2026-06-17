@@ -38,11 +38,11 @@ otherwise a safe id derived from the package name.
 | FR-014-AC-4 | Config schemas must be strict (`z.object({...}).strict()`); non-strict schemas are rejected and the plugin's config is not registered. | Test |
 | FR-014-AC-5 | Secrets declarations are registered through the existing `SecretsService` registry using `<plugin-id>.<secret-name>`. | Test |
 | FR-014-AC-6 | A plugin with no `ixSchema` export is a valid oclif plugin — it contributes commands and nothing else. | Test |
-| FR-014-AC-7 | Capability declarations live on individual command classes (see FR-013), not on the `ixSchema` object. | Test |
+| FR-014-AC-7 | Capability declarations live on individual command classes (see [FR-013](./FR-013-capability-binding.md)), not on the `ixSchema` object. | Test |
 
 ## Dependencies
 
-- **Upstream**: StR-003 (implements), US-001 (implements), FR-010 (requires)
+- **Upstream**: [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [US-001](../usecase/US-001-run-custom-cli-distribution.md) (implements), [FR-010](./FR-010-cli-binary-composition.md) (requires)
 
 ## Convention shape
 

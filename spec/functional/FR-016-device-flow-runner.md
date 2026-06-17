@@ -19,7 +19,7 @@ relationships:
 
 `@agent-ix/ix-cli-core` SHALL export a generic OAuth 2.0 Device Authorization
 Grant (RFC 8628) runner that drives a login against the endpoints in a
-`AgentixServiceDiscovery` document (FR-015):
+`AgentixServiceDiscovery` document ([FR-015](./FR-015-service-discovery-client.md)):
 
 ```typescript
 function runDeviceFlow(
@@ -45,7 +45,7 @@ consuming CLI supplies its own.
    `verification_uri_complete` when present.
 3. **Browser open (best-effort, non-fatal).** Unless `openBrowser === false`,
    the runner SHALL attempt to open `verification_uri_complete ??
-verification_uri` via the framework opener (FR-018). Any failure SHALL be
+verification_uri` via the framework opener ([FR-018](./FR-018-browser-opener.md)). Any failure SHALL be
    swallowed; it MUST NOT abort the flow.
 4. **Poll.** The runner SHALL `POST` `device_token_endpoint` (form-encoded:
    `grant_type` = the RFC 8628 device-code value, `device_code`, `client_id`)
@@ -82,8 +82,8 @@ network, or a browser. An `AbortSignal` MAY cancel polling.
 
 ## Dependencies
 
-- **Upstream**: StR-003 (implements), FR-015 (requires)
-- **Downstream**: FR-017 (required-by)
+- **Upstream**: [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [FR-015](./FR-015-service-discovery-client.md) (requires)
+- **Downstream**: [FR-017](./FR-017-host-keyed-token-store.md) (required-by)
 
 ## Endpoint
 

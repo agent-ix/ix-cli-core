@@ -28,7 +28,7 @@ interface SecretsBackend {
 }
 ```
 
-**Selection.** The active backend is selected by `core.secretsBackend` (FR-003):
+**Selection.** The active backend is selected by `core.secretsBackend` ([FR-003](../functional/FR-003-layered-resolution.md)):
 
 - `auto` — keyring if `probe()` succeeds, else age-file.
 - `keyring` — pin to keyring; if `probe()` fails, every secret op throws.
@@ -45,7 +45,7 @@ interface SecretsBackend {
 **Forward compatibility.** Adding a new backend SHALL NOT require changes to:
 
 - Consumer code that reads/writes secrets through `SecretsService`
-- The `secrets` command surface (FR-009)
+- The `secrets` command surface ([FR-009](../functional/FR-009-secrets-commands.md))
 - The `SecretDeclaration` / `ixSchema.secrets` shape (declarative metadata)
 - `SecretsService` public method signatures
 

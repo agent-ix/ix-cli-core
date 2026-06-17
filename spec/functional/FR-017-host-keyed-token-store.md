@@ -27,9 +27,9 @@ relationships:
 ## Description
 
 `@agent-ix/ix-cli-core` SHALL export a `TokenStore` that persists the token
-bundle from a device-flow login (FR-016) **per host**, brokered through the
-framework `SecretsService` (FR-005) so tokens are never plaintext on disk
-(NFR-001), and resolves a usable access token on demand — refreshing before
+bundle from a device-flow login ([FR-016](./FR-016-device-flow-runner.md)) **per host**, brokered through the
+framework `SecretsService` ([FR-005](./FR-005-secrets-service-api.md)) so tokens are never plaintext on disk
+([NFR-001](../non-functional/NFR-001-no-plaintext-secrets.md)), and resolves a usable access token on demand — refreshing before
 expiry and rotating the stored refresh token.
 
 ```typescript
@@ -62,7 +62,7 @@ SHALL NOT produce the same slug, even when their readable forms differ only by
 a separator (e.g. `foo.bar.dev.ix` vs `foo-bar.dev.ix`). `hostSlug` therefore
 appends a short deterministic discriminator derived from the full authority to
 a readable prefix. Logging into one host SHALL NOT read or mutate another
-host's tokens (host isolation, NFR-005).
+host's tokens (host isolation, [NFR-005](../non-functional/NFR-005-auth-host-isolation-tls.md)).
 
 **Token / metadata split.** The access and refresh tokens go to the
 `SecretsService` backend (keyring / age-file). Non-sensitive metadata
@@ -79,7 +79,7 @@ SHALL NOT be written to the metadata store.
   doc's `token_refresh_endpoint` (`grant_type=refresh_token`,
   `refresh_token=<stored>`), persist the resulting bundle, and return the new
   access token. The discovery doc MAY be supplied by the caller or fetched via
-  FR-015.
+  [FR-015](./FR-015-service-discovery-client.md).
 - **Rotation.** When the refresh response carries a new `refresh_token`, the
   store SHALL persist it in place of the old one; when it does not, the existing
   refresh token SHALL be preserved.
@@ -100,11 +100,11 @@ SHALL NOT be written to the metadata store.
 | FR-017-AC-5 | A refresh response without a new `refresh_token` preserves the previously stored refresh token. | Test |
 | FR-017-AC-6 | `getAccessToken` with no stored material throws `NotAuthenticatedError`; a failing refresh throws `TokenRefreshError`. | Test |
 | FR-017-AC-7 | `hostSlug(host)` always returns a string matching `^[a-z][a-z0-9-]*$` (valid `SecretId` name segment) for dotted hosts, hosts with ports, and hosts whose first character is non-alphabetic. | Test |
-| FR-017-AC-8 | `hostSlug` is injective — two distinct host authorities that collapse to the same readable form (e.g. `foo.bar.dev.ix` and `foo-bar.dev.ix`) produce different slugs, and is deterministic for the same host (NFR-005-AC-2). | Test |
+| FR-017-AC-8 | `hostSlug` is injective — two distinct host authorities that collapse to the same readable form (e.g. `foo.bar.dev.ix` and `foo-bar.dev.ix`) produce different slugs, and is deterministic for the same host ([NFR-005-AC-2](../non-functional/NFR-005-auth-host-isolation-tls.md)). | Test |
 
 ## Dependencies
 
-- **Upstream**: StR-002 (implements), StR-003 (implements), FR-005 (requires), FR-015 (requires), FR-016 (requires), NFR-005 (requires)
+- **Upstream**: [StR-002](../stakeholder/StR-002-secrets-never-plaintext.md) (implements), [StR-003](../stakeholder/StR-003-reusable-cli-runtime.md) (implements), [FR-005](./FR-005-secrets-service-api.md) (requires), [FR-015](./FR-015-service-discovery-client.md) (requires), [FR-016](./FR-016-device-flow-runner.md) (requires), [NFR-005](../non-functional/NFR-005-auth-host-isolation-tls.md) (requires)
 
 ## Endpoint
 
