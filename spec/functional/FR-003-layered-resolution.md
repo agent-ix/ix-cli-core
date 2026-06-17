@@ -11,7 +11,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 `ConfigService.forPlugin(...).get()` SHALL resolve effective values from the following layers, highest precedence first:
 
@@ -25,10 +25,17 @@ Env-variable bindings are conventionally `IX_*` and SHALL be declared by the plu
 
 **Project-local layer (deferred to v2).** A `./.ix/config.d/<pluginId>.yaml` layer between env and user file is explicitly out of scope for v1; the resolution pipeline is structured to admit it later without API change.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-003-AC-1**: With `IX_LOG_LEVEL=debug` set and `<config-root>/config.yaml` containing `logLevel: info`, `forPlugin('core', S).get().logLevel === 'debug'`.
-- **FR-003-AC-2**: With `IX_LOG_LEVEL` unset and `<config-root>/config.yaml` containing `logLevel: info`, `get().logLevel === 'info'`.
-- **FR-003-AC-3**: With both env and file absent, `get()` returns the schema-declared default for each key.
-- **FR-003-AC-4**: An invalid env-variable value (e.g. `IX_LOG_LEVEL=loud`) raises `ConfigSchemaError` with the env var name and expected enum.
-- **FR-003-AC-5**: Plugin source code outside the host binary and `@agent-ix/ix-cli-core` SHALL contain zero call sites of the form `ConfigService.forPlugin('core', ...)` or `forPlugin('<other-plugin-id>', ...)` (verified by static check). The `ConfigService` API does NOT runtime-reject such calls — see spec.md §10 trust model — but a static lint enforces the soft contract that each plugin only reads its own id.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-003-AC-1 | With `IX_LOG_LEVEL=debug` set and `<config-root>/config.yaml` containing `logLevel: info`, `forPlugin('core', S).get().logLevel === 'debug'`. | Test |
+| FR-003-AC-2 | With `IX_LOG_LEVEL` unset and `<config-root>/config.yaml` containing `logLevel: info`, `get().logLevel === 'info'`. | Test |
+| FR-003-AC-3 | With both env and file absent, `get()` returns the schema-declared default for each key. | Test |
+| FR-003-AC-4 | An invalid env-variable value (e.g. `IX_LOG_LEVEL=loud`) raises `ConfigSchemaError` with the env var name and expected enum. | Test |
+| FR-003-AC-5 | Plugin source code outside the host binary and `@agent-ix/ix-cli-core` SHALL contain zero call sites of the form `ConfigService.forPlugin('core', ...)` or `forPlugin('<other-plugin-id>', ...)` (verified by static check). The `ConfigService` API does NOT runtime-reject such calls — see spec.md §10 trust model — but a static lint enforces the soft contract that each plugin only reads its own id. | Analysis |
+
+## Dependencies
+
+- **Upstream**: StR-001 (implements), FR-001 (requires)
+

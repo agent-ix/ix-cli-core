@@ -10,6 +10,15 @@ relationships: []
 Developers need the IX CLI building blocks to be reusable across multiple CLI
 binaries, not only the main `ix` binary.
 
+## Rationale
+
+Tying config, secrets, terminal style, and plugin composition to the single `ix`
+binary forces every other CLI author to either fork that binary or re-implement
+the same building blocks. Exposing the runtime as a shared library layered on
+oclif's native plugin system lets any oclif CLI compose the same capabilities
+without a parallel plugin platform, so the main `ix` distribution becomes just one
+consumer among many.
+
 ## Approach
 
 The reusable runtime is **not** a parallel plugin platform. It is the
@@ -40,7 +49,7 @@ main `ix` distribution is one such CLI.
 
 Must-Have
 
-## Acceptance
+## Validation Criteria
 
 - **StR-003-AC-1**: A generic CLI can depend on `@agent-ix/ix-cli-core`,
   declare its plugin set in `oclif.plugins`, and ship without depending on

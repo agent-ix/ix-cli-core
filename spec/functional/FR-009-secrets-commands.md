@@ -2,7 +2,6 @@
 id: FR-009
 title: "secrets Command Group (list, set, rm, which)"
 type: FR
-object: command
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
     type: "implements"
@@ -12,7 +11,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 `@agent-ix/ix-cli-core` SHALL provide command runners for a `secrets` command group with four subcommands, which the host binary registers as `<bin> secrets …`. All output SHALL flow through the host CLI's UI primitives (e.g. `@agent-ix/ix-ui-cli`). **No subcommand SHALL render or echo a secret value.**
 
@@ -46,12 +45,19 @@ Implementations MUST NOT conflate these columns. The value column never appears.
 
 **Error UX.** All errors include the secret id but never the value. Keyring access denials produce the same remediation hints as FR-006-AC-5.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-009-AC-1**: `secrets list` produces a table whose value column is absent or empty for every row; a static check confirms no secret value appears in the rendered output.
-- **FR-009-AC-2**: `secrets set local.ghcr-token` collects masked input, persists to the active backend, and prints `stored local.ghcr-token in <backend>` (no value).
-- **FR-009-AC-3**: `secrets which local.ghcr-token` returns one of: `keyring` after `set` on a system where the keyring probe succeeds; `age-file` after `set` on a system where the keyring probe failed (file fallback active); `unset` after `rm` (or before any `set`) with no env var; `env` whenever `IX_GHCR_TOKEN` (or the declared `envVar`) is currently set, regardless of backend state.
-- **FR-009-AC-4**: `secrets rm local.ghcr-token` clears the persisted value; `get` returns `null` (or the env var if set); `which` returns `unset` (or `env`).
-- **FR-009-AC-5**: An unknown id produces `UnknownSecretError` listing every registered id and exits non-zero.
-- **FR-009-AC-6**: A test scan of stdout/stderr across the full `set/list/which/rm` lifecycle confirms no secret value appears in any line of output.
-- **FR-009-AC-7**: A keyring access denial during `set` surfaces a `KeyringAccessError` with platform-specific remediation; the value is not persisted and is not echoed.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-009-AC-1 | `secrets list` produces a table whose value column is absent or empty for every row; a static check confirms no secret value appears in the rendered output. | Analysis |
+| FR-009-AC-2 | `secrets set local.ghcr-token` collects masked input, persists to the active backend, and prints `stored local.ghcr-token in <backend>` (no value). | Test |
+| FR-009-AC-3 | `secrets which local.ghcr-token` returns one of: `keyring` after `set` on a system where the keyring probe succeeds; `age-file` after `set` on a system where the keyring probe failed (file fallback active); `unset` after `rm` (or before any `set`) with no env var; `env` whenever `IX_GHCR_TOKEN` (or the declared `envVar`) is currently set, regardless of backend state. | Test |
+| FR-009-AC-4 | `secrets rm local.ghcr-token` clears the persisted value; `get` returns `null` (or the env var if set); `which` returns `unset` (or `env`). | Test |
+| FR-009-AC-5 | An unknown id produces `UnknownSecretError` listing every registered id and exits non-zero. | Test |
+| FR-009-AC-6 | A test scan of stdout/stderr across the full `set/list/which/rm` lifecycle confirms no secret value appears in any line of output. | Analysis |
+| FR-009-AC-7 | A keyring access denial during `set` surfaces a `KeyringAccessError` with platform-specific remediation; the value is not persisted and is not echoed. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-002 (implements), FR-005 (requires)
+

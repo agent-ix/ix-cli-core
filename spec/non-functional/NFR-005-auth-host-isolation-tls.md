@@ -45,6 +45,14 @@ document over plain HTTP would let a network attacker rewrite the
 TLS is therefore mandatory, with a narrow, explicit carve-out for local `.dev.ix`
 development where certificates are inconvenient.
 
+## Measurement and Evaluation
+
+| Metric | Target | Threshold | Method |
+|--------|--------|-----------|--------|
+| One host's stored material altered by a `save`/`clear` against a different host | 0 bytes | 0 bytes | Test (NFR-005-AC-1) |
+| Shared `SecretId` between access/refresh secrets of two distinct hosts | 0 | 0 | Test (NFR-005-AC-2) |
+| Plain-`http` non-`dev.ix` discovery requests reaching the network | 0 | 0 | Test (no-fetch-on-refusal, NFR-005-AC-3) |
+
 ## Acceptance Criteria
 
 - **NFR-005-AC-1**: A unit test SHALL `save` distinct bundles for two hosts,

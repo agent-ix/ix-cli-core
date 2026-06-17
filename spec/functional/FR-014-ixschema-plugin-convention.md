@@ -14,7 +14,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 An IX-compatible plugin SHALL be a normal oclif plugin npm package. If
 the plugin needs namespaced config, secrets, or environment-variable
@@ -28,28 +28,21 @@ and `SecretsService`. The npm package name is the oclif install/load
 identity. The config/secrets namespace is `ixSchema.id` when provided,
 otherwise a safe id derived from the package name.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-014-AC-1**: `IxPluginSchema` is a small TypeScript type exported from
-  `@agent-ix/ix-cli-core` containing optional `id` (safe config/secrets
-  namespace), optional `config` (Zod object), optional `secrets` (secret
-  declaration list), and optional `env` (string-to-string env-var
-  binding map).
-- **FR-014-AC-2**: Plugin packages export `ixSchema: IxPluginSchema` from
-  their package main when they need any of those bindings.
-- **FR-014-AC-3**: The host's `init` hook reads `Config.plugins`, dynamic
-  imports each plugin's main, and calls
-  `registerPluginSchema(plugin.name, mod.ixSchema)` when an `ixSchema`
-  export exists.
-- **FR-014-AC-4**: Config schemas must be strict (`z.object({...}).strict()`);
-  non-strict schemas are rejected and the plugin's config is not
-  registered.
-- **FR-014-AC-5**: Secrets declarations are registered through the existing
-  `SecretsService` registry using `<plugin-id>.<secret-name>`.
-- **FR-014-AC-6**: A plugin with no `ixSchema` export is a valid oclif plugin
-  — it contributes commands and nothing else.
-- **FR-014-AC-7**: Capability declarations live on individual command
-  classes (see FR-013), not on the `ixSchema` object.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-014-AC-1 | `IxPluginSchema` is a small TypeScript type exported from `@agent-ix/ix-cli-core` containing optional `id` (safe config/secrets namespace), optional `config` (Zod object), optional `secrets` (secret declaration list), and optional `env` (string-to-string env-var binding map). | Test |
+| FR-014-AC-2 | Plugin packages export `ixSchema: IxPluginSchema` from their package main when they need any of those bindings. | Test |
+| FR-014-AC-3 | The host's `init` hook reads `Config.plugins`, dynamic imports each plugin's main, and calls `registerPluginSchema(plugin.name, mod.ixSchema)` when an `ixSchema` export exists. | Test |
+| FR-014-AC-4 | Config schemas must be strict (`z.object({...}).strict()`); non-strict schemas are rejected and the plugin's config is not registered. | Test |
+| FR-014-AC-5 | Secrets declarations are registered through the existing `SecretsService` registry using `<plugin-id>.<secret-name>`. | Test |
+| FR-014-AC-6 | A plugin with no `ixSchema` export is a valid oclif plugin — it contributes commands and nothing else. | Test |
+| FR-014-AC-7 | Capability declarations live on individual command classes (see FR-013), not on the `ixSchema` object. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-003 (implements), US-001 (implements), FR-010 (requires)
 
 ## Convention shape
 

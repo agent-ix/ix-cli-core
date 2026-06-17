@@ -11,31 +11,26 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 Commands SHALL declare their required and optional capabilities as a
 static field on the command class. `BaseCommand.prerun` SHALL resolve
 those capabilities through `CapabilityResolver` and short-circuit
 commands whose required capabilities are unavailable.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-013-AC-1**: A command class declares
-  `static capabilities: CommandCapabilities = { required: [...], optional: [...] }`
-  using capability ids from the v1 set: `github`, `ix-api`,
-  `review-service`.
-- **FR-013-AC-2**: `BaseCommand.prerun` invokes `CapabilityResolver` against
-  the declared `required` set. If any required capability is unavailable,
-  the command exits with a structured error before side effects occur.
-- **FR-013-AC-3**: Optional capabilities that resolve successfully are
-  surfaced through the command context (e.g.,
-  `this.hasCapability('github')`) so commands can branch behavior;
-  missing optional capabilities never block command execution.
-- **FR-013-AC-4**: `CapabilityResolver` reads through `ConfigService` and
-  `SecretsService` to determine availability — capability checks share
-  the same per-package namespacing as config and secrets.
-- **FR-013-AC-5**: Capability errors are rendered through the shared CLI UI
-  error primitives and carry a machine-readable error code.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-013-AC-1 | A command class declares `static capabilities: CommandCapabilities = { required: [...], optional: [...] }` using capability ids from the v1 set: `github`, `ix-api`, `review-service`. | Analysis |
+| FR-013-AC-2 | `BaseCommand.prerun` invokes `CapabilityResolver` against the declared `required` set. If any required capability is unavailable, the command exits with a structured error before side effects occur. | Test |
+| FR-013-AC-3 | Optional capabilities that resolve successfully are surfaced through the command context (e.g., `this.hasCapability('github')`) so commands can branch behavior; missing optional capabilities never block command execution. | Test |
+| FR-013-AC-4 | `CapabilityResolver` reads through `ConfigService` and `SecretsService` to determine availability — capability checks share the same per-package namespacing as config and secrets. | Test |
+| FR-013-AC-5 | Capability errors are rendered through the shared CLI UI error primitives and carry a machine-readable error code. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-003 (implements), US-001 (implements)
 
 ## Errors
 

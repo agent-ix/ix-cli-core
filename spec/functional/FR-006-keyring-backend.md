@@ -11,7 +11,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 The keyring backend SHALL use `@napi-rs/keyring` to bridge to the platform keychain:
 
@@ -44,14 +44,20 @@ If the probe throws or yields a value mismatch, the keyring backend SHALL be mar
 
 **No raw value rendering.** Errors SHALL include the secret id but never the value.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-006-AC-1**: On macOS, `set('local.ghcr-token', v)` creates a Keychain item with service `ix-cli` and account `local.ghcr-token`; `get(...)` returns the value.
-- **FR-006-AC-2**: On Linux with Secret Service available, the same round-trip succeeds via libsecret.
-- **FR-006-AC-3**: With Secret Service unavailable (e.g. `DBUS_SESSION_BUS_ADDRESS` unset and no Secret Service daemon running), the capability probe fails and the active backend becomes `age-file`.
-- **FR-006-AC-4**: `list()` enumerates only entries whose service is `ix-cli`; entries written by other applications are ignored.
-- **FR-006-AC-5**: A user-denied Keychain prompt produces a `KeyringAccessError` whose message identifies the secret id and includes a platform-appropriate remediation hint.
-- **FR-006-AC-6**: The probe runs at most once per process; subsequent secret operations reuse the cached capability result.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-006-AC-1 | On macOS, `set('local.ghcr-token', v)` creates a Keychain item with service `ix-cli` and account `local.ghcr-token`; `get(...)` returns the value. | Test |
+| FR-006-AC-2 | On Linux with Secret Service available, the same round-trip succeeds via libsecret. | Test |
+| FR-006-AC-3 | With Secret Service unavailable (e.g. `DBUS_SESSION_BUS_ADDRESS` unset and no Secret Service daemon running), the capability probe fails and the active backend becomes `age-file`. | Test |
+| FR-006-AC-4 | `list()` enumerates only entries whose service is `ix-cli`; entries written by other applications are ignored. | Test |
+| FR-006-AC-5 | A user-denied Keychain prompt produces a `KeyringAccessError` whose message identifies the secret id and includes a platform-appropriate remediation hint. | Test |
+| FR-006-AC-6 | The probe runs at most once per process; subsequent secret operations reuse the cached capability result. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-002 (implements), FR-005 (requires)
 
 ## Verification — Platform CI Matrix
 

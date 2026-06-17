@@ -16,11 +16,20 @@ Every CLI built on the Agent IX framework that needs persistent configuration wo
 3. **Physical isolation per plugin**: each plugin's config is stored in its own file under `<config-root>/config.d/<plugin-id>.yaml`, so a malformed or buggy plugin cannot corrupt config belonging to other plugins, and concurrent CLI invocations editing different plugins never contend on the same file.
 4. Uniform `config get/set/edit/doctor` commands that work for any plugin without per-plugin code.
 
+## Rationale
+
+Without a shared config contract, every package and plugin re-implements YAML
+reading, path selection, and validation, which guarantees drift, makes a uniform
+`config` command impossible, and lets a single bad write to a shared file corrupt
+config belonging to unrelated plugins. A single schema-validated service with
+physical per-plugin isolation removes that duplication and contains the blast
+radius of any one plugin's failure.
+
 ## Priority
 
 Must-Have
 
-## Acceptance
+## Validation Criteria
 
 - **StR-001-AC-1**: A single `ConfigService` API in `@agent-ix/ix-cli-core` is the only sanctioned way to read or write persistent CLI configuration; every consuming package and binary uses it exclusively.
 - **StR-001-AC-2**: A plugin declares its config shape via an optional `config` schema on its `ixSchema` export; the framework validates writes against that schema and rejects unknown keys.

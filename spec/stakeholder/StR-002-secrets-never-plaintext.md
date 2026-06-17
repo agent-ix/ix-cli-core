@@ -16,11 +16,21 @@ A CLI that persists developer credentials (registry tokens, service auth tokens,
 3. A pluggable backend interface so the secrets layer can later target external systems (HashiCorp Vault, 1Password, Bitwarden) without rewriting consumers.
 4. Per-plugin secret namespacing so a buggy plugin cannot accidentally read another plugin's secrets, and so a corrupted fallback blob for one plugin does not destroy secrets for the rest.
 
+## Rationale
+
+Plaintext credentials on disk — even at mode `0o600` — are routinely promoted
+into less-protected contexts by backups, sync tools, container images, and
+accidental tarballs, and remain exposed to shoulder-surfing. Peer developer CLIs
+(`gh`, `aws`, `gcloud`, Docker Desktop) store credentials in the OS keyring for
+exactly this reason. A keyring-first secrets layer with an encrypted fallback and
+per-plugin namespacing preserves the at-rest guarantee on every supported
+environment, including headless hosts without a keyring.
+
 ## Priority
 
 Must-Have
 
-## Acceptance
+## Validation Criteria
 
 - **StR-002-AC-1**: No secret value managed by `SecretsService` is ever persisted to disk in unencrypted form. Keyring entries are protected by the OS; the file fallback is protected by an age-encrypted blob.
 - **StR-002-AC-2**: When the OS keyring is available (capability probe succeeds), all secret writes target the keyring; the fallback file is never created.

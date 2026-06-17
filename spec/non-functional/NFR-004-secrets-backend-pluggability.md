@@ -53,6 +53,15 @@ interface SecretsBackend {
 
 Today's open question is "keyring vs Vault vs Bitwarden". The answer for v1 is keyring + age-file because that's the model `gh`, `aws`, `gcloud` use and it's the minimum that solves the plaintext problem. But teams will eventually want centralized rotation, audit, and dynamic credentials from Vault — and individual users may prefer Bitwarden or 1Password sync. A backend adapter interface keeps that door open with zero refactor risk to consumers.
 
+## Measurement and Evaluation
+
+| Metric | Target | Threshold | Method |
+|--------|--------|-----------|--------|
+| Changes to `SecretsService` / consumers required to add a new conforming backend | 0 | 0 | Demonstration (in-test `MemoryBackend`, NFR-004-AC-1, NFR-004-AC-2) |
+| Imports of `secrets/backends/*` from outside `src/secrets/` | 0 | 0 | Analysis (static grep, NFR-004-AC-3) |
+| Duplicate-`id` backend registrations that succeed | 0 | 0 | Test (NFR-004-AC-4) |
+| Silent age-file fallback when `keyring` is pinned and the probe fails | 0 | 0 | Test (NFR-004-AC-5) |
+
 ## Acceptance Criteria
 
 - **NFR-004-AC-1**: A test harness defines a `MemoryBackend` satisfying `SecretsBackend`, registers it via the backends map, sets `core.secretsBackend = "memory"`, and exercises `set/get/delete/list/which` end-to-end without any change to `SecretsService` or its consumers.

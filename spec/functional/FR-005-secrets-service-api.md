@@ -21,7 +21,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 `@agent-ix/ix-cli-core` SHALL export a `SecretsService` with the following public API:
 
@@ -60,16 +60,22 @@ type SecretId = `${string}.${string}`; // "<plugin-id>.<secret-name>"
 
 **No value logging.** `SecretsService` MUST NOT log secret values, MUST NOT include them in error messages, and MUST NOT pass them to `console.*`. It SHALL render only the secret id and selected backend.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-005-AC-1**: With `IX_GHCR_TOKEN=abc` set, `get('local.ghcr-token')` returns `"abc"` and `which('local.ghcr-token')` returns `"env"`, regardless of what is in any backend.
-- **FR-005-AC-2**: With env unset and the value present in the active backend, `get(...)` returns the backend value.
-- **FR-005-AC-3**: With env unset, no backend value, and `opts.prompt === true` on a TTY, the user is prompted with masked input; the entered value is persisted to the active backend and returned.
-- **FR-005-AC-4**: With env unset, no backend value, and `opts.prompt !== true` (or non-TTY), `get(...)` returns `null` without prompting.
-- **FR-005-AC-5**: `set('foo.bar', value)` followed by `delete('foo.bar')` results in `which('foo.bar') === 'unset'`.
-- **FR-005-AC-6**: `set(...)` against a secret whose `envVar` binding is currently set in the environment throws `SecretBackendImmutableError`.
-- **FR-005-AC-7**: A test scan of compiled output and runtime logs SHALL detect zero occurrences of any secret value emitted by `SecretsService`.
-- **FR-005-AC-8**: Every public method receiving a `SecretId` validates it against `^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$`. Malformed ids (`"."`, `".x"`, `"x."`, `"A.b"`, `"a.b.c"`, `"a..b"`) throw `InvalidSecretIdError` naming the offending input (full input rendered, since it is, by definition, not a value).
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-005-AC-1 | With `IX_GHCR_TOKEN=abc` set, `get('local.ghcr-token')` returns `"abc"` and `which('local.ghcr-token')` returns `"env"`, regardless of what is in any backend. | Test |
+| FR-005-AC-2 | With env unset and the value present in the active backend, `get(...)` returns the backend value. | Test |
+| FR-005-AC-3 | With env unset, no backend value, and `opts.prompt === true` on a TTY, the user is prompted with masked input; the entered value is persisted to the active backend and returned. | Test |
+| FR-005-AC-4 | With env unset, no backend value, and `opts.prompt !== true` (or non-TTY), `get(...)` returns `null` without prompting. | Test |
+| FR-005-AC-5 | `set('foo.bar', value)` followed by `delete('foo.bar')` results in `which('foo.bar') === 'unset'`. | Test |
+| FR-005-AC-6 | `set(...)` against a secret whose `envVar` binding is currently set in the environment throws `SecretBackendImmutableError`. | Test |
+| FR-005-AC-7 | A test scan of compiled output and runtime logs SHALL detect zero occurrences of any secret value emitted by `SecretsService`. | Analysis |
+| FR-005-AC-8 | Every public method receiving a `SecretId` validates it against `^[a-z][a-z0-9-]*\.[a-z][a-z0-9-]*$`. Malformed ids (`"."`, `".x"`, `"x."`, `"A.b"`, `"a.b.c"`, `"a..b"`) throw `InvalidSecretIdError` naming the offending input (full input rendered, since it is, by definition, not a value). | Test |
+
+## Dependencies
+
+- **Upstream**: StR-002 (implements), FR-004 (requires), FR-006 (requires), FR-007 (requires), NFR-001 (requires)
 
 ## Endpoint
 

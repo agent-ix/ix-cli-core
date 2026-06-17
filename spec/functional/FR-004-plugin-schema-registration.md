@@ -15,7 +15,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 A plugin's schema is declared through the `ixSchema` named export (FR-014). `@agent-ix/ix-cli-core` SHALL expose a registration surface accepting the following shape:
 
@@ -46,15 +46,21 @@ interface SecretDeclaration {
 
 **Schema scoping.** A plugin's schema is in scope only when that plugin's commands or services run; it is not exposed as a global type. Cross-plugin schema introspection is deliberately not provided.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-004-AC-1**: A plugin declaring `config: z.object({ tags: z.array(z.string()) }).strict()` makes `ConfigService.forPlugin(pluginId, …)` validate writes against that schema.
-- **FR-004-AC-2**: A plugin declaring a non-strict `config` (`.passthrough()` or no `.strict()`) is logged and skipped — its registration is rejected, the failure is recorded for `config doctor`, and other plugins continue to load. Process exit code is unchanged.
-- **FR-004-AC-3**: Given two plugins with the same id, only the first registers; the second is logged and skipped. Both events are reported by `config doctor`.
-- **FR-004-AC-4**: A third-party plugin attempting to register under id `core` is logged and skipped; the legitimate `core` registration owned by the host binary is preserved.
-- **FR-004-AC-5**: For every registration failure (AC-2/3/4), `config doctor` SHALL surface the failed plugin id, the failure reason (`non-strict-schema` / `duplicate-id` / `reserved-id-core`), and the plugin's discovery source (npm package name + version).
-- **FR-004-AC-6**: A `secrets` entry with `envVar: "IX_FOO"` causes `SecretsService.get('<id>.foo')` to honor `IX_FOO` ahead of any persisted backend (per FR-005 resolution order).
-- **FR-004-AC-7** _(plugin id constraint)_: A derived plugin id SHALL match the regex `^[a-z][a-z0-9-]*$` (lowercase ASCII, starts with a letter, letters/digits/hyphens only, length ≤ 64). The id is used as a filename component for `config.d/<id>.yaml` and `secrets.d/<id>.age`; this constraint prevents path-traversal characters (`/`, `..`, `\`), shell-special characters, and empty ids from ever reaching the filesystem. A registration whose id violates the regex is logged and skipped (per AC-2/3/4 init-failure isolation), with reason `invalid-plugin-id`.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-004-AC-1 | A plugin declaring `config: z.object({ tags: z.array(z.string()) }).strict()` makes `ConfigService.forPlugin(pluginId, …)` validate writes against that schema. | Test |
+| FR-004-AC-2 | A plugin declaring a non-strict `config` (`.passthrough()` or no `.strict()`) is logged and skipped — its registration is rejected, the failure is recorded for `config doctor`, and other plugins continue to load. Process exit code is unchanged. | Test |
+| FR-004-AC-3 | Given two plugins with the same id, only the first registers; the second is logged and skipped. Both events are reported by `config doctor`. | Test |
+| FR-004-AC-4 | A third-party plugin attempting to register under id `core` is logged and skipped; the legitimate `core` registration owned by the host binary is preserved. | Test |
+| FR-004-AC-5 | For every registration failure (AC-2/3/4), `config doctor` SHALL surface the failed plugin id, the failure reason (`non-strict-schema` / `duplicate-id` / `reserved-id-core`), and the plugin's discovery source (npm package name + version). | Test |
+| FR-004-AC-6 | A `secrets` entry with `envVar: "IX_FOO"` causes `SecretsService.get('<id>.foo')` to honor `IX_FOO` ahead of any persisted backend (per FR-005 resolution order). | Test |
+| FR-004-AC-7 | A derived plugin id SHALL match the regex `^[a-z][a-z0-9-]*$` (lowercase ASCII, starts with a letter, letters/digits/hyphens only, length ≤ 64). The id is used as a filename component for `config.d/<id>.yaml` and `secrets.d/<id>.age`; this constraint prevents path-traversal characters (`/`, `..`, `\`), shell-special characters, and empty ids from ever reaching the filesystem. A registration whose id violates the regex is logged and skipped (per AC-2/3/4 init-failure isolation), with reason `invalid-plugin-id`. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-001 (implements), FR-001 (requires), FR-005 (requires)
 
 ## Endpoint
 

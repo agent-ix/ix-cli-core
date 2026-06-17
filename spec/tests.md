@@ -1,7 +1,9 @@
 ---
-type: test-matrix
+id: TM-001
+type: TestMatrix
 name: ix-cli-core
 org: agent-ix
+title: "Test Matrix"
 ---
 
 # Test Matrix

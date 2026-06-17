@@ -2,7 +2,6 @@
 id: FR-008
 title: "config Command Group (get, set, edit, doctor)"
 type: FR
-object: command
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-001"
     type: "implements"
@@ -15,7 +14,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 `@agent-ix/ix-cli-core` SHALL provide command runners for a `config` command group with four subcommands, which the host binary registers as `<bin> config …`. All output SHALL flow through the host CLI's UI primitives (e.g. `@agent-ix/ix-ui-cli`).
 
@@ -49,13 +48,20 @@ A non-scalar key supplied with non-JSON input fails fast with `ConfigSetParseErr
 
 `doctor` exits non-zero iff any plugin fails validation; unregistered files alone do not fail it.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-008-AC-1**: `config get logLevel` (no plugin arg) reads from the `core` plugin's resolved config and prints the value.
-- **FR-008-AC-2**: `config set local cluster.defaultTags '["ix-core","ix-data"]'` validates against the local schema, persists atomically, and the new value is observed on the next read.
-- **FR-008-AC-3**: `config set local cluster.defaultTags 42` fails with a schema error naming plugin `local`, key `cluster.defaultTags`, expected `array<string>`, and file path `<config-root>/config.d/local.yaml`.
-- **FR-008-AC-4**: `config edit local` opens the file in `$EDITOR`; on save with malformed content, the user is presented with a re-edit / discard prompt; on accept, the file passes validation.
-- **FR-008-AC-5**: `config doctor` against a tree containing one valid file and one malformed file reports both, exits non-zero, and does not crash.
-- **FR-008-AC-6**: An unknown `<plugin>` argument produces `UnknownPluginError` listing all registered plugin ids and exits non-zero.
-- **FR-008-AC-7**: Concurrent `config set local …` invocations are serialized by the per-file advisory lock (FR-002); both writes complete in order.
-- **FR-008-AC-8**: For an array-typed key, `config set local cluster.defaultTags 'ix-core,ix-data'` (non-JSON input) fails with `ConfigSetParseError` naming the key path `cluster.defaultTags` and the expected JSON shape `array<string>`; the destination file is not modified. The same call with `'["ix-core","ix-data"]'` succeeds.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-008-AC-1 | `config get logLevel` (no plugin arg) reads from the `core` plugin's resolved config and prints the value. | Test |
+| FR-008-AC-2 | `config set local cluster.defaultTags '["ix-core","ix-data"]'` validates against the local schema, persists atomically, and the new value is observed on the next read. | Test |
+| FR-008-AC-3 | `config set local cluster.defaultTags 42` fails with a schema error naming plugin `local`, key `cluster.defaultTags`, expected `array<string>`, and file path `<config-root>/config.d/local.yaml`. | Test |
+| FR-008-AC-4 | `config edit local` opens the file in `$EDITOR`; on save with malformed content, the user is presented with a re-edit / discard prompt; on accept, the file passes validation. | Test |
+| FR-008-AC-5 | `config doctor` against a tree containing one valid file and one malformed file reports both, exits non-zero, and does not crash. | Test |
+| FR-008-AC-6 | An unknown `<plugin>` argument produces `UnknownPluginError` listing all registered plugin ids and exits non-zero. | Test |
+| FR-008-AC-7 | Concurrent `config set local …` invocations are serialized by the per-file advisory lock (FR-002); both writes complete in order. | Test |
+| FR-008-AC-8 | For an array-typed key, `config set local cluster.defaultTags 'ix-core,ix-data'` (non-JSON input) fails with `ConfigSetParseError` naming the key path `cluster.defaultTags` and the expected JSON shape `array<string>`; the destination file is not modified. The same call with `'["ix-core","ix-data"]'` succeeds. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-001 (implements), FR-001 (requires), FR-002 (requires)
+

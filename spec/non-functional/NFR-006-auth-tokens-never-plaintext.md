@@ -37,6 +37,13 @@ disk. Routing tokens through `SecretsService` inherits keyring/age encryption,
 0600 file modes, and the no-plaintext guarantee at zero additional cost; writing
 them anywhere else would silently break that guarantee.
 
+## Measurement and Evaluation
+
+| Metric | Target | Threshold | Method |
+|--------|--------|-----------|--------|
+| Token value present in the serialized metadata store after `save` | 0 | 0 | Test (NFR-006-AC-1) |
+| `TokenStore` token write paths outside `SecretsService.set` (`fs.*`/`process.stdout`/`console.*`) in `src/auth/token-store.ts` | 0 | 0 | Inspection (code review, NFR-006-AC-2) |
+
 ## Acceptance Criteria
 
 - **NFR-006-AC-1**: A unit test SHALL `save` a bundle, then assert the token

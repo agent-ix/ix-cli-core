@@ -37,6 +37,14 @@ This NFR does NOT govern:
 
 Filesystem permissions (`0o600`) alone are not adequate protection: backups, sync clients, container layers, and accidental tarballs routinely promote 0600 files into less-protected contexts. OS keyrings exist precisely to bound that exposure to the running login session. When a keyring is unavailable, age encryption with a per-machine identity preserves the same property: a copied file without the matching identity yields no value.
 
+## Measurement and Evaluation
+
+| Metric | Target | Threshold | Method |
+|--------|--------|-----------|--------|
+| Source call sites flowing a `SecretsService.get` value into a plaintext persistence channel outside `src/secrets/backends/` | 0 | 0 | Analysis (static dataflow scan, NFR-001-AC-1) |
+| Plaintext secret substring present in `secrets.d/<plugin>.age` or `secrets.key` after a round-trip | 0 | 0 | Test (leak scan, NFR-001-AC-2) |
+| Plaintext on-disk secret artifacts after `secrets set` on either backend path | 0 | 0 | Test (integration, NFR-001-AC-3) |
+
 ## Acceptance Criteria
 
 - **NFR-001-AC-1**: A static scan across the library source (`src/`) SHALL find zero call sites where the result of `SecretsService.get(...)`, or any variable directly bound to it, flows into any of the following persistence channels outside `src/secrets/backends/`: `fs.writeFile`, `fs.writeFileSync`, `fs.appendFile`, `fs.appendFileSync`, `fs.createWriteStream`, `fsPromises.writeFile`, `fsPromises.appendFile`, `fsPromises.open(..., 'w'|'a')`, `child_process.spawn(..., { input })`, `child_process.spawnSync(..., { input })`, `child_process.exec(..., { input })`, `process.stdout.write`, `process.stderr.write`, `console.*`. The check is implemented as a typed dataflow grep (variable name + immediate sink) seeded by `SecretsService.get` call sites.

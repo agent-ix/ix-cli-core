@@ -17,7 +17,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 When the keyring capability probe (FR-006) fails, `SecretsService` SHALL persist secrets to per-plugin age-encrypted files:
 
@@ -36,12 +36,17 @@ When the keyring capability probe (FR-006) fails, `SecretsService` SHALL persist
 
 **Probe outcome cached.** Once the file backend is selected (because the keyring probe failed), it remains active for the lifetime of the process; it is not re-checked per call.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-007-AC-1**: With keyring unavailable, `set('local.ghcr-token', v)` creates `<config-root>/secrets.d/local.age` and (if absent) `<config-root>/secrets.key`, both with mode `0o600`.
-- **FR-007-AC-2a** _(blob does not leak plaintext)_: After `set('local.ghcr-token', v)`, every byte of `<config-root>/secrets.d/local.age` SHALL be inspected. The plaintext value `v` SHALL NOT appear as a contiguous substring of: the raw file bytes, the age-payload base64 body after framing strip, or any per-recipient header. (Round-trip via age decryption with `secrets.key` SHALL recover `v`.)
-- **FR-007-AC-2b** _(identity file is well-formed)_: `<config-root>/secrets.key` SHALL contain exactly one age X25519 identity in Bech32 form (`AGE-SECRET-KEY-1<...>`), terminated by a single `\n`, with no other content (no comment lines, no trailing recovery copies, no concatenated secrets). Total byte length matches one identity string + one `\n` exactly.
-- **FR-007-AC-3**: Modifying the last 16 bytes of `secrets.d/local.age` (the age AEAD tag) causes operations on `local.*` to throw `SecretsBlobCorruptedError`; operations on `elements.*` (separate blob) continue to succeed.
-- **FR-007-AC-4**: Writing `secrets.d/<id>.age` with `0o644` (simulated tamper) is not produced by the service; all writes observe `0o600` post-rename.
-- **FR-007-AC-5**: If `secrets.key` exists with mode wider than `0o600`, the service refuses to use it and throws `SecretsIdentityPermissionsError` naming the path.
-- **FR-007-AC-6**: A test scan SHALL find zero plaintext secret values in `secrets.d/*.age` blobs across a full `set/get/delete` lifecycle.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-007-AC-1 | With keyring unavailable, `set('local.ghcr-token', v)` creates `<config-root>/secrets.d/local.age` and (if absent) `<config-root>/secrets.key`, both with mode `0o600`. - **FR-007-AC-2a** _(blob does not leak plaintext)_: After `set('local.ghcr-token', v)`, every byte of `<config-root>/secrets.d/local.age` SHALL be inspected. The plaintext value `v` SHALL NOT appear as a contiguous substring of: the raw file bytes, the age-payload base64 body after framing strip, or any per-recipient header. (Round-trip via age decryption with `secrets.key` SHALL recover `v`.) - **FR-007-AC-2b** _(identity file is well-formed)_: `<config-root>/secrets.key` SHALL contain exactly one age X25519 identity in Bech32 form (`AGE-SECRET-KEY-1<...>`), terminated by a single `\n`, with no other content (no comment lines, no trailing recovery copies, no concatenated secrets). Total byte length matches one identity string + one `\n` exactly. | Inspection |
+| FR-007-AC-3 | Modifying the last 16 bytes of `secrets.d/local.age` (the age AEAD tag) causes operations on `local.*` to throw `SecretsBlobCorruptedError`; operations on `elements.*` (separate blob) continue to succeed. | Test |
+| FR-007-AC-4 | Writing `secrets.d/<id>.age` with `0o644` (simulated tamper) is not produced by the service; all writes observe `0o600` post-rename. | Test |
+| FR-007-AC-5 | If `secrets.key` exists with mode wider than `0o600`, the service refuses to use it and throws `SecretsIdentityPermissionsError` naming the path. | Test |
+| FR-007-AC-6 | A test scan SHALL find zero plaintext secret values in `secrets.d/*.age` blobs across a full `set/get/delete` lifecycle. | Analysis |
+
+## Dependencies
+
+- **Upstream**: StR-002 (implements), FR-005 (requires), NFR-001 (requires), NFR-002 (requires)
+

@@ -15,7 +15,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 `@agent-ix/ix-cli-core` SHALL export a `ConfigService` whose only public entry point is:
 
@@ -65,18 +65,24 @@ The placement difference is the only special case in `ConfigService`; isolation,
 - _Symlinked target_: refused on read per NFR-002-AC-4; on write, the symlink is detected before any operation and refused with `ConfigSymlinkRefusedError` naming both the symlink path and its target.
 - _Concurrent crash mid-rename_: POSIX `rename(2)` is atomic; either the old or new content is observable, never a partial. The temp file MAY be left orphaned; `ConfigService` SHALL prune `<file>.tmp.*` siblings older than 30s on next operation against the same plugin file.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-001-AC-1**: `ConfigService.forPlugin('local', LocalSchema).get()` reads only `<config-root>/config.d/local.yaml`; `forPlugin('core', CoreSchema).get()` reads only `<config-root>/config.yaml`. Reading any other plugin's file requires a separate `forPlugin(...)` call with that plugin id (subject to the soft-isolation contract documented in spec.md §10 — runtime cross-plugin reads are not API-blocked but are flagged by static check).
-- **FR-001-AC-2**: `set({...})` produces an atomic on-disk write — the target file is replaced via temp + rename; an interrupted write leaves the previous content intact and removes the temp file.
-- **FR-001-AC-3**: All files written by `set()` have mode `0o600` regardless of umask.
-- **FR-001-AC-4**: Calling `set({ unknownKey: 1 })` against a `.strict()` schema throws `ConfigSchemaError` and does not modify the file.
-- **FR-001-AC-5**: `reset()` deletes the file; a subsequent `get()` returns the schema defaults and re-creates the file only on the next `set()`.
-- **FR-001-AC-6**: `filePath()` returns the absolute path of the plugin's config file (used by `config edit`).
-- **FR-001-AC-7** _(read-only filesystem)_: When the target directory is unwritable (`EACCES`/`EROFS`/`ENOSPC`), `set()` throws `ConfigWriteError` naming the path and underlying errno; the existing file content (if any) is unchanged; no orphan temp file remains.
-- **FR-001-AC-8** _(temp file is a sibling)_: Temp files are created in the same directory as the target file (`<target>.tmp.<pid>.<rand>`). A test that mocks `os.tmpdir()` to a different volume confirms that no write path uses it for governed-file temp.
-- **FR-001-AC-9** _(orphan temp pruning)_: `ConfigService` prunes `<target>.tmp.*` siblings older than 30 seconds on the next `set()` for the same plugin id. Younger orphans are left alone (another writer may be mid-flight).
-- **FR-001-AC-10** _(`replace` semantics)_: `replace(value)` writes `value` verbatim — absent keys at any depth are removed from the on-disk content. Validates against the plugin's schema first; on schema failure throws `ConfigSchemaError` and does not modify the file. Same atomic-write + locking behavior as `set`. Used by callers that need to express deletions (e.g. removing an entry from a `Record<string, …>` map).
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-001-AC-1 | `ConfigService.forPlugin('local', LocalSchema).get()` reads only `<config-root>/config.d/local.yaml`; `forPlugin('core', CoreSchema).get()` reads only `<config-root>/config.yaml`. Reading any other plugin's file requires a separate `forPlugin(...)` call with that plugin id (subject to the soft-isolation contract documented in spec.md §10 — runtime cross-plugin reads are not API-blocked but are flagged by static check). | Analysis |
+| FR-001-AC-2 | `set({...})` produces an atomic on-disk write — the target file is replaced via temp + rename; an interrupted write leaves the previous content intact and removes the temp file. | Test |
+| FR-001-AC-3 | All files written by `set()` have mode `0o600` regardless of umask. | Test |
+| FR-001-AC-4 | Calling `set({ unknownKey: 1 })` against a `.strict()` schema throws `ConfigSchemaError` and does not modify the file. | Test |
+| FR-001-AC-5 | `reset()` deletes the file; a subsequent `get()` returns the schema defaults and re-creates the file only on the next `set()`. | Test |
+| FR-001-AC-6 | `filePath()` returns the absolute path of the plugin's config file (used by `config edit`). | Test |
+| FR-001-AC-7 | When the target directory is unwritable (`EACCES`/`EROFS`/`ENOSPC`), `set()` throws `ConfigWriteError` naming the path and underlying errno; the existing file content (if any) is unchanged; no orphan temp file remains. | Test |
+| FR-001-AC-8 | Temp files are created in the same directory as the target file (`<target>.tmp.<pid>.<rand>`). A test that mocks `os.tmpdir()` to a different volume confirms that no write path uses it for governed-file temp. | Test |
+| FR-001-AC-9 | `ConfigService` prunes `<target>.tmp.*` siblings older than 30 seconds on the next `set()` for the same plugin id. Younger orphans are left alone (another writer may be mid-flight). | Test |
+| FR-001-AC-10 | `replace(value)` writes `value` verbatim — absent keys at any depth are removed from the on-disk content. Validates against the plugin's schema first; on schema failure throws `ConfigSchemaError` and does not modify the file. Same atomic-write + locking behavior as `set`. Used by callers that need to express deletions (e.g. removing an entry from a `Record<string, …>` map). | Test |
+
+## Dependencies
+
+- **Upstream**: StR-001 (implements), FR-002 (requires), FR-004 (requires)
 
 ## Endpoint
 

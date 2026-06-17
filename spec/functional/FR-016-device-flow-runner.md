@@ -15,7 +15,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## Behavior
+## Description
 
 `@agent-ix/ix-cli-core` SHALL export a generic OAuth 2.0 Device Authorization
 Grant (RFC 8628) runner that drives a login against the endpoints in a
@@ -67,27 +67,23 @@ verification_uri` via the framework opener (FR-018). Any failure SHALL be
 injectable so the runner's state machine is unit-testable without real time,
 network, or a browser. An `AbortSignal` MAY cancel polling.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-016-AC-1**: With a mocked fetch returning `authorization_pending` then a
-  token, `runDeviceFlow` returns a `TokenBundle` whose `accessToken`,
-  `refreshToken`, `audience`, and `expiresAt` (= injected-now + `expires_in`·1000)
-  match the token response.
-- **FR-016-AC-2**: The authorize request body carries `client_id`, and the
-  `audience`/`scope` derived from `discovery`.
-- **FR-016-AC-3**: The injected `prompter.showVerification` is called exactly
-  once with the `verificationUri` and `userCode` from the authorize response.
-- **FR-016-AC-4**: A `slow_down` response increases the subsequent poll
-  interval by exactly 5000 ms.
-- **FR-016-AC-5**: An `access_denied` response raises `DeviceFlowError` with
-  code `access_denied`; an `expired_token` response, and the `expires_in`
-  deadline elapsing, both raise code `expired_token`.
-- **FR-016-AC-6**: A non-2xx authorize response raises `DeviceFlowError` code
-  `authorize_failed` and no polling occurs.
-- **FR-016-AC-7**: A browser-open implementation that throws does NOT abort the
-  flow; the runner still returns a token.
-- **FR-016-AC-8**: When `verification_uri_complete` is present, it is the URL
-  passed to the browser opener.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-016-AC-1 | With a mocked fetch returning `authorization_pending` then a token, `runDeviceFlow` returns a `TokenBundle` whose `accessToken`, `refreshToken`, `audience`, and `expiresAt` (= injected-now + `expires_in`·1000) match the token response. | Test |
+| FR-016-AC-2 | The authorize request body carries `client_id`, and the `audience`/`scope` derived from `discovery`. | Test |
+| FR-016-AC-3 | The injected `prompter.showVerification` is called exactly once with the `verificationUri` and `userCode` from the authorize response. | Test |
+| FR-016-AC-4 | A `slow_down` response increases the subsequent poll interval by exactly 5000 ms. | Test |
+| FR-016-AC-5 | An `access_denied` response raises `DeviceFlowError` with code `access_denied`; an `expired_token` response, and the `expires_in` deadline elapsing, both raise code `expired_token`. | Test |
+| FR-016-AC-6 | A non-2xx authorize response raises `DeviceFlowError` code `authorize_failed` and no polling occurs. | Test |
+| FR-016-AC-7 | A browser-open implementation that throws does NOT abort the flow; the runner still returns a token. | Test |
+| FR-016-AC-8 | When `verification_uri_complete` is present, it is the URL passed to the browser opener. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-003 (implements), FR-015 (requires)
+- **Downstream**: FR-017 (required-by)
 
 ## Endpoint
 

@@ -43,6 +43,15 @@ A reader observing `target` SHALL only ever see a complete, valid prior version 
 
 A wider mode on `secrets.key` voids NFR-001 — the identity that decrypts every blob would be readable to other local users. Permission self-defense is cheap and prevents a misconfigured backup tool from silently downgrading the trust boundary.
 
+## Measurement and Evaluation
+
+| Metric | Target | Threshold | Method |
+|--------|--------|-----------|--------|
+| Mode of a governed file created via `ConfigService.set` under `umask 0022` | `0o600` | `0o600` | Test (NFR-002-AC-1) |
+| Orphan `*.tmp.*` artifacts left after a failed rename | 0 | 0 | Test (NFR-002-AC-2) |
+| Wider-than-`0o600` or symlinked governed files loaded without refusal | 0 | 0 | Test (NFR-002-AC-3, NFR-002-AC-4) |
+| Direct `fs.writeFile`/`writeFileSync` writers outside the `atomicWrite` helper | 0 | 0 | Analysis (static grep, NFR-002-AC-5) |
+
 ## Acceptance Criteria
 
 - **NFR-002-AC-1**: A test starting with `umask 0022` writes a config via `ConfigService.set`; the resulting file mode is exactly `0o600`.

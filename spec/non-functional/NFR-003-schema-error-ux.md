@@ -35,6 +35,15 @@ Errors are rendered through the host CLI's UI primitives (e.g. `@agent-ix/ix-ui-
 
 A plugin author or operator hitting a config error needs to fix it without reading the codebase. The four-tuple is the minimum information that pinpoints a fix: which plugin, which key, what's expected, where the file lives. Hiding values for declared secrets prevents `config doctor` from leaking a token if a misconfiguration nudges one into the wrong store.
 
+## Measurement and Evaluation
+
+| Metric | Target | Threshold | Method |
+|--------|--------|-----------|--------|
+| Required tuple elements (plugin id, key path, expected type, file path) present in a rendered validation error | 4 of 4 | 4 of 4 | Test (NFR-003-AC-1) |
+| Declared-secret value leaked into rendered error output | 0 | 0 | Test (redaction check, NFR-003-AC-2) |
+| `config doctor` output ordering stability across identical-input runs | byte-stable | byte-stable | Test (snapshot, NFR-003-AC-3) |
+| `console.error` schema-error sinks / raw Zod `issues[]` renders in `src/` | 0 | 0 | Analysis (static grep, NFR-003-AC-4, NFR-003-AC-5) |
+
 ## Acceptance Criteria
 
 - **NFR-003-AC-1**: Setting `local.cluster.defaultTags` to `42` produces an error whose rendered text contains all of: `local`, `cluster.defaultTags`, `array<string>`, and the absolute path to `config.d/local.yaml`.

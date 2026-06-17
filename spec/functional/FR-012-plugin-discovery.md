@@ -20,25 +20,25 @@ relationships:
 > manifests. That requirement has been retired in favor of oclif-native
 > discovery described below.
 
-## Behavior
+## Description
 
 Plugin discovery SHALL use oclif's native plugin system. The set of active
 plugins for a CLI binary is declared in the binary's `package.json`
 `oclif.plugins` array, with `@oclif/plugin-plugins` available for
 user-installable plugins.
 
-## Acceptance
+## Acceptance Criteria
 
-- **FR-012-AC-1**: A CLI binary's active plugin set is the union of
-  `oclif.plugins` (built-in for the distribution) and any plugins the
-  user has installed via `@oclif/plugin-plugins`.
-- **FR-012-AC-2**: No on-disk plugin manifest (`plugins.yaml`) is loaded by
-  the runtime.
-- **FR-012-AC-3**: Per-project enable/disable of plugins is not supported.
-  Users who want a different plugin set ship or install a different
-  binary.
-- **FR-012-AC-4**: Plugin load failures are surfaced by oclif's normal error
-  path; the IX runtime does not add a separate isolation layer.
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| FR-012-AC-1 | A CLI binary's active plugin set is the union of `oclif.plugins` (built-in for the distribution) and any plugins the user has installed via `@oclif/plugin-plugins`. | Test |
+| FR-012-AC-2 | No on-disk plugin manifest (`plugins.yaml`) is loaded by the runtime. | Test |
+| FR-012-AC-3 | Per-project enable/disable of plugins is not supported. Users who want a different plugin set ship or install a different binary. | Test |
+| FR-012-AC-4 | Plugin load failures are surfaced by oclif's normal error path; the IX runtime does not add a separate isolation layer. | Test |
+
+## Dependencies
+
+- **Upstream**: StR-003 (implements), US-001 (implements), FR-010 (requires)
 
 ## Notes
 

@@ -9,7 +9,7 @@ relationships:
     cardinality: "1:1"
 ---
 
-## User Story
+## Story
 
 As a tool author, I want to build a CLI binary using the shared IX CLI
 building blocks, so that I can reuse config, secrets, terminal style, and
