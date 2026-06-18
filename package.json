@@ -2,10 +2,12 @@
   "name": "@agent-ix/ix-cli-core",
   "description": "Generic framework foundation for building Agent IX CLIs — config service, secrets service, plugin contract, runtime.",
   "version": "0.10.0",
+  "license": "MIT",
   "type": "module",
   "files": [
     "dist/",
-    "README.md"
+    "README.md",
+    "LICENSE"
   ],
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
