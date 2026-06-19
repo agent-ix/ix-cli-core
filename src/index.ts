@@ -87,6 +87,32 @@ export {
   resetRuntimeContext,
   type RuntimeContext,
 } from "./runtime/context.js";
+
+// ── Agent detection + bootstrap (FR-020, FR-021, FR-022, NFR-007) ─────────
+export {
+  runningUnderAgent,
+  isInteractiveHuman,
+  bootstrapIntoAgent,
+  splitAgentCommand,
+  parseConfirmAnswer,
+  parseChoice,
+  AGENT_ENV_MARKERS,
+  BOOTSTRAP_GUARD_ENV,
+  NO_AUTO_AGENT_ENV,
+  COMMON_AGENTS,
+  type AutoLaunchMode,
+  type BootstrapOptions,
+  type BootstrapDeps,
+  type ChoiceResult,
+} from "./runtime/agent.js";
+export {
+  agentConfig,
+  maybeBootstrapAgent,
+  AgentSchema,
+  AGENT_PLUGIN_ID,
+  AGENT_ENV_BINDINGS,
+  type AgentConfig,
+} from "./runtime/agent-config.js";
 export {
   capabilityErrorToJson,
   createCapabilityResolver,

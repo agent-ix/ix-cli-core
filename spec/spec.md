@@ -60,6 +60,7 @@ This specification governs:
 - **`config` and `secrets` command runners** — generic, plugin-agnostic command implementations the host binary registers.
 - **Atomic-write helper** — the single `0o600` temp+rename writer all governed files go through.
 - **Auth engine** — a generic, service-agnostic device-login engine: service-discovery client (`fetchServiceDiscovery`), OAuth 2.0 Device Authorization Grant runner (`runDeviceFlow`), host-keyed/audience-scoped token store with refresh-before-expiry + rotation (`TokenStore.getAccessToken`), and a non-fatal browser opener. Every endpoint/audience/scope is parameterized by the discovery document — no service identity is baked in.
+- **Agent bootstrap** — context detection (`runningUnderAgent` / `isInteractiveHuman`) plus a launcher (`bootstrapIntoAgent` / `maybeBootstrapAgent`) that hands a human off into their preferred agent CLI when they run an agent-facing CLI directly, gated by a framework-owned `agent` config namespace. An opt-in capability consumers call; never default-on.
 
 ### 2.2 Out of Scope
 
@@ -79,15 +80,15 @@ This specification does not govern:
 
 `@agent-ix/ix-cli-core` is a single publishable TypeScript library (npm package `@agent-ix/ix-cli-core`). It exposes the building blocks below; a consuming CLI is a normal oclif binary that depends on this library, extends `BaseCommand`, lists its plugins in `oclif.plugins`, and registers each plugin's `ixSchema`.
 
-| Module      | Responsibility                                                                 |
-| ----------- | ------------------------------------------------------------------------------ |
-| `config/`   | `ConfigService`, paths, errors, lock, registry, `doctor`                       |
-| `secrets/`  | `SecretsService`, backends (keyring / age-file / memory), registry, defaults   |
-| `plugins/`  | `registerPluginSchema` + `IxPluginSchema` contract                             |
-| `runtime/`  | `BaseCommand` context, `CapabilityResolver`, capability spec, `RuntimeContext` |
-| `commands/` | `config` and `secrets` command runners                                         |
-| `auth/`     | discovery client, device-flow runner, host-keyed token store, browser opener   |
-| `atomic/`   | `atomicWrite` — `0o600` temp+rename helper                                     |
+| Module      | Responsibility                                                                                              |
+| ----------- | ----------------------------------------------------------------------------------------------------------- |
+| `config/`   | `ConfigService`, paths, errors, lock, registry, `doctor`                                                    |
+| `secrets/`  | `SecretsService`, backends (keyring / age-file / memory), registry, defaults                                |
+| `plugins/`  | `registerPluginSchema` + `IxPluginSchema` contract                                                          |
+| `runtime/`  | `BaseCommand` context, `CapabilityResolver`, capability spec, `RuntimeContext`, agent detection + bootstrap |
+| `commands/` | `config` and `secrets` command runners                                                                      |
+| `auth/`     | discovery client, device-flow runner, host-keyed token store, browser opener                                |
+| `atomic/`   | `atomicWrite` — `0o600` temp+rename helper                                                                  |
 
 ### 3.2 Intended Users
 
@@ -125,59 +126,65 @@ Usage scenarios describing author intent when composing a CLI on the framework.
 
 ### 5.3 Functional Requirements (`FR-XXX`)
 
-Testable behavioral contracts for the config service, secrets service, plugin contract, runtime, command runners, and the generic auth engine (discovery, device-flow runner, host-keyed token store, browser opener).
+Testable behavioral contracts for the config service, secrets service, plugin contract, runtime, command runners, the generic auth engine (discovery, device-flow runner, host-keyed token store, browser opener), and the agent-bootstrap mechanism (context detection, launcher, preferred-agent config/chooser).
 
 ### 5.4 Non-Functional Requirements (`NFR-XXX`)
 
-Quality constraints: secrets-at-rest, file permissions, error UX, backend pluggability, auth host isolation / TLS-only discovery, and tokens-never-plaintext.
+Quality constraints: secrets-at-rest, file permissions, error UX, backend pluggability, auth host isolation / TLS-only discovery, tokens-never-plaintext, and safe agent-bootstrap boundaries.
 
 ---
 
 ## 6. Requirement Identification
 
-| Artifact                   | Format      | Example       |
-| -------------------------- | ----------- | ------------- |
-| Stakeholder Requirement    | `StR-XXX`   | [StR-001](./stakeholder/StR-001-pluggable-config-contract.md)     |
-| User Story                 | `US-XXX`    | [US-001](./usecase/US-001-run-custom-cli-distribution.md)      |
-| Functional Requirement     | `FR-XXX`    | [FR-005](./functional/FR-005-secrets-service-api.md)      |
-| Non-Functional Requirement | `NFR-XXX`   | [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md)     |
-| Acceptance Criteria        | `{FR}-AC-N` | [FR-005-AC-1](./functional/FR-005-secrets-service-api.md) |
-| Test Case                  | `TC-XXX`    | `TC-021`      |
+| Artifact                   | Format      | Example                                                       |
+| -------------------------- | ----------- | ------------------------------------------------------------- |
+| Stakeholder Requirement    | `StR-XXX`   | [StR-001](./stakeholder/StR-001-pluggable-config-contract.md) |
+| User Story                 | `US-XXX`    | [US-001](./usecase/US-001-run-custom-cli-distribution.md)     |
+| Functional Requirement     | `FR-XXX`    | [FR-005](./functional/FR-005-secrets-service-api.md)          |
+| Non-Functional Requirement | `NFR-XXX`   | [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md)   |
+| Acceptance Criteria        | `{FR}-AC-N` | [FR-005-AC-1](./functional/FR-005-secrets-service-api.md)     |
+| Test Case                  | `TC-XXX`    | `TC-021`                                                      |
 
 Identifiers are immutable once assigned. IDs in this repo are a flat per-repo sequence (no `core/` classifier).
 
 ### 6.1 Requirement Index
 
-| ID      | Title                                                    |
-| ------- | -------------------------------------------------------- |
-| [StR-001](./stakeholder/StR-001-pluggable-config-contract.md) | Pluggable Config Contract with Per-Plugin Isolation      |
-| [StR-002](./stakeholder/StR-002-secrets-never-plaintext.md) | Developer Secrets Never Persisted in Plaintext           |
-| [StR-003](./stakeholder/StR-003-reusable-cli-runtime.md) | Reusable CLI Runtime                                     |
-| [US-001](./usecase/US-001-run-custom-cli-distribution.md)  | Run Custom CLI Distribution                              |
-| [FR-001](./functional/FR-001-config-service-api.md)  | ConfigService API                                        |
-| [FR-002](./functional/FR-002-per-plugin-file-isolation.md)  | Per-Plugin File Isolation and Scoped Failure             |
-| [FR-003](./functional/FR-003-layered-resolution.md)  | Layered Config Resolution: Env → Plugin File → Defaults  |
-| [FR-004](./functional/FR-004-plugin-schema-registration.md)  | Plugin Schema Registration                               |
-| [FR-005](./functional/FR-005-secrets-service-api.md)  | SecretsService API                                       |
-| [FR-006](./functional/FR-006-keyring-backend.md)  | OS Keyring Backend (@napi-rs/keyring)                    |
-| [FR-007](./functional/FR-007-encrypted-file-fallback.md)  | Encrypted-File Fallback for Headless Environments        |
-| [FR-008](./functional/FR-008-config-commands.md)  | `config` Command Group (get, set, edit, doctor)          |
-| [FR-009](./functional/FR-009-secrets-commands.md)  | `secrets` Command Group (list, set, rm, which)           |
-| [FR-010](./functional/FR-010-cli-binary-composition.md)  | CLI Binary Composition                                   |
-| [FR-011](./functional/FR-011-runtime-config-root.md)  | Runtime Config Root Override                             |
-| [FR-012](./functional/FR-012-plugin-discovery.md)  | Plugin Discovery (oclif-native)                          |
-| [FR-013](./functional/FR-013-capability-binding.md)  | Per-Command Capability Binding                           |
-| [FR-014](./functional/FR-014-ixschema-plugin-convention.md)  | ixSchema Plugin Convention                               |
-| [FR-015](./functional/FR-015-service-discovery-client.md)  | Service Discovery Client                                 |
-| [FR-016](./functional/FR-016-device-flow-runner.md)  | Device-Flow Runner                                       |
-| [FR-017](./functional/FR-017-host-keyed-token-store.md)  | Host-Keyed Token Store with Refresh-Before-Expiry        |
-| [FR-018](./functional/FR-018-browser-opener.md)  | Non-Fatal Browser Opener                                 |
-| [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md) | No Plaintext Secret Values Persisted on Disk             |
-| [NFR-002](./non-functional/NFR-002-sensitive-file-permissions.md) | Sensitive Files Created Mode 0600 via Atomic Temp+Rename |
-| [NFR-003](./non-functional/NFR-003-schema-error-ux.md) | Schema Validation Errors Are Actionable                  |
+| ID                                                                  | Title                                                    |
+| ------------------------------------------------------------------- | -------------------------------------------------------- |
+| [StR-001](./stakeholder/StR-001-pluggable-config-contract.md)       | Pluggable Config Contract with Per-Plugin Isolation      |
+| [StR-002](./stakeholder/StR-002-secrets-never-plaintext.md)         | Developer Secrets Never Persisted in Plaintext           |
+| [StR-003](./stakeholder/StR-003-reusable-cli-runtime.md)            | Reusable CLI Runtime                                     |
+| [US-001](./usecase/US-001-run-custom-cli-distribution.md)           | Run Custom CLI Distribution                              |
+| [US-002](./usecase/US-002-human-handoff-to-agent.md)                | Human Handoff Into Preferred Agent                       |
+| [FR-001](./functional/FR-001-config-service-api.md)                 | ConfigService API                                        |
+| [FR-002](./functional/FR-002-per-plugin-file-isolation.md)          | Per-Plugin File Isolation and Scoped Failure             |
+| [FR-003](./functional/FR-003-layered-resolution.md)                 | Layered Config Resolution: Env → Plugin File → Defaults  |
+| [FR-004](./functional/FR-004-plugin-schema-registration.md)         | Plugin Schema Registration                               |
+| [FR-005](./functional/FR-005-secrets-service-api.md)                | SecretsService API                                       |
+| [FR-006](./functional/FR-006-keyring-backend.md)                    | OS Keyring Backend (@napi-rs/keyring)                    |
+| [FR-007](./functional/FR-007-encrypted-file-fallback.md)            | Encrypted-File Fallback for Headless Environments        |
+| [FR-008](./functional/FR-008-config-commands.md)                    | `config` Command Group (get, set, edit, doctor)          |
+| [FR-009](./functional/FR-009-secrets-commands.md)                   | `secrets` Command Group (list, set, rm, which)           |
+| [FR-010](./functional/FR-010-cli-binary-composition.md)             | CLI Binary Composition                                   |
+| [FR-011](./functional/FR-011-runtime-config-root.md)                | Runtime Config Root Override                             |
+| [FR-012](./functional/FR-012-plugin-discovery.md)                   | Plugin Discovery (oclif-native)                          |
+| [FR-013](./functional/FR-013-capability-binding.md)                 | Per-Command Capability Binding                           |
+| [FR-014](./functional/FR-014-ixschema-plugin-convention.md)         | ixSchema Plugin Convention                               |
+| [FR-015](./functional/FR-015-service-discovery-client.md)           | Service Discovery Client                                 |
+| [FR-016](./functional/FR-016-device-flow-runner.md)                 | Device-Flow Runner                                       |
+| [FR-017](./functional/FR-017-host-keyed-token-store.md)             | Host-Keyed Token Store with Refresh-Before-Expiry        |
+| [FR-018](./functional/FR-018-browser-opener.md)                     | Non-Fatal Browser Opener                                 |
+| [FR-019](./functional/FR-019-marketplace-adapter.md)                | Marketplace Adapter                                      |
+| [FR-020](./functional/FR-020-agent-context-detection.md)            | Agent-Context Detection                                  |
+| [FR-021](./functional/FR-021-bootstrap-into-agent.md)               | Bootstrap Into Preferred Agent                           |
+| [FR-022](./functional/FR-022-agent-config-chooser.md)               | Preferred-Agent Config and Interactive Chooser           |
+| [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md)         | No Plaintext Secret Values Persisted on Disk             |
+| [NFR-002](./non-functional/NFR-002-sensitive-file-permissions.md)   | Sensitive Files Created Mode 0600 via Atomic Temp+Rename |
+| [NFR-003](./non-functional/NFR-003-schema-error-ux.md)              | Schema Validation Errors Are Actionable                  |
 | [NFR-004](./non-functional/NFR-004-secrets-backend-pluggability.md) | Secrets Backend Adapter Pluggability                     |
-| [NFR-005](./non-functional/NFR-005-auth-host-isolation-tls.md) | Auth Host Isolation and TLS-Only Discovery               |
-| [NFR-006](./non-functional/NFR-006-auth-tokens-never-plaintext.md) | Auth Tokens Never Persisted in Plaintext                 |
+| [NFR-005](./non-functional/NFR-005-auth-host-isolation-tls.md)      | Auth Host Isolation and TLS-Only Discovery               |
+| [NFR-006](./non-functional/NFR-006-auth-tokens-never-plaintext.md)  | Auth Tokens Never Persisted in Plaintext                 |
+| [NFR-007](./non-functional/NFR-007-safe-bootstrap-boundaries.md)    | Safe Agent-Bootstrap Boundaries                          |
 
 ---
 
@@ -301,6 +308,43 @@ endpoint, audience, and scope is read from a discovery document.
 
 Host isolation and TLS-only discovery are quality constraints on this engine
 ([NFR-005](./non-functional/NFR-005-auth-host-isolation-tls.md)); tokens-never-plaintext extends [NFR-001](./non-functional/NFR-001-no-plaintext-secrets.md) ([NFR-006](./non-functional/NFR-006-auth-tokens-never-plaintext.md)).
+
+---
+
+## 9B. Agent Bootstrap
+
+The framework ships an **opt-in** mechanism in `src/runtime/agent.ts` /
+`src/runtime/agent-config.ts` for agent-facing CLIs (those meant to be driven by
+an agent harness, not typed by a human). It is pure mechanism + a shared
+contract; each consuming CLI decides _whether_ and _when_ to call it, and
+`BaseCommand`-based human-facing CLIs simply never do. It is never default-on.
+
+1. **Context detection** ([FR-020](./functional/FR-020-agent-context-detection.md)).
+   `runningUnderAgent(env)` is true when any harness marker
+   (`CLAUDECODE` / `AI_AGENT` / `CODEX_SANDBOX*`) or the re-entry guard
+   `IX_AGENT_BOOTSTRAPPED` is present; `isInteractiveHuman()` is true only for a
+   real human at an interactive TTY with `IX_NO_AUTO_AGENT` unset. Pure, no I/O.
+
+2. **Launcher** ([FR-021](./functional/FR-021-bootstrap-into-agent.md)).
+   `bootstrapIntoAgent({ seed, mode, agent })` hands off into the preferred agent
+   via `spawnSync(bin, [...args, seed], { stdio: "inherit" })` — interactive,
+   seeded with the request, no shell — and forwards the child's exit code. The
+   child env carries `IX_AGENT_BOOTSTRAPPED=1` so a launched agent that shells
+   back in does not recurse. A failed launch (ENOENT) is non-fatal.
+
+3. **Config + chooser** ([FR-022](./functional/FR-022-agent-config-chooser.md)).
+   Settings live under the **framework-owned `agent`** config namespace (id
+   `agent`, `config.d/agent.yaml`) — deliberately not the host-owned `core`
+   schema (§8.1). `agent.preferredAgent` is the launch command;
+   `agent.autoLaunch` (`off` / `prompt` / `auto`, default `prompt`) is the
+   policy; `IX_PREFERRED_AGENT` / `IX_AUTO_LAUNCH_AGENT` bind via
+   [FR-003](./functional/FR-003-layered-resolution.md). With no agent configured,
+   an interactive chooser offers the common agents plus a custom command and
+   optionally persists the pick.
+
+Safe boundaries — never launching under automation, in a pipe, under another
+agent, or recursively — are a quality constraint on this mechanism
+([NFR-007](./non-functional/NFR-007-safe-bootstrap-boundaries.md)).
 
 ---
 

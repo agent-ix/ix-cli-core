@@ -50,22 +50,24 @@ and run only on the GitHub Actions platform matrix (`macos-latest`,
 | `tests/auth-discovery.test.ts`   | FR-015, NFR-005                    |
 | `tests/auth-device-flow.test.ts` | FR-016, FR-018                     |
 | `tests/auth-token-store.test.ts` | FR-017, NFR-005, NFR-006           |
+| `tests/agent.test.ts`            | FR-020, FR-021, FR-022, NFR-007    |
 
 ---
 
 ## Stakeholder Requirement Coverage
 
-| Stakeholder Req                   | Trace to FR/NFR                                                                | Coverage Status                                                                                          |
-| --------------------------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
-| StR-001 (pluggable config)        | FR-001, FR-002, FR-003, FR-004, FR-008, NFR-003                                | ✅ Unit + static                                                                                         |
-| StR-002 (secrets never plaintext) | FR-005, FR-006, FR-007, FR-009, NFR-001, NFR-002, NFR-004                      | ✅ Unit + static (keyring round-trip via CI matrix)                                                      |
-| StR-003 (reusable runtime)        | FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-018, FR-019 | ⚠️ FR-013/14/15/16/17/18/19 unit-covered; FR-010/011/012 BaseCommand wiring covered at host-binary level |
+| Stakeholder Req                   | Trace to FR/NFR                                                                                        | Coverage Status                                                                                                                                         |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| StR-001 (pluggable config)        | FR-001, FR-002, FR-003, FR-004, FR-008, NFR-003                                                        | ✅ Unit + static                                                                                                                                        |
+| StR-002 (secrets never plaintext) | FR-005, FR-006, FR-007, FR-009, NFR-001, NFR-002, NFR-004                                              | ✅ Unit + static (keyring round-trip via CI matrix)                                                                                                     |
+| StR-003 (reusable runtime)        | FR-010, FR-011, FR-012, FR-013, FR-014, FR-015, FR-016, FR-017, FR-018, FR-019, FR-020, FR-021, FR-022 | ⚠️ FR-013/14/15/16/17/18/19 unit-covered; FR-020/021/022 (agent bootstrap) unit-covered; FR-010/011/012 BaseCommand wiring covered at host-binary level |
 
 ## User Story Coverage
 
-| User Story | Acceptance Criteria               | Trace                          | Coverage Status                                                                       |
-| ---------- | --------------------------------- | ------------------------------ | ------------------------------------------------------------------------------------- |
-| US-001     | run a custom CLI on the framework | FR-010, FR-011, FR-013, FR-014 | ⚠️ Library surface unit-covered; end-to-end composition exercised by consuming binary |
+| User Story | Acceptance Criteria                | Trace                          | Coverage Status                                                                         |
+| ---------- | ---------------------------------- | ------------------------------ | --------------------------------------------------------------------------------------- |
+| US-001     | run a custom CLI on the framework  | FR-010, FR-011, FR-013, FR-014 | ⚠️ Library surface unit-covered; end-to-end composition exercised by consuming binary   |
+| US-002     | human handoff into preferred agent | FR-020, FR-021, FR-022         | ✅ Unit (`agent.test.ts`); end-to-end handoff exercised by a consuming agent-facing CLI |
 
 ---
 
@@ -174,6 +176,24 @@ and run only on the GitHub Actions platform matrix (`macos-latest`,
 | FR-017         | AC-7: hostSlug always matches SecretId name regex              | `auth-token-store.test.ts` — "slugifies a dotted host into a SecretId-name-safe segment"                                                  | ✅ Unit                                                                                             |
 | FR-018         | AC-1/AC-2: opener never rejects; opt-out env returns false     | exercised by `auth-device-flow.test.ts` (injected opener) + opener opt-out logic                                                          | ⚠️ Unit (injected) / Review                                                                         |
 | FR-018         | AC-3: thrown opener doesn't abort the flow                     | `auth-device-flow.test.ts` — "browser-open failure is non-fatal"                                                                          | ✅ Unit                                                                                             |
+| FR-020         | AC-1: marker presence → true; none → false                     | `agent.test.ts` — "is true when … is present" / "is false when no marker is set"                                                          | ✅ Unit                                                                                             |
+| FR-020         | AC-2: non-1 marker value detected; empty = absent              | `agent.test.ts` — "is true for a non-1 marker value …" / "treats an empty-string marker as absent"                                        | ✅ Unit                                                                                             |
+| FR-020         | AC-3: isInteractiveHuman gating (TTY + no marker + no opt-out) | `agent.test.ts` — "is true for both-TTY …" + the negative gating cases                                                                    | ✅ Unit                                                                                             |
+| FR-020         | AC-4: IX_NO_AUTO_AGENT=1 opts out; =0 does not                 | `agent.test.ts` — "is false when IX_NO_AUTO_AGENT is truthy" / "is NOT opted out by IX_NO_AUTO_AGENT=0"                                   | ✅ Unit                                                                                             |
+| FR-021         | AC-1: mode off → no-op                                         | `agent.test.ts` — "mode 'off' is a no-op"                                                                                                 | ✅ Unit                                                                                             |
+| FR-021         | AC-2: non-interactive → no spawn                               | `agent.test.ts` — "does nothing when not an interactive human"                                                                            | ✅ Unit                                                                                             |
+| FR-021         | AC-3: agent marker → no spawn (guard)                          | `agent.test.ts` — "does nothing under an agent marker (fork-bomb guard)"                                                                  | ✅ Unit                                                                                             |
+| FR-021         | AC-4: auto launches w/ stdio inherit + guard + seed last       | `agent.test.ts` — "auto mode launches interactively with the guard + seed"                                                                | ✅ Unit                                                                                             |
+| FR-021         | AC-5: multi-word command split; seed appended; no shell        | `agent.test.ts` — "splits a multi-word command and appends the seed last"                                                                 | ✅ Unit                                                                                             |
+| FR-021         | AC-6: prompt confirm gating                                    | `agent.test.ts` — "prompt mode: declined…/accepted… confirm"                                                                              | ✅ Unit                                                                                             |
+| FR-021         | AC-7: exit status forwarded; null→0                            | `agent.test.ts` — "forwards the child's exit status" / "maps a signal death (null status) to exit 0"                                      | ✅ Unit                                                                                             |
+| FR-021         | AC-8: ENOENT non-fatal                                         | `agent.test.ts` — "ENOENT is non-fatal: returns false, no exit, logs a hint"                                                              | ✅ Unit                                                                                             |
+| FR-022         | AC-1: defaults + file>default                                  | `agent.test.ts` — "defaults: autoLaunch=prompt…" / "file value wins over default"                                                         | ✅ Unit                                                                                             |
+| FR-022         | AC-2: env override + invalid enum → default + incident         | `agent.test.ts` — "env beats file…" / "invalid autoLaunch via env → falls back…"                                                          | ✅ Unit                                                                                             |
+| FR-022         | AC-3: chooser pick launches                                    | `agent.test.ts` — "launches the chosen agent and offers to persist it"                                                                    | ✅ Unit                                                                                             |
+| FR-022         | AC-4: persist on save; declined still launches                 | `agent.test.ts` — "launches the chosen agent…" / "launches but does not persist when the save prompt is declined"                         | ✅ Unit                                                                                             |
+| FR-022         | AC-5: cancelled chooser no-op                                  | `agent.test.ts` — "cancelled chooser is a no-op"                                                                                          | ✅ Unit                                                                                             |
+| FR-022         | AC-6: strict schema rejects unknown keys                       | `agent.test.ts` — "rejects unknown keys (strict schema)"                                                                                  | ✅ Unit                                                                                             |
 
 ## Non-Functional Requirement Coverage
 
@@ -202,6 +222,11 @@ and run only on the GitHub Actions platform matrix (`macos-latest`,
 | NFR-005-AC-3       | Unit: insecure http refused with no fetch                     | `auth-discovery.test.ts` — "refuses plain http for non-dev.ix without insecure (no fetch)"            | ✅ Unit               |
 | NFR-006-AC-1       | Unit: token in backend, absent from metadata store            | `auth-token-store.test.ts` — "stores metadata (expiry/audience) separately from the secret"           | ✅ Unit               |
 | NFR-006-AC-2       | Review: token writes only via SecretsService.set              | code review of `src/auth/token-store.ts`                                                              | ⚠️ Review             |
+| NFR-007-AC-1       | Unit: non-TTY context → no spawn                              | `agent.test.ts` — "does nothing when not an interactive human"                                        | ✅ Unit               |
+| NFR-007-AC-2       | Unit: agent marker / guard → no spawn                         | `agent.test.ts` — "does nothing under an agent marker (fork-bomb guard)"                              | ✅ Unit               |
+| NFR-007-AC-3       | Unit: opt-out / mode off → no spawn                           | `agent.test.ts` — "mode 'off' is a no-op" + isInteractiveHuman opt-out cases                          | ✅ Unit               |
+| NFR-007-AC-4       | Unit: ENOENT leaves process alive                             | `agent.test.ts` — "ENOENT is non-fatal: returns false, no exit, logs a hint"                          | ✅ Unit               |
+| NFR-007-AC-5       | Static: no-shell launch shape in `src/runtime/agent.ts`       | static check (spawnSync argv array, no `shell:true`)                                                  | ⚠️ Static             |
 
 ---
 
