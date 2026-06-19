@@ -232,7 +232,7 @@ await reconcileDefaultSet(/* targets */);
 ## Related projects
 
 - **[ix-cli](https://github.com/agent-ix/ix-cli)** — the canonical Agent IX CLI (`ix`), built on this framework. _(Currently private; will be made public soon.)_
-- **[ix-spec](https://github.com/agent-ix/ix-spec)** — the spec authoring and validation toolchain for the Agent IX ecosystem.
+- **[quoin](https://github.com/agent-ix/quoin)** — the spec authoring and validation toolchain for the Agent IX ecosystem.
 - **[ix-flow](https://github.com/agent-ix/ix-flow)** — the agent-driven workflow lifecycle runner.
 
 ---
