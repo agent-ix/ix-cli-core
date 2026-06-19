@@ -44,11 +44,11 @@ appeared — only that the launch did not synchronously fail.
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-018-AC-1 | `openBrowser` never rejects; a launcher that cannot be spawned resolves `false`. | Test |
-| FR-018-AC-2 | With `IX_NO_BROWSER=1` (or `NO_BROWSER=1`) in the supplied env, the opener returns `false` and spawns no process. | Test |
-| FR-018-AC-3 | When the device-flow runner's injected opener throws, the flow still completes (cross-checked by [FR-016-AC-7](./FR-016-device-flow-runner.md)). | Test |
+| ID          | Criteria                                                                                                                                         | Verification |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| FR-018-AC-1 | `openBrowser` never rejects; a launcher that cannot be spawned resolves `false`.                                                                 | Test         |
+| FR-018-AC-2 | With `IX_NO_BROWSER=1` (or `NO_BROWSER=1`) in the supplied env, the opener returns `false` and spawns no process.                                | Test         |
+| FR-018-AC-3 | When the device-flow runner's injected opener throws, the flow still completes (cross-checked by [FR-016-AC-7](./FR-016-device-flow-runner.md)). | Test         |
 
 ## Dependencies
 

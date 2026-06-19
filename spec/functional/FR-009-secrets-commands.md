@@ -47,17 +47,16 @@ Implementations MUST NOT conflate these columns. The value column never appears.
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-009-AC-1 | `secrets list` produces a table whose value column is absent or empty for every row; a static check confirms no secret value appears in the rendered output. | Analysis |
-| FR-009-AC-2 | `secrets set local.ghcr-token` collects masked input, persists to the active backend, and prints `stored local.ghcr-token in <backend>` (no value). | Test |
-| FR-009-AC-3 | `secrets which local.ghcr-token` returns one of: `keyring` after `set` on a system where the keyring probe succeeds; `age-file` after `set` on a system where the keyring probe failed (file fallback active); `unset` after `rm` (or before any `set`) with no env var; `env` whenever `IX_GHCR_TOKEN` (or the declared `envVar`) is currently set, regardless of backend state. | Test |
-| FR-009-AC-4 | `secrets rm local.ghcr-token` clears the persisted value; `get` returns `null` (or the env var if set); `which` returns `unset` (or `env`). | Test |
-| FR-009-AC-5 | An unknown id produces `UnknownSecretError` listing every registered id and exits non-zero. | Test |
-| FR-009-AC-6 | A test scan of stdout/stderr across the full `set/list/which/rm` lifecycle confirms no secret value appears in any line of output. | Analysis |
-| FR-009-AC-7 | A keyring access denial during `set` surfaces a `KeyringAccessError` with platform-specific remediation; the value is not persisted and is not echoed. | Test |
+| ID          | Criteria                                                                                                                                                                                                                                                                                                                                                                          | Verification |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-009-AC-1 | `secrets list` produces a table whose value column is absent or empty for every row; a static check confirms no secret value appears in the rendered output.                                                                                                                                                                                                                      | Analysis     |
+| FR-009-AC-2 | `secrets set local.ghcr-token` collects masked input, persists to the active backend, and prints `stored local.ghcr-token in <backend>` (no value).                                                                                                                                                                                                                               | Test         |
+| FR-009-AC-3 | `secrets which local.ghcr-token` returns one of: `keyring` after `set` on a system where the keyring probe succeeds; `age-file` after `set` on a system where the keyring probe failed (file fallback active); `unset` after `rm` (or before any `set`) with no env var; `env` whenever `IX_GHCR_TOKEN` (or the declared `envVar`) is currently set, regardless of backend state. | Test         |
+| FR-009-AC-4 | `secrets rm local.ghcr-token` clears the persisted value; `get` returns `null` (or the env var if set); `which` returns `unset` (or `env`).                                                                                                                                                                                                                                       | Test         |
+| FR-009-AC-5 | An unknown id produces `UnknownSecretError` listing every registered id and exits non-zero.                                                                                                                                                                                                                                                                                       | Test         |
+| FR-009-AC-6 | A test scan of stdout/stderr across the full `set/list/which/rm` lifecycle confirms no secret value appears in any line of output.                                                                                                                                                                                                                                                | Analysis     |
+| FR-009-AC-7 | A keyring access denial during `set` surfaces a `KeyringAccessError` with platform-specific remediation; the value is not persisted and is not echoed.                                                                                                                                                                                                                            | Test         |
 
 ## Dependencies
 
 - **Upstream**: [StR-002](../stakeholder/StR-002-secrets-never-plaintext.md) (implements), [FR-005](./FR-005-secrets-service-api.md) (requires)
-

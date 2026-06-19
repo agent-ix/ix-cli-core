@@ -27,12 +27,12 @@ An IX CLI binary SHALL be a normal oclif application that:
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-010-AC-1 | Built-in plugin packages load via oclif's native plugin discovery — no custom registry, no manifest loader. | Test |
-| FR-010-AC-2 | An IX-connected CLI uses the same composition; the difference is only in which plugins it lists. | Test |
-| FR-010-AC-3 | The main `ix` distribution lists the official Agent IX plugin packages (e.g., `@agent-ix/ix-cli-elements`, `@agent-ix/ix-cli-local`, `@agent-ix/workflow-cli-plugin`) in its `oclif.plugins`. | Test |
-| FR-010-AC-4 | Per-binary defaults (binary name, branding, log level defaults) live in the binary's own config and the `core` plugin's schema, not in a separate distribution object. | Test |
+| ID          | Criteria                                                                                                                                                                                      | Verification |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-010-AC-1 | Built-in plugin packages load via oclif's native plugin discovery — no custom registry, no manifest loader.                                                                                   | Test         |
+| FR-010-AC-2 | An IX-connected CLI uses the same composition; the difference is only in which plugins it lists.                                                                                              | Test         |
+| FR-010-AC-3 | The main `ix` distribution lists the official Agent IX plugin packages (e.g., `@agent-ix/ix-cli-elements`, `@agent-ix/ix-cli-local`, `@agent-ix/workflow-cli-plugin`) in its `oclif.plugins`. | Test         |
+| FR-010-AC-4 | Per-binary defaults (binary name, branding, log level defaults) live in the binary's own config and the `core` plugin's schema, not in a separate distribution object.                        | Test         |
 
 ## Dependencies
 

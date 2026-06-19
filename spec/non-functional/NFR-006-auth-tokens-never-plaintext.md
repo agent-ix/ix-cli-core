@@ -39,10 +39,10 @@ them anywhere else would silently break that guarantee.
 
 ## Measurement and Evaluation
 
-| Metric | Target | Threshold | Method |
-|--------|--------|-----------|--------|
-| Token value present in the serialized metadata store after `save` | 0 | 0 | Test (NFR-006-AC-1) |
-| `TokenStore` token write paths outside `SecretsService.set` (`fs.*`/`process.stdout`/`console.*`) in `src/auth/token-store.ts` | 0 | 0 | Inspection (code review, NFR-006-AC-2) |
+| Metric                                                                                                                         | Target | Threshold | Method                                 |
+| ------------------------------------------------------------------------------------------------------------------------------ | ------ | --------- | -------------------------------------- |
+| Token value present in the serialized metadata store after `save`                                                              | 0      | 0         | Test (NFR-006-AC-1)                    |
+| `TokenStore` token write paths outside `SecretsService.set` (`fs.*`/`process.stdout`/`console.*`) in `src/auth/token-store.ts` | 0      | 0         | Inspection (code review, NFR-006-AC-2) |
 
 ## Acceptance Criteria
 

@@ -64,15 +64,15 @@ extra fields SHALL be tolerated (forward-compatible).
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-015-AC-1 | `normalizeHostOrigin("filament.dev.ix")` returns `"https://filament.dev.ix"`; a host with a path (`https://filament.dev.ix/login/device`) returns the same origin with the path stripped. | Test |
-| FR-015-AC-2 | `normalizeHostOrigin("filament.dev.ix:8443")` preserves the port → `"https://filament.dev.ix:8443"`. | Test |
-| FR-015-AC-3 | `http://example.com` is rejected with `DiscoveryInsecureError`; the same host with `insecure: true`, and any `http://*.dev.ix` host, are accepted. | Test |
-| FR-015-AC-4 | `fetchServiceDiscovery(host)` issues a `GET` to `<origin>/.well-known/agentix-service.json` and returns the parsed document on a 2xx JSON response. | Test |
-| FR-015-AC-5 | A non-2xx status or transport error raises `DiscoveryFetchError`. | Test |
-| FR-015-AC-6 | A document missing a required field (e.g. `audience`) raises `DiscoverySchemaError` whose `missing` list names the offending field. | Test |
-| FR-015-AC-7 | A plain-`http` non-`dev.ix` host without `insecure` raises `DiscoveryInsecureError` **before** any network request is made. | Test |
+| ID          | Criteria                                                                                                                                                                                  | Verification |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-015-AC-1 | `normalizeHostOrigin("filament.dev.ix")` returns `"https://filament.dev.ix"`; a host with a path (`https://filament.dev.ix/login/device`) returns the same origin with the path stripped. | Test         |
+| FR-015-AC-2 | `normalizeHostOrigin("filament.dev.ix:8443")` preserves the port → `"https://filament.dev.ix:8443"`.                                                                                      | Test         |
+| FR-015-AC-3 | `http://example.com` is rejected with `DiscoveryInsecureError`; the same host with `insecure: true`, and any `http://*.dev.ix` host, are accepted.                                        | Test         |
+| FR-015-AC-4 | `fetchServiceDiscovery(host)` issues a `GET` to `<origin>/.well-known/agentix-service.json` and returns the parsed document on a 2xx JSON response.                                       | Test         |
+| FR-015-AC-5 | A non-2xx status or transport error raises `DiscoveryFetchError`.                                                                                                                         | Test         |
+| FR-015-AC-6 | A document missing a required field (e.g. `audience`) raises `DiscoverySchemaError` whose `missing` list names the offending field.                                                       | Test         |
+| FR-015-AC-7 | A plain-`http` non-`dev.ix` host without `insecure` raises `DiscoveryInsecureError` **before** any network request is made.                                                               | Test         |
 
 ## Dependencies
 

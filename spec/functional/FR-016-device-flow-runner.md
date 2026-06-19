@@ -69,16 +69,16 @@ network, or a browser. An `AbortSignal` MAY cancel polling.
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-016-AC-1 | With a mocked fetch returning `authorization_pending` then a token, `runDeviceFlow` returns a `TokenBundle` whose `accessToken`, `refreshToken`, `audience`, and `expiresAt` (= injected-now + `expires_in`·1000) match the token response. | Test |
-| FR-016-AC-2 | The authorize request body carries `client_id`, and the `audience`/`scope` derived from `discovery`. | Test |
-| FR-016-AC-3 | The injected `prompter.showVerification` is called exactly once with the `verificationUri` and `userCode` from the authorize response. | Test |
-| FR-016-AC-4 | A `slow_down` response increases the subsequent poll interval by exactly 5000 ms. | Test |
-| FR-016-AC-5 | An `access_denied` response raises `DeviceFlowError` with code `access_denied`; an `expired_token` response, and the `expires_in` deadline elapsing, both raise code `expired_token`. | Test |
-| FR-016-AC-6 | A non-2xx authorize response raises `DeviceFlowError` code `authorize_failed` and no polling occurs. | Test |
-| FR-016-AC-7 | A browser-open implementation that throws does NOT abort the flow; the runner still returns a token. | Test |
-| FR-016-AC-8 | When `verification_uri_complete` is present, it is the URL passed to the browser opener. | Test |
+| ID          | Criteria                                                                                                                                                                                                                                    | Verification |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-016-AC-1 | With a mocked fetch returning `authorization_pending` then a token, `runDeviceFlow` returns a `TokenBundle` whose `accessToken`, `refreshToken`, `audience`, and `expiresAt` (= injected-now + `expires_in`·1000) match the token response. | Test         |
+| FR-016-AC-2 | The authorize request body carries `client_id`, and the `audience`/`scope` derived from `discovery`.                                                                                                                                        | Test         |
+| FR-016-AC-3 | The injected `prompter.showVerification` is called exactly once with the `verificationUri` and `userCode` from the authorize response.                                                                                                      | Test         |
+| FR-016-AC-4 | A `slow_down` response increases the subsequent poll interval by exactly 5000 ms.                                                                                                                                                           | Test         |
+| FR-016-AC-5 | An `access_denied` response raises `DeviceFlowError` with code `access_denied`; an `expired_token` response, and the `expires_in` deadline elapsing, both raise code `expired_token`.                                                       | Test         |
+| FR-016-AC-6 | A non-2xx authorize response raises `DeviceFlowError` code `authorize_failed` and no polling occurs.                                                                                                                                        | Test         |
+| FR-016-AC-7 | A browser-open implementation that throws does NOT abort the flow; the runner still returns a token.                                                                                                                                        | Test         |
+| FR-016-AC-8 | When `verification_uri_complete` is present, it is the URL passed to the browser opener.                                                                                                                                                    | Test         |
 
 ## Dependencies
 

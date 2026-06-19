@@ -37,12 +37,12 @@ The adapter exposes:
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-019-AC-1 | `marketplaceInstallOptions` returns options whose `cacheRoot` is `<ix-cli-core cacheRoot()>/ts-plugin-kit` and that carry through the host-supplied target dir, registry path, `readName`, and materialize mode. | Test |
-| FR-019-AC-2 | `reconcileDefaultSet` reconciles a manifest's enabled entries into the target dir and returns the leaf library's installed/unchanged/updated/skipped result. | Test |
-| FR-019-AC-3 | `resolveOclifPluginInstall` returns `{ kind: "install" }` with an npm spec (including `@version` when present) for an `npm` source, and `{ kind: "link" }` with the resolved local path for every other (non-`npm`) source type — `github`, `git-subdir`, `git`, `url`, and `path` are all fetched + pinned by the leaf library and linked. | Test |
-| FR-019-AC-4 | ix-cli-core does not import `@oclif/plugin-plugins` and does not implement source fetching, pinning, or an install registry in its own `src/`; those are delegated to `@agent-ix/ts-plugin-kit`. | Test |
+| ID          | Criteria                                                                                                                                                                                                                                                                                                                                    | Verification |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-019-AC-1 | `marketplaceInstallOptions` returns options whose `cacheRoot` is `<ix-cli-core cacheRoot()>/ts-plugin-kit` and that carry through the host-supplied target dir, registry path, `readName`, and materialize mode.                                                                                                                            | Test         |
+| FR-019-AC-2 | `reconcileDefaultSet` reconciles a manifest's enabled entries into the target dir and returns the leaf library's installed/unchanged/updated/skipped result.                                                                                                                                                                                | Test         |
+| FR-019-AC-3 | `resolveOclifPluginInstall` returns `{ kind: "install" }` with an npm spec (including `@version` when present) for an `npm` source, and `{ kind: "link" }` with the resolved local path for every other (non-`npm`) source type — `github`, `git-subdir`, `git`, `url`, and `path` are all fetched + pinned by the leaf library and linked. | Test         |
+| FR-019-AC-4 | ix-cli-core does not import `@oclif/plugin-plugins` and does not implement source fetching, pinning, or an install registry in its own `src/`; those are delegated to `@agent-ix/ts-plugin-kit`.                                                                                                                                            | Test         |
 
 ## Dependencies
 

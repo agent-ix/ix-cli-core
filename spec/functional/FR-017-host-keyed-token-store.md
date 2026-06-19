@@ -91,16 +91,16 @@ SHALL NOT be written to the metadata store.
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-017-AC-1 | `save(hostA, …)` then `save(hostB, …)` yields independent `peekAccessToken` results; `clear(hostA)` removes hostA's tokens and leaves hostB's intact. | Test |
-| FR-017-AC-2 | After `save`, the metadata store contains only `{expiresAt, audience, scope}` and NOT the token value; the access token is retrievable from the secrets backend under the host-keyed `…auth-access-token-<slug>` id. | Test |
-| FR-017-AC-3 | `getAccessToken` returns the stored token with no `fetch` call when the token is outside the refresh-skew window. | Test |
-| FR-017-AC-4 | When the stored token is within the skew window and a refresh token is present, `getAccessToken` posts the `token_refresh_endpoint`, returns the refreshed access token, persists the rotated refresh token, and updates `expiresAt`. | Test |
-| FR-017-AC-5 | A refresh response without a new `refresh_token` preserves the previously stored refresh token. | Test |
-| FR-017-AC-6 | `getAccessToken` with no stored material throws `NotAuthenticatedError`; a failing refresh throws `TokenRefreshError`. | Test |
-| FR-017-AC-7 | `hostSlug(host)` always returns a string matching `^[a-z][a-z0-9-]*$` (valid `SecretId` name segment) for dotted hosts, hosts with ports, and hosts whose first character is non-alphabetic. | Test |
-| FR-017-AC-8 | `hostSlug` is injective — two distinct host authorities that collapse to the same readable form (e.g. `foo.bar.dev.ix` and `foo-bar.dev.ix`) produce different slugs, and is deterministic for the same host ([NFR-005-AC-2](../non-functional/NFR-005-auth-host-isolation-tls.md)). | Test |
+| ID          | Criteria                                                                                                                                                                                                                                                                             | Verification |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| FR-017-AC-1 | `save(hostA, …)` then `save(hostB, …)` yields independent `peekAccessToken` results; `clear(hostA)` removes hostA's tokens and leaves hostB's intact.                                                                                                                                | Test         |
+| FR-017-AC-2 | After `save`, the metadata store contains only `{expiresAt, audience, scope}` and NOT the token value; the access token is retrievable from the secrets backend under the host-keyed `…auth-access-token-<slug>` id.                                                                 | Test         |
+| FR-017-AC-3 | `getAccessToken` returns the stored token with no `fetch` call when the token is outside the refresh-skew window.                                                                                                                                                                    | Test         |
+| FR-017-AC-4 | When the stored token is within the skew window and a refresh token is present, `getAccessToken` posts the `token_refresh_endpoint`, returns the refreshed access token, persists the rotated refresh token, and updates `expiresAt`.                                                | Test         |
+| FR-017-AC-5 | A refresh response without a new `refresh_token` preserves the previously stored refresh token.                                                                                                                                                                                      | Test         |
+| FR-017-AC-6 | `getAccessToken` with no stored material throws `NotAuthenticatedError`; a failing refresh throws `TokenRefreshError`.                                                                                                                                                               | Test         |
+| FR-017-AC-7 | `hostSlug(host)` always returns a string matching `^[a-z][a-z0-9-]*$` (valid `SecretId` name segment) for dotted hosts, hosts with ports, and hosts whose first character is non-alphabetic.                                                                                         | Test         |
+| FR-017-AC-8 | `hostSlug` is injective — two distinct host authorities that collapse to the same readable form (e.g. `foo.bar.dev.ix` and `foo-bar.dev.ix`) produce different slugs, and is deterministic for the same host ([NFR-005-AC-2](../non-functional/NFR-005-auth-host-isolation-tls.md)). | Test         |
 
 ## Dependencies
 

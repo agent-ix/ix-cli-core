@@ -45,12 +45,12 @@ A wider mode on `secrets.key` voids [NFR-001](./NFR-001-no-plaintext-secrets.md)
 
 ## Measurement and Evaluation
 
-| Metric | Target | Threshold | Method |
-|--------|--------|-----------|--------|
-| Mode of a governed file created via `ConfigService.set` under `umask 0022` | `0o600` | `0o600` | Test (NFR-002-AC-1) |
-| Orphan `*.tmp.*` artifacts left after a failed rename | 0 | 0 | Test (NFR-002-AC-2) |
-| Wider-than-`0o600` or symlinked governed files loaded without refusal | 0 | 0 | Test (NFR-002-AC-3, NFR-002-AC-4) |
-| Direct `fs.writeFile`/`writeFileSync` writers outside the `atomicWrite` helper | 0 | 0 | Analysis (static grep, NFR-002-AC-5) |
+| Metric                                                                         | Target  | Threshold | Method                               |
+| ------------------------------------------------------------------------------ | ------- | --------- | ------------------------------------ |
+| Mode of a governed file created via `ConfigService.set` under `umask 0022`     | `0o600` | `0o600`   | Test (NFR-002-AC-1)                  |
+| Orphan `*.tmp.*` artifacts left after a failed rename                          | 0       | 0         | Test (NFR-002-AC-2)                  |
+| Wider-than-`0o600` or symlinked governed files loaded without refusal          | 0       | 0         | Test (NFR-002-AC-3, NFR-002-AC-4)    |
+| Direct `fs.writeFile`/`writeFileSync` writers outside the `atomicWrite` helper | 0       | 0         | Analysis (static grep, NFR-002-AC-5) |
 
 ## Acceptance Criteria
 

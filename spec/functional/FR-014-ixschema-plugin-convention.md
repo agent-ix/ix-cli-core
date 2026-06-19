@@ -30,15 +30,15 @@ otherwise a safe id derived from the package name.
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-014-AC-1 | `IxPluginSchema` is a small TypeScript type exported from `@agent-ix/ix-cli-core` containing optional `id` (safe config/secrets namespace), optional `config` (Zod object), optional `secrets` (secret declaration list), and optional `env` (string-to-string env-var binding map). | Test |
-| FR-014-AC-2 | Plugin packages export `ixSchema: IxPluginSchema` from their package main when they need any of those bindings. | Test |
-| FR-014-AC-3 | The host's `init` hook reads `Config.plugins`, dynamic imports each plugin's main, and calls `registerPluginSchema(plugin.name, mod.ixSchema)` when an `ixSchema` export exists. | Test |
-| FR-014-AC-4 | Config schemas must be strict (`z.object({...}).strict()`); non-strict schemas are rejected and the plugin's config is not registered. | Test |
-| FR-014-AC-5 | Secrets declarations are registered through the existing `SecretsService` registry using `<plugin-id>.<secret-name>`. | Test |
-| FR-014-AC-6 | A plugin with no `ixSchema` export is a valid oclif plugin — it contributes commands and nothing else. | Test |
-| FR-014-AC-7 | Capability declarations live on individual command classes (see [FR-013](./FR-013-capability-binding.md)), not on the `ixSchema` object. | Test |
+| ID          | Criteria                                                                                                                                                                                                                                                                             | Verification |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------ |
+| FR-014-AC-1 | `IxPluginSchema` is a small TypeScript type exported from `@agent-ix/ix-cli-core` containing optional `id` (safe config/secrets namespace), optional `config` (Zod object), optional `secrets` (secret declaration list), and optional `env` (string-to-string env-var binding map). | Test         |
+| FR-014-AC-2 | Plugin packages export `ixSchema: IxPluginSchema` from their package main when they need any of those bindings.                                                                                                                                                                      | Test         |
+| FR-014-AC-3 | The host's `init` hook reads `Config.plugins`, dynamic imports each plugin's main, and calls `registerPluginSchema(plugin.name, mod.ixSchema)` when an `ixSchema` export exists.                                                                                                     | Test         |
+| FR-014-AC-4 | Config schemas must be strict (`z.object({...}).strict()`); non-strict schemas are rejected and the plugin's config is not registered.                                                                                                                                               | Test         |
+| FR-014-AC-5 | Secrets declarations are registered through the existing `SecretsService` registry using `<plugin-id>.<secret-name>`.                                                                                                                                                                | Test         |
+| FR-014-AC-6 | A plugin with no `ixSchema` export is a valid oclif plugin — it contributes commands and nothing else.                                                                                                                                                                               | Test         |
+| FR-014-AC-7 | Capability declarations live on individual command classes (see [FR-013](./FR-013-capability-binding.md)), not on the `ixSchema` object.                                                                                                                                             | Test         |
 
 ## Dependencies
 

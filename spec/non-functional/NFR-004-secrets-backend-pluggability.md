@@ -55,12 +55,12 @@ Today's open question is "keyring vs Vault vs Bitwarden". The answer for v1 is k
 
 ## Measurement and Evaluation
 
-| Metric | Target | Threshold | Method |
-|--------|--------|-----------|--------|
-| Changes to `SecretsService` / consumers required to add a new conforming backend | 0 | 0 | Demonstration (in-test `MemoryBackend`, NFR-004-AC-1, NFR-004-AC-2) |
-| Imports of `secrets/backends/*` from outside `src/secrets/` | 0 | 0 | Analysis (static grep, NFR-004-AC-3) |
-| Duplicate-`id` backend registrations that succeed | 0 | 0 | Test (NFR-004-AC-4) |
-| Silent age-file fallback when `keyring` is pinned and the probe fails | 0 | 0 | Test (NFR-004-AC-5) |
+| Metric                                                                           | Target | Threshold | Method                                                              |
+| -------------------------------------------------------------------------------- | ------ | --------- | ------------------------------------------------------------------- |
+| Changes to `SecretsService` / consumers required to add a new conforming backend | 0      | 0         | Demonstration (in-test `MemoryBackend`, NFR-004-AC-1, NFR-004-AC-2) |
+| Imports of `secrets/backends/*` from outside `src/secrets/`                      | 0      | 0         | Analysis (static grep, NFR-004-AC-3)                                |
+| Duplicate-`id` backend registrations that succeed                                | 0      | 0         | Test (NFR-004-AC-4)                                                 |
+| Silent age-file fallback when `keyring` is pinned and the probe fails            | 0      | 0         | Test (NFR-004-AC-5)                                                 |
 
 ## Acceptance Criteria
 

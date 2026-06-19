@@ -39,17 +39,16 @@ Each plugin's persisted config MUST be physically isolated in its own YAML file 
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-002-AC-1 | Given a malformed `config.d/local.yaml` and a valid `config.d/elements.yaml`, calling `forPlugin('elements', S).get()` succeeds and returns the parsed value; calling `forPlugin('local', S).get()` returns `LocalSchema` defaults. | Test |
-| FR-002-AC-2 | After a defaulted load triggered by FR-002-AC-1, `forPlugin('local', S).set({...})` overwrites the malformed file with a valid serialization. | Test |
-| FR-002-AC-3 | `ConfigService.doctor()` returns one entry per failing file with `pluginId`, `filePath`, and a non-empty `errors[]` array; it does not throw. | Test |
-| FR-002-AC-4 | Two concurrent `set()` calls on the same plugin id are serialized — one returns first, the other waits for the lock — and both writes are persisted in order. | Test |
-| FR-002-AC-5 | Two concurrent `set()` calls on _different_ plugin ids both complete without lock contention. | Test |
-| FR-002-AC-6 | A lockfile owned by a non-running pid is reaped before a fresh acquisition; no operator intervention required. | Test |
-| FR-002-AC-7 | A `set()` that cannot acquire the lock within the configured timeout throws `ConfigLockTimeoutError` naming the plugin id and lockfile path. | Test |
+| ID          | Criteria                                                                                                                                                                                                                            | Verification |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-002-AC-1 | Given a malformed `config.d/local.yaml` and a valid `config.d/elements.yaml`, calling `forPlugin('elements', S).get()` succeeds and returns the parsed value; calling `forPlugin('local', S).get()` returns `LocalSchema` defaults. | Test         |
+| FR-002-AC-2 | After a defaulted load triggered by FR-002-AC-1, `forPlugin('local', S).set({...})` overwrites the malformed file with a valid serialization.                                                                                       | Test         |
+| FR-002-AC-3 | `ConfigService.doctor()` returns one entry per failing file with `pluginId`, `filePath`, and a non-empty `errors[]` array; it does not throw.                                                                                       | Test         |
+| FR-002-AC-4 | Two concurrent `set()` calls on the same plugin id are serialized — one returns first, the other waits for the lock — and both writes are persisted in order.                                                                       | Test         |
+| FR-002-AC-5 | Two concurrent `set()` calls on _different_ plugin ids both complete without lock contention.                                                                                                                                       | Test         |
+| FR-002-AC-6 | A lockfile owned by a non-running pid is reaped before a fresh acquisition; no operator intervention required.                                                                                                                      | Test         |
+| FR-002-AC-7 | A `set()` that cannot acquire the lock within the configured timeout throws `ConfigLockTimeoutError` naming the plugin id and lockfile path.                                                                                        | Test         |
 
 ## Dependencies
 
 - **Upstream**: [StR-001](../stakeholder/StR-001-pluggable-config-contract.md) (implements), [FR-001](./FR-001-config-service-api.md) (requires), [NFR-003](../non-functional/NFR-003-schema-error-ux.md) (requires)
-

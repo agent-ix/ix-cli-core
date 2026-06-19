@@ -20,14 +20,14 @@ file-backed secrets at command-run time.
 
 ## Acceptance Criteria
 
-| ID | Criteria | Verification |
-|----|----------|--------------|
-| FR-011-AC-1 | Every command extending `BaseCommand` accepts `--config-root <dir>` as a base flag and lists it in `--help`. | Test |
-| FR-011-AC-2 | Every such command honors `IX_CONFIG_ROOT` as the env-var alias. | Test |
-| FR-011-AC-3 | `--config-root` wins over `IX_CONFIG_ROOT`; the env variable wins over the XDG default (`~/.config/<bin>`). | Test |
-| FR-011-AC-4 | The selected config root applies to user config files (`<root>/config.yaml`, `<root>/config.d/<package>.yaml`) and to file-backed secrets (`<root>/secrets/<package>.age`). | Test |
-| FR-011-AC-5 | `--no-project-config` disables project config layering (`./.ix/config.yaml`). Default behavior layers project config above user config. | Test |
-| FR-011-AC-6 | A missing config root is created lazily only by write commands. Read commands operate from schema defaults without side-effecting the filesystem. | Test |
+| ID          | Criteria                                                                                                                                                                    | Verification |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| FR-011-AC-1 | Every command extending `BaseCommand` accepts `--config-root <dir>` as a base flag and lists it in `--help`.                                                                | Test         |
+| FR-011-AC-2 | Every such command honors `IX_CONFIG_ROOT` as the env-var alias.                                                                                                            | Test         |
+| FR-011-AC-3 | `--config-root` wins over `IX_CONFIG_ROOT`; the env variable wins over the XDG default (`~/.config/<bin>`).                                                                 | Test         |
+| FR-011-AC-4 | The selected config root applies to user config files (`<root>/config.yaml`, `<root>/config.d/<package>.yaml`) and to file-backed secrets (`<root>/secrets/<package>.age`). | Test         |
+| FR-011-AC-5 | `--no-project-config` disables project config layering (`./.ix/config.yaml`). Default behavior layers project config above user config.                                     | Test         |
+| FR-011-AC-6 | A missing config root is created lazily only by write commands. Read commands operate from schema defaults without side-effecting the filesystem.                           | Test         |
 
 ## Dependencies
 

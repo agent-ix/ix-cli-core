@@ -39,11 +39,11 @@ Filesystem permissions (`0o600`) alone are not adequate protection: backups, syn
 
 ## Measurement and Evaluation
 
-| Metric | Target | Threshold | Method |
-|--------|--------|-----------|--------|
-| Source call sites flowing a `SecretsService.get` value into a plaintext persistence channel outside `src/secrets/backends/` | 0 | 0 | Analysis (static dataflow scan, NFR-001-AC-1) |
-| Plaintext secret substring present in `secrets.d/<plugin>.age` or `secrets.key` after a round-trip | 0 | 0 | Test (leak scan, NFR-001-AC-2) |
-| Plaintext on-disk secret artifacts after `secrets set` on either backend path | 0 | 0 | Test (integration, NFR-001-AC-3) |
+| Metric                                                                                                                      | Target | Threshold | Method                                        |
+| --------------------------------------------------------------------------------------------------------------------------- | ------ | --------- | --------------------------------------------- |
+| Source call sites flowing a `SecretsService.get` value into a plaintext persistence channel outside `src/secrets/backends/` | 0      | 0         | Analysis (static dataflow scan, NFR-001-AC-1) |
+| Plaintext secret substring present in `secrets.d/<plugin>.age` or `secrets.key` after a round-trip                          | 0      | 0         | Test (leak scan, NFR-001-AC-2)                |
+| Plaintext on-disk secret artifacts after `secrets set` on either backend path                                               | 0      | 0         | Test (integration, NFR-001-AC-3)              |
 
 ## Acceptance Criteria
 
