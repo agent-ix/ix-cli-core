@@ -200,6 +200,13 @@ export {
   type SecretsCommandDeps,
 } from "./commands/secrets.js";
 
+// ── Generic self-update for npm-distributed IX CLIs ──────────────────────
+export {
+  runSelfUpdate,
+  type SelfUpdateOptions,
+  type SelfUpdateResult,
+} from "./commands/self-update.js";
+
 // ── Auth engine (FR-015..FR-018) ─────────────────────────────────────────
 // Generic, service-agnostic device-flow login: discovery client, runner,
 // host-keyed token store, and a non-fatal browser opener. Service identity
