@@ -8,7 +8,7 @@ relationships:
     type: "implements"
     cardinality: "1:1"
   - target: "ix://agent-ix/ix-cli-core/spec/functional/FR-016"
-    type: "required-by"
+    type: "required_by"
     cardinality: "1:1"
 ---
 
