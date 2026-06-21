@@ -4,13 +4,13 @@ title: "Schema Validation Errors Are Actionable"
 type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-001"
-    type: "implements"
+    type: "traces_to"
     cardinality: "1:1"
   - target: "ix://agent-ix/ix-cli-core/spec/functional/FR-001"
-    type: "requires"
+    type: "depends_on"
     cardinality: "1:1"
   - target: "ix://agent-ix/ix-cli-core/spec/functional/FR-008"
-    type: "requires"
+    type: "depends_on"
     cardinality: "1:1"
 ---
 

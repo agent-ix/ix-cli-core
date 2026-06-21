@@ -4,13 +4,13 @@ title: "Safe Agent-Bootstrap Boundaries"
 type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-003"
-    type: "implements"
+    type: "traces_to"
     cardinality: "1:1"
   - target: "ix://agent-ix/ix-cli-core/spec/functional/FR-020"
-    type: "requires"
+    type: "depends_on"
     cardinality: "1:1"
   - target: "ix://agent-ix/ix-cli-core/spec/functional/FR-021"
-    type: "requires"
+    type: "depends_on"
     cardinality: "1:1"
 ---
 

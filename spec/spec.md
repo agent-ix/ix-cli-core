@@ -13,7 +13,7 @@ implementation_language: typescript
 depends_on: []
 relationships:
   - target: "ix://agent-ix/ix-cli"
-    type: "consumed-by"
+    type: "consumed_by"
     cardinality: "1:N"
 
 standards_alignment:

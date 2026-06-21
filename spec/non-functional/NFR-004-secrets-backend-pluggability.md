@@ -4,10 +4,10 @@ title: "Secrets Backend Adapter Pluggability"
 type: NFR
 relationships:
   - target: "ix://agent-ix/ix-cli-core/spec/stakeholder/StR-002"
-    type: "implements"
+    type: "traces_to"
     cardinality: "1:1"
   - target: "ix://agent-ix/ix-cli-core/spec/functional/FR-005"
-    type: "requires"
+    type: "depends_on"
     cardinality: "1:1"
 ---
 
