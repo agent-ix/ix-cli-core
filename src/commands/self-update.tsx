@@ -1,6 +1,11 @@
 import { spawn } from "node:child_process";
+import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join } from "node:path";
 
 import type * as IxUiCli from "@agent-ix/ix-ui-cli";
+
+import { cacheRoot } from "../config/paths.js";
+import { defaultConfirm } from "../runtime/agent.js";
 
 let _ixUi: typeof IxUiCli | undefined;
 async function loadIxUi(): Promise<typeof IxUiCli> {
@@ -203,4 +208,168 @@ export async function runSelfUpdate(
     />,
   );
   return { updated: true, latest };
+}
+
+// ── Update notifier ────────────────────────────────────────────────────────
+
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+export interface UpdateNotifierOptions {
+  /** npm package name, e.g. `@agent-ix/quoin`. */
+  packageName: string;
+  /** Currently-running version. */
+  currentVersion: string;
+  /** Registry override; defaults like {@link runSelfUpdate} to the ambient config. */
+  registry?: string;
+  /** Whether to prompt. Default: stdin and stdout are both TTYs. */
+  interactive?: boolean;
+  /** Throttle window between registry checks. Default 24h. */
+  ttlMs?: number;
+  /** Cache file path. Default `<cacheRoot>/update-check.json`. */
+  cachePath?: string;
+  /** Clock injection for tests. Default `Date.now`. */
+  now?: () => number;
+  /** Environment injection for tests. Default `process.env`. */
+  env?: NodeJS.ProcessEnv;
+  /** `[Y/n]` confirm (Enter = yes). Default {@link defaultConfirm}. */
+  confirm?: (question: string) => boolean;
+}
+
+export interface UpdateNotifierResult {
+  /** True when the registry was actually queried this run. */
+  checked: boolean;
+  /** Why the check was skipped, when `checked` is false. */
+  reason?: "ci" | "opted-out" | "non-interactive" | "throttled" | "error";
+  /** Latest published version, when checked. */
+  latest?: string;
+  /** True when `latest` is newer than the running version. */
+  updateAvailable?: boolean;
+  /** True when the user accepted and the install succeeded. */
+  updated?: boolean;
+}
+
+interface UpdateCacheEntry {
+  lastCheck: number;
+  latest: string;
+}
+type UpdateCache = Record<string, UpdateCacheEntry>;
+
+function parseCore(v: string): [number, number, number] | null {
+  const m = /^(\d+)\.(\d+)\.(\d+)/.exec(v.trim());
+  return m ? [Number(m[1]), Number(m[2]), Number(m[3])] : null;
+}
+
+/** True when `latest` is strictly newer than `current` by numeric major.minor.patch.
+ * Pre-release/`-dirty` suffixes are ignored (equal cores → not newer), and an
+ * unparseable version is treated conservatively as "not newer" (no prompt). */
+function isNewer(latest: string, current: string): boolean {
+  const a = parseCore(latest);
+  const b = parseCore(current);
+  if (!a || !b) return false;
+  for (let i = 0; i < 3; i++) {
+    if (a[i] !== b[i]) return a[i] > b[i];
+  }
+  return false;
+}
+
+function readCache(path: string): UpdateCache {
+  try {
+    const data: unknown = JSON.parse(readFileSync(path, "utf8"));
+    return data && typeof data === "object" ? (data as UpdateCache) : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeCache(path: string, cache: UpdateCache): void {
+  try {
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, JSON.stringify(cache));
+  } catch {
+    // Best-effort throttle; never break the host CLI over a cache write.
+  }
+}
+
+/**
+ * Best-effort "a newer version is available — update?" check for a host CLI to
+ * call early in its dispatch. Designed to never throw into or block the host:
+ * it self-skips in CI, when opted out (`NO_UPDATE_NOTIFIER`), when
+ * non-interactive, or within the throttle window, and swallows any
+ * registry/cache failure. When a newer version exists and we're interactive, it
+ * prompts `[Y/n]` (Enter = yes) and, on accept, delegates to
+ * {@link runSelfUpdate}.
+ */
+export async function maybeOfferUpdate(
+  opts: UpdateNotifierOptions,
+): Promise<UpdateNotifierResult> {
+  const env = opts.env ?? process.env;
+  const now = opts.now ?? Date.now;
+  const ttlMs = opts.ttlMs ?? DAY_MS;
+  const interactive =
+    opts.interactive ??
+    (Boolean(process.stdout.isTTY) && Boolean(process.stdin.isTTY));
+
+  if (env.CI) return { checked: false, reason: "ci" };
+  if (env.NO_UPDATE_NOTIFIER) return { checked: false, reason: "opted-out" };
+  if (!interactive) return { checked: false, reason: "non-interactive" };
+
+  try {
+    const cachePath = opts.cachePath ?? join(cacheRoot(), "update-check.json");
+    const cache = readCache(cachePath);
+    const prev = cache[opts.packageName];
+    if (prev && now() - prev.lastCheck < ttlMs) {
+      return { checked: false, reason: "throttled" };
+    }
+
+    let latest: string;
+    try {
+      latest = await spawnCapture("npm", [
+        "view",
+        opts.packageName,
+        "version",
+        ...registryArgs(opts.packageName, opts.registry),
+      ]);
+    } catch {
+      // Throttle even on failure so a flaky/unreachable registry isn't queried
+      // on every invocation; keep any previously-known latest.
+      writeCache(cachePath, {
+        ...cache,
+        [opts.packageName]: { lastCheck: now(), latest: prev?.latest ?? "" },
+      });
+      return { checked: false, reason: "error" };
+    }
+
+    writeCache(cachePath, {
+      ...cache,
+      [opts.packageName]: { lastCheck: now(), latest },
+    });
+
+    if (!isNewer(latest, opts.currentVersion)) {
+      return { checked: true, latest, updateAvailable: false };
+    }
+
+    const confirm = opts.confirm ?? defaultConfirm;
+    const accepted = confirm(
+      `Update available: ${opts.packageName} ${opts.currentVersion} → ${latest}. Update now?`,
+    );
+    if (!accepted) {
+      return { checked: true, latest, updateAvailable: true, updated: false };
+    }
+
+    const result = await runSelfUpdate({
+      packageName: opts.packageName,
+      currentVersion: opts.currentVersion,
+      registry: opts.registry,
+    });
+    return {
+      checked: true,
+      latest,
+      updateAvailable: true,
+      updated: result.updated,
+    };
+  } catch {
+    // Any unexpected failure (cache root resolution, install render, etc.) must
+    // never break the host CLI.
+    return { checked: false, reason: "error" };
+  }
 }
