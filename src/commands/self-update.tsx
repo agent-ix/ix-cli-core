@@ -356,17 +356,20 @@ export async function maybeOfferUpdate(
       return { checked: true, latest, updateAvailable: true, updated: false };
     }
 
-    const result = await runSelfUpdate({
-      packageName: opts.packageName,
-      currentVersion: opts.currentVersion,
-      registry: opts.registry,
-    });
-    return {
-      checked: true,
-      latest,
-      updateAvailable: true,
-      updated: result.updated,
-    };
+    let updated = false;
+    try {
+      const result = await runSelfUpdate({
+        packageName: opts.packageName,
+        currentVersion: opts.currentVersion,
+        registry: opts.registry,
+      });
+      updated = result.updated;
+    } catch {
+      // runSelfUpdate already rendered the failure; report the offer was made
+      // but the install did not complete (rather than a generic skip).
+      updated = false;
+    }
+    return { checked: true, latest, updateAvailable: true, updated };
   } catch {
     // Any unexpected failure (cache root resolution, install render, etc.) must
     // never break the host CLI.

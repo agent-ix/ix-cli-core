@@ -127,6 +127,19 @@ describe("maybeOfferUpdate — checks", () => {
     expect(spawnCalls.at(-1)!.args).toEqual(["install", "-g", `${PKG}@0.5.1`]);
   });
 
+  it("reports updated:false when the user accepts but the install fails", async () => {
+    // notifier view → ok; runSelfUpdate view → ok; install → non-zero (throws).
+    spawnQueue = [{ stdout: "0.5.1" }, { stdout: "0.5.1" }, { code: 1 }];
+    const r = await maybeOfferUpdate(opts({ confirm: () => true }));
+    expect(r).toEqual({
+      checked: true,
+      latest: "0.5.1",
+      updateAvailable: true,
+      updated: false,
+    });
+    expect(spawnCalls.at(-1)!.args).toEqual(["install", "-g", `${PKG}@0.5.1`]);
+  });
+
   it("reports availability but does not install when the user declines", async () => {
     spawnQueue = [{ stdout: "0.5.1" }];
     const r = await maybeOfferUpdate(opts({ confirm: () => false }));
