@@ -205,6 +205,9 @@ export {
   runSelfUpdate,
   type SelfUpdateOptions,
   type SelfUpdateResult,
+  maybeOfferUpdate,
+  type UpdateNotifierOptions,
+  type UpdateNotifierResult,
 } from "./commands/self-update.js";
 
 // ── Auth engine (FR-015..FR-018) ─────────────────────────────────────────

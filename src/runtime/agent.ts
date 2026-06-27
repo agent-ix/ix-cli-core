@@ -270,7 +270,9 @@ function readLineSync(): string {
   return Buffer.from(bytes).toString("utf8");
 }
 
-function defaultConfirm(question: string): boolean {
+/** Synchronous `[Y/n]` confirm (Enter = yes). Shared by the agent chooser and
+ * the update notifier so both prompt identically. */
+export function defaultConfirm(question: string): boolean {
   process.stdout.write(`${question} [Y/n] `);
   return parseConfirmAnswer(readLineSync());
 }
