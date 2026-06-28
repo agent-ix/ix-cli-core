@@ -61,6 +61,11 @@ export abstract class BaseCommand extends Command {
       projectConfigRoot: noProject ? undefined : join(process.cwd(), ".ix"),
       projectConfigEnabled: noProject !== true,
     });
+    // Enforce declared capability requirements as part of the oclif lifecycle
+    // so the runner (FR-015) short-circuits commands whose required
+    // capabilities are unavailable before `run()` executes. `prerun()` is a
+    // no-op for commands that declare no capabilities.
+    await this.prerun();
   }
 
   public async prerun(): Promise<void> {

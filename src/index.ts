@@ -62,6 +62,19 @@ export {
 export { BaseCommand } from "./commands/base-command.js";
 export type { CommandCapabilities } from "./runtime/capability-spec.js";
 
+// ── oclif runner + core-plugin host (FR-015) ───────────────────────────
+// Lets a consuming CLI (quoin) run BaseCommand subclasses and commands
+// contributed by packages declared as oclif core plugins via a single
+// `import { run } from "@agent-ix/ix-cli-core"; run()` entry point.
+export {
+  run,
+  execute,
+  loadConfig,
+  listCorePlugins,
+  type RunnerLoadOptions,
+  type CorePluginInfo,
+} from "./runtime/runner.js";
+
 // ── Marketplace adapter over @agent-ix/ts-plugin-kit (FR-019) ──────────
 // Thin wiring: ix-cli-core adapts the external marketplace library (cache
 // layout + oclif command-plugin bridge); it does NOT implement an installer.
