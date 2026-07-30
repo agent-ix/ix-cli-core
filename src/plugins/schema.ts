@@ -7,7 +7,7 @@ import type { SecretDeclaration } from "../secrets/types.js";
 
 /**
  * Convention shape exposed by an IX-compatible plugin from its package
- * main as the named export `ixSchema`. See FR-025.
+ * main as the named export `ixSchema`. See FR-014.
  *
  * The host's `init` hook walks the oclif-loaded plugin list, reads each
  * plugin's `ixSchema`, and registers schemas with `ConfigService` /

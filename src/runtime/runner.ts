@@ -6,7 +6,7 @@ import {
 } from "@oclif/core";
 
 /**
- * oclif runner + core-plugin host for IX CLIs (FR-015).
+ * oclif runner + core-plugin host for IX CLIs (FR-025).
  *
  * A consuming binary (e.g. quoin) ships a thin `bin` script that simply
  * delegates to this runner:

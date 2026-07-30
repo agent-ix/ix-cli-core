@@ -47,7 +47,7 @@ export {
   type ConfigIncident,
 } from "./config/registry.js";
 
-// ── ixSchema plugin convention (FR-025 revised) ────────────────────────
+// ── ixSchema plugin convention (FR-014) ───────────────────────────────
 export {
   registerPluginSchema,
   getRegisteredPluginSchema,
@@ -62,7 +62,7 @@ export {
 export { BaseCommand } from "./commands/base-command.js";
 export type { CommandCapabilities } from "./runtime/capability-spec.js";
 
-// ── oclif runner + core-plugin host (FR-015) ───────────────────────────
+// ── oclif runner + core-plugin host (FR-025) ───────────────────────────
 // Lets a consuming CLI (quoin) run BaseCommand subclasses and commands
 // contributed by packages declared as oclif core plugins via a single
 // `import { run } from "@agent-ix/ix-cli-core"; run()` entry point.

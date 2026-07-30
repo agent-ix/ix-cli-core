@@ -153,7 +153,7 @@ afterAll(() => {
   if (tmp) rmSync(tmp, { recursive: true, force: true });
 });
 
-describe("oclif runner + core-plugin host (FR-015 / TC-015)", () => {
+describe("oclif runner + core-plugin host (FR-025)", () => {
   it("discovers the host commands AND the core-plugin's commands", async () => {
     const config = await loadConfig({ root: tmp });
 
@@ -194,5 +194,24 @@ describe("oclif runner + core-plugin host (FR-015 / TC-015)", () => {
     // with no provider registered, `github` is unavailable and the command
     // must error before its run() body executes.
     await expect(run(["guarded"], config)).rejects.toThrow();
+  });
+
+  it("lists core plugins without the root host plugin", async () => {
+    const config = await loadConfig({ root: tmp });
+    const core = listCorePlugins(config);
+
+    // The host itself is a plugin in oclif's graph; a core-plugin listing that
+    // included it would misreport the host as one of its own dependencies.
+    expect(core.map((p) => p.name)).toEqual(["@ixcc-fixture/hello-plugin"]);
+    expect(core.every((p) => p.type === "core")).toBe(true);
+    expect(config.plugins.size).toBeGreaterThan(core.length);
+  });
+
+  it("rejects on a command error rather than exiting the process", async () => {
+    const config = await loadConfig({ root: tmp });
+    // run() must be safe to drive from a test: a failure surfaces as a
+    // rejection the caller can catch, never as a process.exit that would take
+    // the test runner down with it.
+    await expect(run(["no-such-command"], config)).rejects.toThrow();
   });
 });
