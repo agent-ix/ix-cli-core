@@ -1,6 +1,9 @@
 minimumReleaseAge: 14400
 minimumReleaseAgeExclude:
   - "@agent-ix/*"
+  # Security patch needed sooner than the 4h soak: 5.0.8 fixes the two high
+  # brace-expansion DoS advisories that reach us through @oclif/core.
+  - "brace-expansion"
 
 updateConfig:
   ignoreDependencies:
