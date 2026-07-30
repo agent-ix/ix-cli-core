@@ -29,7 +29,7 @@ afterEach(() => {
   _resetPluginSchemaRegistryForTests();
 });
 
-describe("registerPluginSchema — FR-025 oclif ixSchema convention", () => {
+describe("registerPluginSchema — FR-014 ixSchema plugin convention", () => {
   it("registers ixSchema config and secrets into the runtime registries", () => {
     const result = registerPluginSchema("@agent-ix/workflow-cli-plugin", {
       id: "workflow",

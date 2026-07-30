@@ -31,3 +31,5 @@ description: "Index of artifacts in this directory."
 - [FR-021: Bootstrap Into Preferred Agent](./FR-021-bootstrap-into-agent.md)
 - [FR-022: Preferred-Agent Config and Interactive Chooser](./FR-022-agent-config-chooser.md)
 - [FR-023: Self-Update Helper](./FR-023-self-update-helper.md)
+- [FR-024: Update Notifier](./FR-024-update-notifier.md)
+- [FR-025: oclif Runner and Core-Plugin Host](./FR-025-oclif-runner-host.md)

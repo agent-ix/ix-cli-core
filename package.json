@@ -42,16 +42,13 @@
     "@agent-ix/ts-plugin-kit": ">=0.1.3",
     "@clack/prompts": ">=1.5.1",
     "@napi-rs/keyring": ">=1.3.0",
+    "@oclif/core": ">=4.11.4",
     "age-encryption": ">=0.3.0",
     "react": ">=19.2.7",
     "yaml": ">=2.9.0",
     "zod": ">=4.4.3"
   },
-  "peerDependencies": {
-    "@oclif/core": ">=4.11.4"
-  },
   "devDependencies": {
-    "@oclif/core": ">=4.11.4",
     "@types/node": ">=25.9.2",
     "@types/react": ">=19.2.17",
     "@typescript-eslint/eslint-plugin": ">=8.60.1",
