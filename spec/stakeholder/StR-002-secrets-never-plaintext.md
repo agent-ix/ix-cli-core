@@ -32,8 +32,12 @@ Must-Have
 
 ## Validation Criteria
 
-- **StR-002-AC-1**: No secret value managed by `SecretsService` is ever persisted to disk in unencrypted form. Keyring entries are protected by the OS; the file fallback is protected by an age-encrypted blob.
-- **StR-002-AC-2**: When the OS keyring is available (capability probe succeeds), all secret writes target the keyring; the fallback file is never created.
-- **StR-002-AC-3**: When the keyring is unavailable, secrets are stored per-plugin under `<config-root>/secrets.d/<plugin-id>.age`; corruption of one file does not affect secrets stored under a different plugin id.
-- **StR-002-AC-4**: Secret ids are namespaced as `<plugin-id>.<secret-name>`; the API does not permit a plugin to read another plugin's secret without explicitly naming it.
-- **StR-002-AC-5**: The `SecretsService` accepts additional backend adapters (Vault, 1Password, Bitwarden) via a typed interface without changes to consumer code; v1 ships keyring + age-file only.
+
+| ID | Criteria | Validation |
+|----|----------|------------|
+| StR-002-VC-1 | **StR-002-AC-1**: No secret value managed by `SecretsService` is ever persisted to disk in unencrypted form. Keyring entries are protected by the OS; the file fallback is protected by an age-encrypted blob. | Demonstration |
+| StR-002-VC-2 | **StR-002-AC-2**: When the OS keyring is available (capability probe succeeds), all secret writes target the keyring; the fallback file is never created. | Demonstration |
+| StR-002-VC-3 | **StR-002-AC-3**: When the keyring is unavailable, secrets are stored per-plugin under `<config-root>/secrets.d/<plugin-id>.age`; corruption of one file does not affect secrets stored under a different plugin id. | Inspection |
+| StR-002-VC-4 | **StR-002-AC-4**: Secret ids are namespaced as `<plugin-id>.<secret-name>`; the API does not permit a plugin to read another plugin's secret without explicitly naming it. | Demonstration |
+| StR-002-VC-5 | **StR-002-AC-5**: The `SecretsService` accepts additional backend adapters (Vault, 1Password, Bitwarden) via a typed interface without changes to consumer code; v1 ships keyring + age-file only. | Demonstration |
+

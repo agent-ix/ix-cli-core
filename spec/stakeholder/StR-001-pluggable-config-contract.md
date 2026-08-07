@@ -31,8 +31,12 @@ Must-Have
 
 ## Validation Criteria
 
-- **StR-001-AC-1**: A single `ConfigService` API in `@agent-ix/ix-cli-core` is the only sanctioned way to read or write persistent CLI configuration; every consuming package and binary uses it exclusively.
-- **StR-001-AC-2**: A plugin declares its config shape via an optional `config` schema on its `ixSchema` export; the framework validates writes against that schema and rejects unknown keys.
-- **StR-001-AC-3**: Each plugin's persisted config lives in its own file under `<config-root>/`. Third-party and first-party plugins use `<config-root>/config.d/<plugin-id>.yaml`; the reserved `core` plugin (owned by the host binary) uses `<config-root>/config.yaml`. The same per-file isolation guarantees apply to both paths.
-- **StR-001-AC-4**: A parse or validation error in one plugin's config file SHALL NOT prevent any other plugin from loading; the affected plugin falls back to schema defaults and the error is surfaced via `config doctor`.
-- **StR-001-AC-5**: `config get/set/edit/doctor` commands operate uniformly across all registered plugins with no per-plugin command code.
+
+| ID | Criteria | Validation |
+|----|----------|------------|
+| StR-001-VC-1 | **StR-001-AC-1**: A single `ConfigService` API in `@agent-ix/ix-cli-core` is the only sanctioned way to read or write persistent CLI configuration; every consuming package and binary uses it exclusively. | Demonstration |
+| StR-001-VC-2 | **StR-001-AC-2**: A plugin declares its config shape via an optional `config` schema on its `ixSchema` export; the framework validates writes against that schema and rejects unknown keys. | Inspection |
+| StR-001-VC-3 | **StR-001-AC-3**: Each plugin's persisted config lives in its own file under `<config-root>/`. Third-party and first-party plugins use `<config-root>/config.d/<plugin-id>.yaml`; the reserved `core` plugin (owned by the host binary) uses `<config-root>/config.yaml`. The same per-file isolation guarantees apply to both paths. | Inspection |
+| StR-001-VC-4 | **StR-001-AC-4**: A parse or validation error in one plugin's config file SHALL NOT prevent any other plugin from loading; the affected plugin falls back to schema defaults and the error is surfaced via `config doctor`. | Inspection |
+| StR-001-VC-5 | **StR-001-AC-5**: `config get/set/edit/doctor` commands operate uniformly across all registered plugins with no per-plugin command code. | Inspection |
+
