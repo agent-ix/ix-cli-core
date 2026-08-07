@@ -64,11 +64,14 @@ Today's open question is "keyring vs Vault vs Bitwarden". The answer for v1 is k
 
 ## Acceptance Criteria
 
-- **NFR-004-AC-1**: A test harness defines a `MemoryBackend` satisfying `SecretsBackend`, registers it via the backends map, sets `core.secretsBackend = "memory"`, and exercises `set/get/delete/list/which` end-to-end without any change to `SecretsService` or its consumers.
-- **NFR-004-AC-2**: Consumers compile and pass tests against the unchanged `SecretsService` API when `core.secretsBackend` switches between `keyring` and `age-file`.
-- **NFR-004-AC-3**: A static grep SHALL find zero imports of `secrets/backends/*` from outside `src/secrets/`.
-- **NFR-004-AC-4**: Registering two backends with the same `id` throws on the second registration; the first remains active.
-- **NFR-004-AC-5**: With `core.secretsBackend = "keyring"` pinned and the probe failing, every `SecretsService` operation throws `KeyringUnavailableError` (no silent fallback to age-file).
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-004-AC-1 | A test harness defines a `MemoryBackend` satisfying `SecretsBackend`, registers it via the backends map, sets `core.secretsBackend = "memory"`, and exercises `set/get/delete/list/which` end-to-end without any change to `SecretsService` or its consumers. | Test |
+| NFR-004-AC-2 | Consumers compile and pass tests against the unchanged `SecretsService` API when `core.secretsBackend` switches between `keyring` and `age-file`. | Demonstration |
+| NFR-004-AC-3 | A static grep SHALL find zero imports of `secrets/backends/*` from outside `src/secrets/`. | Inspection |
+| NFR-004-AC-4 | Registering two backends with the same `id` throws on the second registration; the first remains active. | Analysis |
+| NFR-004-AC-5 | With `core.secretsBackend = "keyring"` pinned and the probe failing, every `SecretsService` operation throws `KeyringUnavailableError` (no silent fallback to age-file). | Demonstration |
 
 ## Verification
 

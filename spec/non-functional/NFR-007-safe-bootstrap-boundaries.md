@@ -54,18 +54,14 @@ injection vector.
 
 ## Acceptance Criteria
 
-- **NFR-007-AC-1**: With either stream non-TTY, `bootstrapIntoAgent` spawns
-  nothing and returns `false`.
-- **NFR-007-AC-2**: With any agent marker or `IX_AGENT_BOOTSTRAPPED` set,
-  `bootstrapIntoAgent` spawns nothing (cross-checked by
-  [FR-021-AC-3](../functional/FR-021-bootstrap-into-agent.md)).
-- **NFR-007-AC-3**: With `IX_NO_AUTO_AGENT` truthy or `mode === "off"`,
-  `bootstrapIntoAgent` spawns nothing.
-- **NFR-007-AC-4**: A spawn `ENOENT` leaves the process alive (no `exit`),
-  returns `false`, and logs a hint (cross-checked by
-  [FR-021-AC-8](../functional/FR-021-bootstrap-into-agent.md)).
-- **NFR-007-AC-5**: A static read of `src/runtime/agent.ts` finds the launch uses
-  `spawnSync` with an argv array and never `shell: true` / a shell string.
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-007-AC-1 | With either stream non-TTY, `bootstrapIntoAgent` spawns nothing and returns `false`. | Demonstration |
+| NFR-007-AC-2 | With any agent marker or `IX_AGENT_BOOTSTRAPPED` set, `bootstrapIntoAgent` spawns nothing (cross-checked by [FR-021-AC-3](../functional/FR-021-bootstrap-into-agent.md)). | Demonstration |
+| NFR-007-AC-3 | With `IX_NO_AUTO_AGENT` truthy or `mode === "off"`, `bootstrapIntoAgent` spawns nothing. | Demonstration |
+| NFR-007-AC-4 | A spawn `ENOENT` leaves the process alive (no `exit`), returns `false`, and logs a hint (cross-checked by [FR-021-AC-8](../functional/FR-021-bootstrap-into-agent.md)). | Demonstration |
+| NFR-007-AC-5 | A static read of `src/runtime/agent.ts` finds the launch uses `spawnSync` with an argv array and never `shell: true` / a shell string. | Inspection |
 
 ## Verification
 
