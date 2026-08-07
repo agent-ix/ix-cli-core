@@ -51,23 +51,15 @@ Must-Have
 
 ## Validation Criteria
 
-- **StR-003-AC-1**: A generic CLI can depend on `@agent-ix/ix-cli-core`,
-  declare its plugin set in `oclif.plugins`, and ship without depending on
-  any IX service.
-- **StR-003-AC-2**: An IX-connected CLI uses the same library plus IX service
-  client plugins; no separate runtime exists.
-- **StR-003-AC-3**: The main `ix` CLI is an oclif binary whose `oclif.plugins`
-  lists the official Agent IX plugin packages.
-- **StR-003-AC-4**: Plugin config, secrets, and env bindings are exposed
-  through the `ixSchema` named export convention and registered by the
-  host's `init` hook.
-- **StR-003-AC-5**: Per-command capability requirements are declared as a
-  static field on the command class and enforced by `BaseCommand.prerun`.
-- **StR-003-AC-6**: ix-cli-core exposes a thin adapter over
-  `@agent-ix/ts-plugin-kit` (`marketplaceInstallOptions`,
-  `reconcileDefaultSet`, `resolveOclifPluginInstall`) for acquiring data
-  plugins and bridging them to oclif; the fetch/pin/registry mechanism lives
-  in the leaf library, not in ix-cli-core (see [FR-019](../functional/FR-019-marketplace-adapter.md)).
+
+| ID | Criteria | Validation |
+|----|----------|------------|
+| StR-003-VC-1 | **StR-003-AC-1**: A generic CLI can depend on `@agent-ix/ix-cli-core`, declare its plugin set in `oclif.plugins`, and ship without depending on any IX service. | Demonstration |
+| StR-003-VC-2 | **StR-003-AC-2**: An IX-connected CLI uses the same library plus IX service client plugins; no separate runtime exists. | Demonstration |
+| StR-003-VC-3 | **StR-003-AC-3**: The main `ix` CLI is an oclif binary whose `oclif.plugins` lists the official Agent IX plugin packages. | Demonstration |
+| StR-003-VC-4 | **StR-003-AC-4**: Plugin config, secrets, and env bindings are exposed through the `ixSchema` named export convention and registered by the host's `init` hook. | Inspection |
+| StR-003-VC-5 | **StR-003-AC-5**: Per-command capability requirements are declared as a static field on the command class and enforced by `BaseCommand.prerun`. | Inspection |
+| StR-003-VC-6 | **StR-003-AC-6**: ix-cli-core exposes a thin adapter over `@agent-ix/ts-plugin-kit` (`marketplaceInstallOptions`, `reconcileDefaultSet`, `resolveOclifPluginInstall`) for acquiring data plugins and bridging them to oclif; the fetch/pin/registry mechanism lives in the leaf library, not in ix-cli-core (see [FR-019](../functional/FR-019-marketplace-adapter.md)). | Demonstration |
 
 ## Non-goals
 
