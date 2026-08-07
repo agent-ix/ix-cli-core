@@ -46,12 +46,11 @@ them anywhere else would silently break that guarantee.
 
 ## Acceptance Criteria
 
-- **NFR-006-AC-1**: A unit test SHALL `save` a bundle, then assert the token
-  value is retrievable from the secrets backend under the host-keyed access
-  `SecretId` and is **absent** from the serialized metadata store.
-- **NFR-006-AC-2**: A static review SHALL confirm `TokenStore` writes token
-  values only via `SecretsService.set` (no `fs.*` / `process.stdout` / `console.*`
-  sinks for token material in `src/auth/token-store.ts`).
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-006-AC-1 | A unit test SHALL `save` a bundle, then assert the token value is retrievable from the secrets backend under the host-keyed access `SecretId` and is **absent** from the serialized metadata store. | Test |
+| NFR-006-AC-2 | A static review SHALL confirm `TokenStore` writes token values only via `SecretsService.set` (no `fs.*` / `process.stdout` / `console.*` sinks for token material in `src/auth/token-store.ts`). | Inspection |
 
 ## Verification
 

@@ -47,9 +47,12 @@ Filesystem permissions (`0o600`) alone are not adequate protection: backups, syn
 
 ## Acceptance Criteria
 
-- **NFR-001-AC-1**: A static scan across the library source (`src/`) SHALL find zero call sites where the result of `SecretsService.get(...)`, or any variable directly bound to it, flows into any of the following persistence channels outside `src/secrets/backends/`: `fs.writeFile`, `fs.writeFileSync`, `fs.appendFile`, `fs.appendFileSync`, `fs.createWriteStream`, `fsPromises.writeFile`, `fsPromises.appendFile`, `fsPromises.open(..., 'w'|'a')`, `child_process.spawn(..., { input })`, `child_process.spawnSync(..., { input })`, `child_process.exec(..., { input })`, `process.stdout.write`, `process.stderr.write`, `console.*`. The check is implemented as a typed dataflow grep (variable name + immediate sink) seeded by `SecretsService.get` call sites.
-- **NFR-001-AC-2**: A round-trip test SHALL `set` a secret, then read every byte of `<config-root>/secrets.d/<plugin>.age` and `<config-root>/secrets.key`; the plaintext value of the secret SHALL NOT appear as a substring of either file.
-- **NFR-001-AC-3**: An integration test SHALL verify that after `secrets set local.ghcr-token`, the only on-disk artifact is either an OS keychain entry (no plaintext file produced) or an age blob whose decryption requires `secrets.key`.
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-001-AC-1 | A static scan across the library source (`src/`) SHALL find zero call sites where the result of `SecretsService.get(...)`, or any variable directly bound to it, flows into any of the following persistence channels outside `src/secrets/backends/`: `fs.writeFile`, `fs.writeFileSync`, `fs.appendFile`, `fs.appendFileSync`, `fs.createWriteStream`, `fsPromises.writeFile`, `fsPromises.appendFile`, `fsPromises.open(..., 'w'\|'a')`, `child_process.spawn(..., { input })`, `child_process.spawnSync(..., { input })`, `child_process.exec(..., { input })`, `process.stdout.write`, `process.stderr.write`, `console.*`. The check is implemented as a typed dataflow grep (variable name + immediate sink) seeded by `SecretsService.get` call sites. | Inspection |
+| NFR-001-AC-2 | A round-trip test SHALL `set` a secret, then read every byte of `<config-root>/secrets.d/<plugin>.age` and `<config-root>/secrets.key`; the plaintext value of the secret SHALL NOT appear as a substring of either file. | Test |
+| NFR-001-AC-3 | An integration test SHALL verify that after `secrets set local.ghcr-token`, the only on-disk artifact is either an OS keychain entry (no plaintext file produced) or an age blob whose decryption requires `secrets.key`. | Test |
 
 ## Verification
 

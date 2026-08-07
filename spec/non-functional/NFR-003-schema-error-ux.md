@@ -46,11 +46,14 @@ A plugin author or operator hitting a config error needs to fix it without readi
 
 ## Acceptance Criteria
 
-- **NFR-003-AC-1**: Setting `local.cluster.defaultTags` to `42` produces an error whose rendered text contains all of: `local`, `cluster.defaultTags`, `array<string>`, and the absolute path to `config.d/local.yaml`.
-- **NFR-003-AC-2**: An error rendered for a key declared as a secret SHALL contain `<redacted>` in place of the observed value; a static check confirms the actual value is not present in the rendered output.
-- **NFR-003-AC-3**: `config doctor` against two failing plugins emits errors in `(pluginId, keyPath)` ascending order; output is byte-stable across runs given identical inputs.
-- **NFR-003-AC-4**: A static grep across `src/` SHALL find zero invocations of `console.error` for schema errors; all paths route through the host UI primitives.
-- **NFR-003-AC-5**: A static grep SHALL find zero call sites that render Zod's raw `issues[]` JSON; only `formatSchemaError` produces user-facing strings.
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-003-AC-1 | Setting `local.cluster.defaultTags` to `42` produces an error whose rendered text contains all of: `local`, `cluster.defaultTags`, `array<string>`, and the absolute path to `config.d/local.yaml`. | Inspection |
+| NFR-003-AC-2 | An error rendered for a key declared as a secret SHALL contain `<redacted>` in place of the observed value; a static check confirms the actual value is not present in the rendered output. | Inspection |
+| NFR-003-AC-3 | `config doctor` against two failing plugins emits errors in `(pluginId, keyPath)` ascending order; output is byte-stable across runs given identical inputs. | Inspection |
+| NFR-003-AC-4 | A static grep across `src/` SHALL find zero invocations of `console.error` for schema errors; all paths route through the host UI primitives. | Inspection |
+| NFR-003-AC-5 | A static grep SHALL find zero call sites that render Zod's raw `issues[]` JSON; only `formatSchemaError` produces user-facing strings. | Inspection |
 
 ## Verification
 

@@ -55,13 +55,12 @@ development where certificates are inconvenient.
 
 ## Acceptance Criteria
 
-- **NFR-005-AC-1**: A unit test SHALL `save` distinct bundles for two hosts,
-  `clear` one, and assert the other host's access token is unchanged.
-- **NFR-005-AC-2**: A unit test SHALL assert the access/refresh `SecretId`s for
-  two different hosts differ (no shared key).
-- **NFR-005-AC-3**: A unit test SHALL assert `fetchServiceDiscovery` rejects a
-  plain-`http` non-`dev.ix` host with `DiscoveryInsecureError` and makes **no**
-  `fetch` call, while accepting `http://*.dev.ix` and `insecure: true`.
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-005-AC-1 | A unit test SHALL `save` distinct bundles for two hosts, `clear` one, and assert the other host's access token is unchanged. | Test |
+| NFR-005-AC-2 | A unit test SHALL assert the access/refresh `SecretId`s for two different hosts differ (no shared key). | Test |
+| NFR-005-AC-3 | A unit test SHALL assert `fetchServiceDiscovery` rejects a plain-`http` non-`dev.ix` host with `DiscoveryInsecureError` and makes **no** `fetch` call, while accepting `http://*.dev.ix` and `insecure: true`. | Test |
 
 ## Verification
 

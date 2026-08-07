@@ -54,11 +54,14 @@ A wider mode on `secrets.key` voids [NFR-001](./NFR-001-no-plaintext-secrets.md)
 
 ## Acceptance Criteria
 
-- **NFR-002-AC-1**: A test starting with `umask 0022` writes a config via `ConfigService.set`; the resulting file mode is exactly `0o600`.
-- **NFR-002-AC-2**: A simulated write failure (mocked `fs.rename` throws) leaves the original target file untouched and removes the temp file; no `*.tmp.*` artifact remains in `<config-root>/config.d/`.
-- **NFR-002-AC-3**: Setting `<config-root>/secrets.key` to mode `0o644` (test fixture) causes `SecretsService.get/set/delete` to throw `SecretsIdentityPermissionsError` naming the path and observed mode; no further IO occurs.
-- **NFR-002-AC-4**: A symlinked governed file (e.g. `secrets.key -> /tmp/laundered.key`) is rejected on access; the error names the symlink path.
-- **NFR-002-AC-5**: A static grep across `src/` SHALL find zero direct `fs.writeFile`/`writeFileSync` calls outside the central `atomicWrite` helper module; all writers MUST go through that helper.
+
+| ID | Criteria | Verification |
+|----|----------|--------------|
+| NFR-002-AC-1 | A test starting with `umask 0022` writes a config via `ConfigService.set`; the resulting file mode is exactly `0o600`. | Test |
+| NFR-002-AC-2 | A simulated write failure (mocked `fs.rename` throws) leaves the original target file untouched and removes the temp file; no `*.tmp.*` artifact remains in `<config-root>/config.d/`. | Inspection |
+| NFR-002-AC-3 | Setting `<config-root>/secrets.key` to mode `0o644` (test fixture) causes `SecretsService.get/set/delete` to throw `SecretsIdentityPermissionsError` naming the path and observed mode; no further IO occurs. | Test |
+| NFR-002-AC-4 | A symlinked governed file (e.g. `secrets.key -> /tmp/laundered.key`) is rejected on access; the error names the symlink path. | Demonstration |
+| NFR-002-AC-5 | A static grep across `src/` SHALL find zero direct `fs.writeFile`/`writeFileSync` calls outside the central `atomicWrite` helper module; all writers MUST go through that helper. | Inspection |
 
 ## Verification
 
