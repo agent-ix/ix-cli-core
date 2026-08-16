@@ -13,7 +13,7 @@ importers:
     dependencies:
       '@agent-ix/ix-ui-cli':
         specifier: '>=0.4.10'
-        version: 0.4.10(@types/react@19.2.17)
+        version: 0.4.10(@types/react@19.2.18)
       '@agent-ix/ts-plugin-kit':
         specifier: '>=0.1.3'
         version: 0.2.0
@@ -25,13 +25,13 @@ importers:
         version: 1.3.0
       '@oclif/core':
         specifier: '>=4.11.14'
-        version: 4.11.14
+        version: 4.13.3
       age-encryption:
         specifier: '>=0.3.0'
         version: 0.3.0
       react:
         specifier: '>=19.2.7'
-        version: 19.2.7
+        version: 19.2.8
       yaml:
         specifier: '>=2.9.0'
         version: 2.9.0
@@ -44,7 +44,7 @@ importers:
         version: 25.9.2
       '@types/react':
         specifier: '>=19.2.17'
-        version: 19.2.17
+        version: 19.2.18
       '@typescript-eslint/eslint-plugin':
         specifier: '>=8.60.1'
         version: 8.65.0(@typescript-eslint/parser@8.65.0(eslint@10.4.1)(typescript@6.0.3))(eslint@10.4.1)(typescript@6.0.3)
@@ -59,10 +59,10 @@ importers:
         version: 10.4.1
       eslint-plugin-prettier:
         specifier: '>=5.5.6'
-        version: 5.5.6(eslint@10.4.1)(prettier@3.8.3)
+        version: 5.5.6(eslint@10.4.1)(prettier@3.9.6)
       prettier:
         specifier: '>=3.8.3'
-        version: 3.8.3
+        version: 3.9.6
       typescript:
         specifier: '>=6.0.3'
         version: 6.0.3
@@ -306,8 +306,8 @@ packages:
     resolution: {integrity: sha512-leww0zzIirrvwaYMPI9fj6aRIlA/c6Y0/lifQQ1YOOyHEr0MNH3yYpjXeiVG+tWdPps4XxGclFWX2INPO3Yo5w==}
     engines: {node: '>= 20.19.0'}
 
-  '@oclif/core@4.11.14':
-    resolution: {integrity: sha512-cZ5Ktd+rT0PO+o7KBH4vRFTgg+xMLf8F41WK39p8MkXEViZA/Qqe+4lzZT6102zgUxMORET1HtF9t5w8CB3tnQ==}
+  '@oclif/core@4.13.3':
+    resolution: {integrity: sha512-wBp2igI2KVwq2ZmpnfmGtOROo7aXZIr3OEtAS16g1wHFBqyEuswL+9K50NJWJvlpAmxd+4dVj/ycawXESU3wQQ==}
     engines: {node: '>=18.0.0'}
 
   '@oxc-project/types@0.139.0':
@@ -458,8 +458,8 @@ packages:
   '@types/node@25.9.2':
     resolution: {integrity: sha512-G05zqtJhcDLb8uslf5EjCxXg9G1KQxiV8OS0R26IC//Eoyitzqe8z37I7cqvnZlrlSfgocQRfSn/AHBZJJFyGw==}
 
-  '@types/react@19.2.17':
-    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+  '@types/react@19.2.18':
+    resolution: {integrity: sha512-AnzbBERsrLKtk2XSfTbYRLjQPdy116Sty4q+T+Bp3IC4l6jNBvreVPAHmpq9qhXQM7CXZPjLVmGMw9sy+hxQ3w==}
 
   '@typescript-eslint/eslint-plugin@8.65.0':
     resolution: {integrity: sha512-IEgob78X12rHpUmtcwFsXhZdVGJtwTVP8FiCLZkR6GlYVrl2PcuB+KhCE5BlVC/eQpQnu8WXRtkHZuPar+gCRA==}
@@ -1141,6 +1141,10 @@ packages:
     resolution: {integrity: sha512-MULkVLfKGYDFYejP07QOurDLLQpcjk7Fw+7jXS2R2czRQzR56yHRveU5NDJEOviH+hETZKSkIk5c+T23GjFUMg==}
     engines: {node: 18 || 20 || >=22}
 
+  minimatch@10.2.6:
+    resolution: {integrity: sha512-vpLQEs+VLCr1nU0BXS07maYoFwlDAH0gngQuuttxIwutDFEMHq2blX+8vpgxDdK3J1PwjCJiep77OitTZ4Ll1A==}
+    engines: {node: 18 || 20 || >=22}
+
   minimatch@5.1.9:
     resolution: {integrity: sha512-7o1wEA2RyMP7Iu7GNba9vc0RWWGACJOCZBJX2GJWip0ikV+wcOsgVuY9uE8CPiyQhkGFSlhuSkZPavN7u1c2Fw==}
     engines: {node: '>=10'}
@@ -1234,8 +1238,8 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier@3.8.3:
-    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+  prettier@3.9.6:
+    resolution: {integrity: sha512-OpN0zzVdiaiAhxpuuj5efpIS4sY9j7bY6uR5mnj5yPzGkdkjNKSJeUThPb60Jw29QuAZgA4o+/iB49kFiaBX6g==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -1256,8 +1260,8 @@ packages:
     peerDependencies:
       react: ^19.2.0
 
-  react@19.2.7:
-    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
+  react@19.2.8:
+    resolution: {integrity: sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==}
     engines: {node: '>=0.10.0'}
 
   restore-cursor@4.0.0:
@@ -1622,16 +1626,16 @@ packages:
 
 snapshots:
 
-  '@agent-ix/ix-ui-cli@0.4.10(@types/react@19.2.17)':
+  '@agent-ix/ix-ui-cli@0.4.10(@types/react@19.2.18)':
     dependencies:
       '@agent-ix/ix-ui-semantic': 0.4.10
       execa: 9.6.1
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      ink-select-input: 6.2.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
-      ink-spinner: 5.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
-      ink-text-input: 6.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
+      ink: 7.0.5(@types/react@19.2.18)(react@19.2.8)
+      ink-select-input: 6.2.0(ink@7.0.5(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)
+      ink-spinner: 5.0.0(ink@7.0.5(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)
+      ink-text-input: 6.0.0(ink@7.0.5(@types/react@19.2.18)(react@19.2.8))(react@19.2.8)
       picocolors: 1.1.1
-      react: 19.2.7
+      react: 19.2.8
     transitivePeerDependencies:
       - '@types/react'
       - bufferutil
@@ -1701,7 +1705,7 @@ snapshots:
     dependencies:
       '@eslint/object-schema': 3.0.5
       debug: 4.4.3(supports-color@8.1.1)
-      minimatch: 10.2.5
+      minimatch: 10.2.6
     transitivePeerDependencies:
       - supports-color
 
@@ -1832,7 +1836,7 @@ snapshots:
       '@noble/curves': 2.0.1
       '@noble/hashes': 2.0.1
 
-  '@oclif/core@4.11.14':
+  '@oclif/core@4.13.3':
     dependencies:
       ansi-escapes: 4.3.2
       ansis: 3.17.0
@@ -1844,7 +1848,7 @@ snapshots:
       indent-string: 4.0.0
       is-wsl: 2.2.0
       lilconfig: 3.1.3
-      minimatch: 10.2.5
+      minimatch: 10.2.6
       semver: 7.8.5
       string-width: 4.2.3
       supports-color: 8.1.1
@@ -1944,7 +1948,7 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
-  '@types/react@19.2.17':
+  '@types/react@19.2.18':
     dependencies:
       csstype: 3.2.3
 
@@ -2015,7 +2019,7 @@ snapshots:
       '@typescript-eslint/types': 8.65.0
       '@typescript-eslint/visitor-keys': 8.65.0
       debug: 4.4.3(supports-color@8.1.1)
-      minimatch: 10.2.5
+      minimatch: 10.2.6
       semver: 7.8.5
       tinyglobby: 0.2.17
       ts-api-utils: 2.5.0(typescript@6.0.3)
@@ -2242,10 +2246,10 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-prettier@5.5.6(eslint@10.4.1)(prettier@3.8.3):
+  eslint-plugin-prettier@5.5.6(eslint@10.4.1)(prettier@3.9.6):
     dependencies:
       eslint: 10.4.1
-      prettier: 3.8.3
+      prettier: 3.9.6
       prettier-linter-helpers: 1.0.1
       synckit: 0.11.13
 
@@ -2416,27 +2420,27 @@ snapshots:
 
   indent-string@5.0.0: {}
 
-  ink-select-input@6.2.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+  ink-select-input@6.2.0(ink@7.0.5(@types/react@19.2.18)(react@19.2.8))(react@19.2.8):
     dependencies:
       figures: 6.1.0
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      react: 19.2.7
+      ink: 7.0.5(@types/react@19.2.18)(react@19.2.8)
+      react: 19.2.8
       to-rotated: 1.0.0
 
-  ink-spinner@5.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+  ink-spinner@5.0.0(ink@7.0.5(@types/react@19.2.18)(react@19.2.8))(react@19.2.8):
     dependencies:
       cli-spinners: 2.9.2
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      react: 19.2.7
+      ink: 7.0.5(@types/react@19.2.18)(react@19.2.8)
+      react: 19.2.8
 
-  ink-text-input@6.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+  ink-text-input@6.0.0(ink@7.0.5(@types/react@19.2.18)(react@19.2.8))(react@19.2.8):
     dependencies:
       chalk: 5.6.2
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      react: 19.2.7
+      ink: 7.0.5(@types/react@19.2.18)(react@19.2.8)
+      react: 19.2.8
       type-fest: 4.41.0
 
-  ink@7.0.5(@types/react@19.2.17)(react@19.2.7):
+  ink@7.0.5(@types/react@19.2.18)(react@19.2.8):
     dependencies:
       '@alcalzone/ansi-tokenize': 0.3.0
       ansi-escapes: 7.3.0
@@ -2451,8 +2455,8 @@ snapshots:
       indent-string: 5.0.0
       is-in-ci: 2.0.0
       patch-console: 2.0.0
-      react: 19.2.7
-      react-reconciler: 0.33.0(react@19.2.7)
+      react: 19.2.8
+      react-reconciler: 0.33.0(react@19.2.8)
       scheduler: 0.27.0
       signal-exit: 3.0.7
       slice-ansi: 9.0.0
@@ -2465,7 +2469,7 @@ snapshots:
       ws: 8.21.0
       yoga-layout: 3.2.1
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 19.2.18
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2617,6 +2621,10 @@ snapshots:
     dependencies:
       brace-expansion: 5.0.9
 
+  minimatch@10.2.6:
+    dependencies:
+      brace-expansion: 5.0.9
+
   minimatch@5.1.9:
     dependencies:
       brace-expansion: 5.0.9
@@ -2704,7 +2712,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier@3.8.3: {}
+  prettier@3.9.6: {}
 
   pretty-ms@9.3.0:
     dependencies:
@@ -2714,12 +2722,12 @@ snapshots:
 
   quansync@0.2.11: {}
 
-  react-reconciler@0.33.0(react@19.2.7):
+  react-reconciler@0.33.0(react@19.2.8):
     dependencies:
-      react: 19.2.7
+      react: 19.2.8
       scheduler: 0.27.0
 
-  react@19.2.7: {}
+  react@19.2.8: {}
 
   restore-cursor@4.0.0:
     dependencies:
