@@ -151,7 +151,7 @@ export class AgeFileBackend implements SecretsBackend {
     if (existsSync(identityPath)) {
       const st = statSync(identityPath);
       const mode = st.mode & 0o777;
-      // NFR-004-AC-3 / FR-016-AC-5: identity must be exactly 0o600.
+      // NFR-004-AC-3, FR-016-AC-5: identity must be exactly 0o600.
       // Any group/other bit OR an owner-execute bit voids the trust boundary.
       if (mode !== MODE_OWNER_RW) {
         throw new SecretsIdentityPermissionsError(identityPath, mode);
