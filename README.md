@@ -1,5 +1,7 @@
 # @agent-ix/ix-cli-core
 
+[![Discord](https://img.shields.io/badge/Discord-Join%20us-5865F2?logo=discord&logoColor=white)](https://discord.gg/6qsdhSPE)
+
 > Generic framework foundation for building Agent IX CLIs — config service, secrets service, plugin contract, runtime.
 
 `ix-cli-core` is the shared substrate every Agent IX command-line tool is built on. It takes the parts of a CLI that are tedious and easy to get wrong — typed configuration, secret storage, login, plugin loading, command wiring — and provides them as a single, batteries-included library on top of [oclif](https://oclif.io/). Your CLI declares _what_ it needs; the framework handles _how_ it is stored, validated, resolved, and secured.
