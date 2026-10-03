@@ -1,6 +1,6 @@
 # @agent-ix/ix-cli-core
 
-[![Discord](https://img.shields.io/badge/Discord-Join%20us-5865F2?logo=discord&logoColor=white)](https://discord.gg/6qsdhSPE)
+[![Discord](https://img.shields.io/badge/Discord-Join%20us-5865F2?logo=discord&logoColor=white)](https://discord.gg/k8DVhuYBR2)
 
 > Generic framework foundation for building Agent IX CLIs — config service, secrets service, plugin contract, runtime.
 
