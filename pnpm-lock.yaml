@@ -10,13 +10,13 @@ importers:
     dependencies:
       '@agent-ix/ix-ui-cli':
         specifier: '>=0.4.10'
-        version: 0.4.10(@types/react@19.2.17)
+        version: 0.4.10(@types/react@19.3.0)
       '@agent-ix/ts-plugin-kit':
         specifier: '>=0.1.3'
         version: 0.2.0
       '@clack/prompts':
         specifier: '>=1.5.1'
-        version: 1.7.0
+        version: 1.8.1
       '@napi-rs/keyring':
         specifier: '>=1.3.0'
         version: 1.3.0
@@ -25,23 +25,23 @@ importers:
         version: 4.11.14
       age-encryption:
         specifier: '>=0.3.0'
-        version: 0.3.0
+        version: 0.3.1
       react:
         specifier: '>=19.2.7'
-        version: 19.2.7
+        version: 19.3.0
       yaml:
         specifier: '>=2.9.0'
-        version: 2.9.0
+        version: 2.9.1
       zod:
         specifier: '>=4.4.3'
-        version: 4.4.3
+        version: 4.6.5
     devDependencies:
       '@types/node':
         specifier: '>=25.9.2'
         version: 25.9.2
       '@types/react':
         specifier: '>=19.2.17'
-        version: 19.2.17
+        version: 19.3.0
       '@typescript-eslint/eslint-plugin':
         specifier: '>=8.60.1'
         version: 8.65.0(@typescript-eslint/parser@8.65.0(eslint@10.4.1)(typescript@6.0.3))(eslint@10.4.1)(typescript@6.0.3)
@@ -56,22 +56,22 @@ importers:
         version: 10.4.1
       eslint-plugin-prettier:
         specifier: '>=5.5.6'
-        version: 5.5.6(eslint@10.4.1)(prettier@3.8.3)
+        version: 5.5.6(eslint@10.4.1)(prettier@3.9.9)
       prettier:
         specifier: '>=3.8.3'
-        version: 3.8.3
+        version: 3.9.9
       typescript:
         specifier: '>=6.0.3'
         version: 6.0.3
       vite:
         specifier: '>=8.0.16'
-        version: 8.1.5(@types/node@25.9.2)(yaml@2.9.0)
+        version: 8.1.5(@types/node@25.9.2)(yaml@2.9.1)
       vite-plugin-dts:
         specifier: '>=5.0.2'
-        version: 5.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0))
+        version: 5.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1))
       vitest:
         specifier: '>=4.1.8'
-        version: 4.1.10(@types/node@25.9.2)(@vitest/coverage-v8@4.1.10)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0))
+        version: 4.1.10(@types/node@25.9.2)(@vitest/coverage-v8@4.1.10)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1))
 
 packages:
 
@@ -109,12 +109,12 @@ packages:
     resolution: {integrity: sha512-6zABk/ECA/QYSCQ1NGiVwwbQerUCZ+TQbp64Q3AgmfNvurHH0j8TtXa1qbShXA6qqkpAj4V5W8pP6mLe1mcMqA==}
     engines: {node: '>=18'}
 
-  '@clack/core@1.4.3':
-    resolution: {integrity: sha512-/kr3UWNtdJfxZtPgDqUOmG2pvwlmcLGheex5yiZKdwbzZJxhV+HMNR9QNmyY5cGwTNV6LrR7Jtp+KjhUAP1qBQ==}
+  '@clack/core@1.5.1':
+    resolution: {integrity: sha512-iHTrHA8MtVuLl2TfZySmcKv1qO2PoyC9Z7pfSDozEuV5vtY3/wcOPKJXlqJ5Oq2Cx5DDGQGAMVx6HZfRRoVEbQ==}
     engines: {node: '>= 20.12.0'}
 
-  '@clack/prompts@1.7.0':
-    resolution: {integrity: sha512-y7/yvZ2TPAnR9+jnc00klvNNLkJiXFFrQA/hlLCcxA9a2A4zQIOimyFQ9XfwYKiGD1fb5GY8vbKIIgO8d5Tb2A==}
+  '@clack/prompts@1.8.1':
+    resolution: {integrity: sha512-dlT1m5e/0yUL0kRNcQn7yGLVThkgbB0Ga/1AmfDDC/8ik6AIiSf2QLQO2zPYvefsHP0aFgxO93cVLCCfDp7kzQ==}
     engines: {node: '>= 20.12.0'}
 
   '@emnapi/core@1.11.1':
@@ -279,24 +279,24 @@ packages:
       '@emnapi/core': ^1.7.1
       '@emnapi/runtime': ^1.7.1
 
-  '@noble/ciphers@2.2.0':
-    resolution: {integrity: sha512-Z6pjIZ/8IJcCGzb2S/0Px5J81yij85xASuk1teLNeg75bfT07MV3a/O2Mtn1I2se43k3lkVEcFaR10N4cgQcZA==}
+  '@noble/ciphers@2.4.0':
+    resolution: {integrity: sha512-AnjFn0Jv92laAkvMrghlFZq4qQCIN/4DxFV/eooqtC2YTjB7kBeLMS2T9KJX4Dn+ZVXLOwK0lSgqDtx9gvxtiw==}
     engines: {node: '>= 20.19.0'}
 
   '@noble/curves@2.0.1':
     resolution: {integrity: sha512-vs1Az2OOTBiP4q0pwjW5aF0xp9n4MxVrmkFBxc6EKZc6ddYx5gaZiAsZoq0uRRXWbi3AT/sBqn05eRPtn1JCPw==}
     engines: {node: '>= 20.19.0'}
 
-  '@noble/curves@2.2.0':
-    resolution: {integrity: sha512-T/BoHgFXirb0ENSPBquzX0rcjXeM6Lo892a2jlYJkqk83LqZx0l1Of7DzlKJ6jkpvMrkHSnAcgb5JegL8SeIkQ==}
+  '@noble/curves@2.4.0':
+    resolution: {integrity: sha512-P4/62zrgfH33CneE3Dn4WhJVA22YUU0eR51wKIan4NVRvwsA0YnPTwWGpNbpuacSujmSFLvyzpyuR30+fbq2Ew==}
     engines: {node: '>= 20.19.0'}
 
   '@noble/hashes@2.0.1':
     resolution: {integrity: sha512-XlOlEbQcE9fmuXxrVTXCTlG2nlRXa9Rj3rr5Ue/+tX+nmkgbX720YHh0VR3hBF9xDvwnb8D2shVGOwNx+ulArw==}
     engines: {node: '>= 20.19.0'}
 
-  '@noble/hashes@2.2.0':
-    resolution: {integrity: sha512-IYqDGiTXab6FniAgnSdZwgWbomxpy9FtYvLKs7wCUs2a8RkITG+DFGO1DM9cr+E3/RgADRpFjrKVaJ1z6sjtEg==}
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
     engines: {node: '>= 20.19.0'}
 
   '@noble/post-quantum@0.5.4':
@@ -421,8 +421,8 @@ packages:
       rollup:
         optional: true
 
-  '@scure/base@2.2.0':
-    resolution: {integrity: sha512-b8XEupJibegiXV+tDUseI8oLQc8ei3d/4Jkb2RpbHh3MfE054ov3uIz2dhFkB3FI8iwYkEh0gGCApkrYggkPNg==}
+  '@scure/base@2.4.0':
+    resolution: {integrity: sha512-thZ1TuJwFwBblOhgsjDKvvGirBxNp+wSvY/DR6tJBJOTDhdAAcHJ8Vbr2eFnqaxeca4+t0i9KBf+uHYGWwZORg==}
 
   '@sec-ant/readable-stream@0.4.1':
     resolution: {integrity: sha512-831qok9r2t8AlxLko40y2ebgSDhenenCatLVeW/uBtnHPyhHOvG0C7TvfgecV+wHzIm5KUICgzmVpWS+IMEAeg==}
@@ -455,8 +455,8 @@ packages:
   '@types/node@25.9.2':
     resolution: {integrity: sha512-G05zqtJhcDLb8uslf5EjCxXg9G1KQxiV8OS0R26IC//Eoyitzqe8z37I7cqvnZlrlSfgocQRfSn/AHBZJJFyGw==}
 
-  '@types/react@19.2.17':
-    resolution: {integrity: sha512-MXfmqaVPEVgkBT/aY0aGCkRWWtByiYQXo3xdQ8r5RzuFrPiRn8Gar2tQdXSUQ2GKV3bkXckek89V8wQBY2Q/Aw==}
+  '@types/react@19.3.0':
+    resolution: {integrity: sha512-N0rFCuH9YoxG9/m61l9MfpJKfmLOVU0em7ipIz6TRgSSkvReLB9vL85GB+yr8Bs5leqpvg96JSwF4ZS1s4viQg==}
 
   '@typescript-eslint/eslint-plugin@8.65.0':
     resolution: {integrity: sha512-IEgob78X12rHpUmtcwFsXhZdVGJtwTVP8FiCLZkR6GlYVrl2PcuB+KhCE5BlVC/eQpQnu8WXRtkHZuPar+gCRA==}
@@ -579,8 +579,8 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  age-encryption@0.3.0:
-    resolution: {integrity: sha512-vDhGGp5ZXpbKL6oc3FEBjGhyepr/0SwIWmia6CcPXvYcxGBSQNcDdMv9m2yVOkjjYuJEmtGEhOojIUcjrj0cEw==}
+  age-encryption@0.3.1:
+    resolution: {integrity: sha512-bYgd7lxM7tEANmb9bXf7xTFB3Qpq+JGKinVSdFh5MV+t2fJJZSTdKhWkvXTFJQGysZd+K9Dt3F+n+4DKazXlnQ==}
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
@@ -1237,8 +1237,8 @@ packages:
     resolution: {integrity: sha512-SxToR7P8Y2lWmv/kTzVLC1t/GDI2WGjMwNhLLE9qtH8Q13C+aEmuRlzDst4Up4s0Wc8sF2M+J57iB3cMLqftfg==}
     engines: {node: '>=6.0.0'}
 
-  prettier@3.8.3:
-    resolution: {integrity: sha512-7igPTM53cGHMW8xWuVTydi2KO233VFiTNyF5hLJqpilHfmn8C8gPf+PS7dUT64YcXFbiMGZxS9pCSxL/Dxm/Jw==}
+  prettier@3.9.9:
+    resolution: {integrity: sha512-Z/CJHIkdujO/OtN7nXUii0Rf3VT5SRuhjBA82Xvu2XhBUgX3nhP67T0LHceBdQLex7OOFGTox+Q5Yg8Jk2Qivg==}
     engines: {node: '>=14'}
     hasBin: true
 
@@ -1259,8 +1259,8 @@ packages:
     peerDependencies:
       react: ^19.2.0
 
-  react@19.2.7:
-    resolution: {integrity: sha512-HNe9WslTbXmFK8o8cmwgAeJFSBvt1bPdHCVKtaaV+WlAN36mpT4hcRpwbf3fY56ar2oIXzsBpOAiIRHAdY0OlQ==}
+  react@19.3.0:
+    resolution: {integrity: sha512-E8LUcbtBWt20bbl2YoHfx4ZDBdxVTfOKtCZn9cDSJ4l6/nuoApcpIBcj47t2wZoVX8g2ZHuMHbiShgCR1T5Sog==}
     engines: {node: '>=0.10.0'}
 
   restore-cursor@4.0.0:
@@ -1604,8 +1604,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  yaml@2.9.0:
-    resolution: {integrity: sha512-2AvhNX3mb8zd6Zy7INTtSpl1F15HW6Wnqj0srWlkKLcpYl/gMIMJiyuGq2KeI2YFxUPjdlB+3Lc10seMLtL4cA==}
+  yaml@2.9.1:
+    resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
     engines: {node: '>= 14.6'}
     hasBin: true
 
@@ -1620,21 +1620,21 @@ packages:
   yoga-layout@3.2.1:
     resolution: {integrity: sha512-0LPOt3AxKqMdFBZA3HBAt/t/8vIKq7VaQYbuA8WxCgung+p9TVyKRYdpvCb80HcdTN2NkbIKbhNwKUfm3tQywQ==}
 
-  zod@4.4.3:
-    resolution: {integrity: sha512-ytENFjIJFl2UwYglde2jchW2Hwm4GJFLDiSXWdTrJQBIN9Fcyp7n4DhxJEiWNAJMV1/BqWfW/kkg71UDcHJyTQ==}
+  zod@4.6.5:
+    resolution: {integrity: sha512-v5l/aFXZQeai4awLbOpSoHecE9UiMrnfx75tEXLjNonXVARxQ5mOeipTjROUchszUNCqnE+hqAMujRsRHsut2Q==}
 
 snapshots:
 
-  '@agent-ix/ix-ui-cli@0.4.10(@types/react@19.2.17)':
+  '@agent-ix/ix-ui-cli@0.4.10(@types/react@19.3.0)':
     dependencies:
       '@agent-ix/ix-ui-semantic': 0.4.10
       execa: 9.6.1
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      ink-select-input: 6.2.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
-      ink-spinner: 5.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
-      ink-text-input: 6.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7)
+      ink: 7.0.5(@types/react@19.3.0)(react@19.3.0)
+      ink-select-input: 6.2.0(ink@7.0.5(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
+      ink-spinner: 5.0.0(ink@7.0.5(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
+      ink-text-input: 6.0.0(ink@7.0.5(@types/react@19.3.0)(react@19.3.0))(react@19.3.0)
       picocolors: 1.1.1
-      react: 19.2.7
+      react: 19.3.0
     transitivePeerDependencies:
       - '@types/react'
       - bufferutil
@@ -1665,14 +1665,14 @@ snapshots:
 
   '@bcoe/v8-coverage@1.0.2': {}
 
-  '@clack/core@1.4.3':
+  '@clack/core@1.5.1':
     dependencies:
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
 
-  '@clack/prompts@1.7.0':
+  '@clack/prompts@1.8.1':
     dependencies:
-      '@clack/core': 1.4.3
+      '@clack/core': 1.5.1
       fast-string-width: 3.0.2
       fast-wrap-ansi: 0.2.2
       sisteransi: 1.0.5
@@ -1816,19 +1816,19 @@ snapshots:
       '@tybys/wasm-util': 0.10.3
     optional: true
 
-  '@noble/ciphers@2.2.0': {}
+  '@noble/ciphers@2.4.0': {}
 
   '@noble/curves@2.0.1':
     dependencies:
       '@noble/hashes': 2.0.1
 
-  '@noble/curves@2.2.0':
+  '@noble/curves@2.4.0':
     dependencies:
-      '@noble/hashes': 2.2.0
+      '@noble/hashes': 2.4.0
 
   '@noble/hashes@2.0.1': {}
 
-  '@noble/hashes@2.2.0': {}
+  '@noble/hashes@2.4.0': {}
 
   '@noble/post-quantum@0.5.4':
     dependencies:
@@ -1917,7 +1917,7 @@ snapshots:
       estree-walker: 2.0.2
       picomatch: 4.0.5
 
-  '@scure/base@2.2.0': {}
+  '@scure/base@2.4.0': {}
 
   '@sec-ant/readable-stream@0.4.1': {}
 
@@ -1947,7 +1947,7 @@ snapshots:
     dependencies:
       undici-types: 7.24.6
 
-  '@types/react@19.2.17':
+  '@types/react@19.3.0':
     dependencies:
       csstype: 3.2.3
 
@@ -2054,7 +2054,7 @@ snapshots:
       obug: 2.1.4
       std-env: 4.2.0
       tinyrainbow: 3.1.0
-      vitest: 4.1.10(@types/node@25.9.2)(@vitest/coverage-v8@4.1.10)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0))
+      vitest: 4.1.10(@types/node@25.9.2)(@vitest/coverage-v8@4.1.10)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1))
 
   '@vitest/expect@4.1.10':
     dependencies:
@@ -2065,13 +2065,13 @@ snapshots:
       chai: 6.2.2
       tinyrainbow: 3.1.0
 
-  '@vitest/mocker@4.1.10(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0))':
+  '@vitest/mocker@4.1.10(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1))':
     dependencies:
       '@vitest/spy': 4.1.10
       estree-walker: 3.0.3
       magic-string: 0.30.21
     optionalDependencies:
-      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.0)
+      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.1)
 
   '@vitest/pretty-format@4.1.10':
     dependencies:
@@ -2117,13 +2117,13 @@ snapshots:
 
   acorn@8.17.0: {}
 
-  age-encryption@0.3.0:
+  age-encryption@0.3.1:
     dependencies:
-      '@noble/ciphers': 2.2.0
-      '@noble/curves': 2.2.0
-      '@noble/hashes': 2.2.0
+      '@noble/ciphers': 2.4.0
+      '@noble/curves': 2.4.0
+      '@noble/hashes': 2.4.0
       '@noble/post-quantum': 0.5.4
-      '@scure/base': 2.2.0
+      '@scure/base': 2.4.0
 
   ajv@6.15.0:
     dependencies:
@@ -2251,10 +2251,10 @@ snapshots:
 
   escape-string-regexp@4.0.0: {}
 
-  eslint-plugin-prettier@5.5.6(eslint@10.4.1)(prettier@3.8.3):
+  eslint-plugin-prettier@5.5.6(eslint@10.4.1)(prettier@3.9.9):
     dependencies:
       eslint: 10.4.1
-      prettier: 3.8.3
+      prettier: 3.9.9
       prettier-linter-helpers: 1.0.1
       synckit: 0.11.13
 
@@ -2425,27 +2425,27 @@ snapshots:
 
   indent-string@5.0.0: {}
 
-  ink-select-input@6.2.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+  ink-select-input@6.2.0(ink@7.0.5(@types/react@19.3.0)(react@19.3.0))(react@19.3.0):
     dependencies:
       figures: 6.1.0
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      react: 19.2.7
+      ink: 7.0.5(@types/react@19.3.0)(react@19.3.0)
+      react: 19.3.0
       to-rotated: 1.0.0
 
-  ink-spinner@5.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+  ink-spinner@5.0.0(ink@7.0.5(@types/react@19.3.0)(react@19.3.0))(react@19.3.0):
     dependencies:
       cli-spinners: 2.9.2
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      react: 19.2.7
+      ink: 7.0.5(@types/react@19.3.0)(react@19.3.0)
+      react: 19.3.0
 
-  ink-text-input@6.0.0(ink@7.0.5(@types/react@19.2.17)(react@19.2.7))(react@19.2.7):
+  ink-text-input@6.0.0(ink@7.0.5(@types/react@19.3.0)(react@19.3.0))(react@19.3.0):
     dependencies:
       chalk: 5.6.2
-      ink: 7.0.5(@types/react@19.2.17)(react@19.2.7)
-      react: 19.2.7
+      ink: 7.0.5(@types/react@19.3.0)(react@19.3.0)
+      react: 19.3.0
       type-fest: 4.41.0
 
-  ink@7.0.5(@types/react@19.2.17)(react@19.2.7):
+  ink@7.0.5(@types/react@19.3.0)(react@19.3.0):
     dependencies:
       '@alcalzone/ansi-tokenize': 0.3.0
       ansi-escapes: 7.3.0
@@ -2460,8 +2460,8 @@ snapshots:
       indent-string: 5.0.0
       is-in-ci: 2.0.0
       patch-console: 2.0.0
-      react: 19.2.7
-      react-reconciler: 0.33.0(react@19.2.7)
+      react: 19.3.0
+      react-reconciler: 0.33.0(react@19.3.0)
       scheduler: 0.27.0
       signal-exit: 3.0.7
       slice-ansi: 9.0.0
@@ -2474,7 +2474,7 @@ snapshots:
       ws: 8.21.0
       yoga-layout: 3.2.1
     optionalDependencies:
-      '@types/react': 19.2.17
+      '@types/react': 19.3.0
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2713,7 +2713,7 @@ snapshots:
     dependencies:
       fast-diff: 1.3.0
 
-  prettier@3.8.3: {}
+  prettier@3.9.9: {}
 
   pretty-ms@9.3.0:
     dependencies:
@@ -2723,12 +2723,12 @@ snapshots:
 
   quansync@0.2.11: {}
 
-  react-reconciler@0.33.0(react@19.2.7):
+  react-reconciler@0.33.0(react@19.3.0):
     dependencies:
-      react: 19.2.7
+      react: 19.3.0
       scheduler: 0.27.0
 
-  react@19.2.7: {}
+  react@19.3.0: {}
 
   restore-cursor@4.0.0:
     dependencies:
@@ -2866,7 +2866,7 @@ snapshots:
 
   unicorn-magic@0.3.0: {}
 
-  unplugin-dts@1.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0)):
+  unplugin-dts@1.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1)):
     dependencies:
       '@rollup/pluginutils': 5.4.0
       '@volar/typescript': 2.4.28
@@ -2879,7 +2879,7 @@ snapshots:
       unplugin: 2.3.11
     optionalDependencies:
       rolldown: 1.1.5
-      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.0)
+      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.1)
     transitivePeerDependencies:
       - supports-color
 
@@ -2894,11 +2894,11 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  vite-plugin-dts@5.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0)):
+  vite-plugin-dts@5.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1)):
     dependencies:
-      unplugin-dts: 1.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0))
+      unplugin-dts: 1.0.3(rolldown@1.1.5)(typescript@6.0.3)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1))
     optionalDependencies:
-      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.0)
+      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.1)
     transitivePeerDependencies:
       - '@rspack/core'
       - '@vue/language-core'
@@ -2908,7 +2908,7 @@ snapshots:
       - typescript
       - webpack
 
-  vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0):
+  vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1):
     dependencies:
       lightningcss: 1.33.0
       picomatch: 4.0.5
@@ -2918,12 +2918,12 @@ snapshots:
     optionalDependencies:
       '@types/node': 25.9.2
       fsevents: 2.3.3
-      yaml: 2.9.0
+      yaml: 2.9.1
 
-  vitest@4.1.10(@types/node@25.9.2)(@vitest/coverage-v8@4.1.10)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0)):
+  vitest@4.1.10(@types/node@25.9.2)(@vitest/coverage-v8@4.1.10)(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1)):
     dependencies:
       '@vitest/expect': 4.1.10
-      '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.0))
+      '@vitest/mocker': 4.1.10(vite@8.1.5(@types/node@25.9.2)(yaml@2.9.1))
       '@vitest/pretty-format': 4.1.10
       '@vitest/runner': 4.1.10
       '@vitest/snapshot': 4.1.10
@@ -2940,7 +2940,7 @@ snapshots:
       tinyexec: 1.2.4
       tinyglobby: 0.2.17
       tinyrainbow: 3.1.0
-      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.0)
+      vite: 8.1.5(@types/node@25.9.2)(yaml@2.9.1)
       why-is-node-running: 2.3.0
     optionalDependencies:
       '@types/node': 25.9.2
@@ -2987,7 +2987,7 @@ snapshots:
 
   ws@8.21.0: {}
 
-  yaml@2.9.0: {}
+  yaml@2.9.1: {}
 
   yocto-queue@0.1.0: {}
 
@@ -2995,4 +2995,4 @@ snapshots:
 
   yoga-layout@3.2.1: {}
 
-  zod@4.4.3: {}
+  zod@4.6.5: {}
